@@ -16,3 +16,11 @@ def editConcert(request):
 
 def searchConcert(request):
     return render(request, "concerts/searchConcert.html")
+
+
+def concertDetail(request):
+    return render(request, "concerts/concertDetail.html")
+
+
+def recommendationConcert(request):
+    return render(request, "concerts/recommendationConcert.html")

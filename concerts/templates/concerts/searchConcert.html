@@ -1,34 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit concerts</title>
-    <style>
-        body {
-            background: black;
-            color: white;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        h1 { color: white; }
-        a {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-        }
-        a:hover { text-decoration: underline; }
-    </style>
+    <title>Search Concerts</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <navar class="navbar navbar-expand-lg navbar-light bg-black"></navbar>
-    </navar>
-    <div class="container mt-4"></div>
-    <h1>Search concerts</h1>
-    <a href="/">Back to Home</a>
-    <div class="mt-4">
+
+<body class="bg-black text-white p-4">
+    <div class="container mt-4">
+        <h1 class="mb-4">Search Concerts</h1>
+
+        <nav class="mb-4">
+            <a href="{% url 'concerts:index' %}" class="btn btn-outline-light me-2">← Back to Concerts</a>
+            <a href="{% url 'homepage' %}" class="btn btn-outline-light">Back to Home</a>
+        </nav>
+
+        <div class="card bg-dark text-white mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Search Filters</h2>
+                <form method="get" action="#">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Concert Name</label>
+                        <input type="text" class="form-control bg-dark text-white" id="name" name="name"
+                            placeholder="Search by concert name">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="genre" class="form-label">Genre</label>
+                        <select class="form-select bg-dark text-white" id="genre" name="genre">
+                            <option value="">All Genres</option>
+                            <option value="rock">Rock</option>
+                            <option value="pop">Pop</option>
+                            <option value="jazz">Jazz</option>
+                            <option value="classical">Classical</option>
+                            <option value="electronic">Electronic</option>
+                            <option value="hip_hop">Hip Hop</option>
+                            <option value="country">Country</option>
+                            <option value="blues">Blues</option>
+                            <option value="folk">Folk</option>
+                            <option value="metal">Metal</option>
+                            <option value="reggae">Reggae</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="start_date_from" class="form-label">From Date</label>
+                        <input type="datetime-local" class="form-control bg-dark text-white" id="start_date_from"
+                            name="start_date_from">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="start_date_to" class="form-label">To Date</label>
+                        <input type="datetime-local" class="form-control bg-dark text-white" id="start_date_to"
+                            name="start_date_to">
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_cancelled" name="is_cancelled">
+                        <label class="form-check-label" for="is_cancelled">Include cancelled concerts</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+            </div>
+        </div>
+
+        <h2 class="mb-3">Search Results (3 found)</h2>
+
+        <div class="card bg-dark text-white mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Rock Festival 2024</h5>
+                <p class="card-text"><strong>Start:</strong> Dec 15, 2024 19:00</p>
+                <p class="card-text"><strong>End:</strong> Dec 15, 2024 23:00</p>
+                <p class="card-text"><strong>Genre:</strong> Rock</p>
+                <p class="card-text"><strong>Tickets:</strong> 500</p>
+                <p class="card-text"><strong>Score:</strong> 8.5/10</p>
+                <a href="{% url 'concerts:concertDetail' %}" class="btn btn-primary me-2">View Details</a>
+                <a href="{% url 'concerts:editConcert' %}" class="btn btn-secondary">Edit</a>
+            </div>
+        </div>
+
+        <div class="card bg-dark text-white mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Jazz Night</h5>
+                <p class="card-text"><strong>Start:</strong> Dec 20, 2024 20:00</p>
+                <p class="card-text"><strong>End:</strong> Dec 20, 2024 22:30</p>
+                <p class="card-text"><strong>Genre:</strong> Jazz</p>
+                <p class="card-text"><strong>Tickets:</strong> 200</p>
+                <p class="card-text"><strong>Score:</strong> 9.2/10</p>
+                <a href="{% url 'concerts:concertDetail' %}" class="btn btn-primary me-2">View Details</a>
+                <a href="{% url 'concerts:editConcert' %}" class="btn btn-secondary">Edit</a>
+            </div>
+        </div>
+
+        <div class="card bg-dark text-white mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Electronic Music Show</h5>
+                <p class="card-text"><strong>Start:</strong> Dec 25, 2024 21:00</p>
+                <p class="card-text"><strong>End:</strong> Dec 26, 2024 02:00</p>
+                <p class="card-text"><strong>Genre:</strong> Electronic</p>
+                <p class="card-text"><strong>Tickets:</strong> 1000</p>
+                <p class="card-text"><strong>Score:</strong> 7.8/10</p>
+                <p class="card-text"><strong>Status:</strong> Private</p>
+                <a href="{% url 'concerts:concertDetail' %}" class="btn btn-primary me-2">View Details</a>
+                <a href="{% url 'concerts:editConcert' %}" class="btn btn-secondary">Edit</a>
+            </div>
+        </div>
     </div>
 </body>
+
 </html>

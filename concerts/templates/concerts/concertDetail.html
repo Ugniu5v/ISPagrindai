@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Concert Details - Rock Festival 2024</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-black text-white p-4">
+  <div class="container mt-4">
+    <h1 class="mb-4">Rock Festival 2024</h1>
+
+    <nav class="mb-4">
+      <a href="{% url 'concerts:index' %}" class="btn btn-outline-light me-2">← Back to Concerts</a>
+      <a href="{% url 'homepage' %}" class="btn btn-outline-light">Back to Home</a>
+    </nav>
+
+
+    <div class="card bg-dark text-white mb-4">
+      <div class="card-body">
+        <h5 class="card-title mb-4">Concert Information</h5>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <strong>Start Date & Time:</strong><br>
+            <span class="text-light">December 15, 2024 at 7:00 PM</span>
+          </div>
+          <div class="col-md-6 mb-3">
+            <strong>End Date & Time:</strong><br>
+            <span class="text-light">December 15, 2024 at 11:00 PM</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <strong>Genre:</strong><br>
+            <span class="text-light">Rock</span>
+          </div>
+          <div class="col-md-6 mb-3">
+            <strong>Maximum Tickets:</strong><br>
+            <span class="text-light">500 tickets available</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <strong>Recommendation Score:</strong><br>
+            <span class="text-success">8.5/10</span>
+          </div>
+          <div class="col-md-6 mb-3">
+            <strong>Ticket URL:</strong><br>
+            <a href="https://example.com/tickets" target="_blank" class="text-primary">https://example.com/tickets</a>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <strong>Description:</strong><br>
+          <span class="text-light">Amazing rock festival featuring top artists from around the world. Join us for an
+            unforgettable night of music and entertainment.</span>
+        </div>
+
+        <hr class="my-3">
+
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Created:</strong><br>
+            <span class="text-muted">Nov 15, 2024 10:30</span>
+          </div>
+          <div class="col-md-6">
+            <strong>Last Updated:</strong><br>
+            <span class="text-muted">Nov 20, 2024 14:45</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <a href="{% url 'concerts:editConcert' %}" class="btn btn-primary">Edit Concert</a>
+    </div>
+  </div>
+</body>
+
+</html>
