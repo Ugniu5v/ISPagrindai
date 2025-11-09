@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlist Details - ISPagrindai</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body class="bg-black text-white p-4">
+    <div class="container mt-4">
+        <h1 class="mb-4">Playlist Details</h1>
+
+        <nav class="mb-4">
+            <a href="{% url 'playlists:index' %}" class="btn btn-outline-light me-2">Back to Playlists</a>
+            <a href="{% url 'homepage' %}" class="btn btn-outline-light">Home</a>
+        </nav>
+
+        {% if playlist %}
+        <div class="card bg-dark text-white p-4 shadow-lg">
+            <h3>{{ playlist.title }}</h3>
+            <p><strong>Genre:</strong> {{ playlist.genre }}</p>
+            <p><strong>Description:</strong> {{ playlist.description }}</p>
+            <p><strong>Number of Songs:</strong> {{ playlist.songs }}</p>
+            <p><strong>Visibility:</strong> {{ playlist.visibility }}</p>
+            <p><strong>Created:</strong> {{ playlist.created }}</p>
+
+            <div class="mt-4">
+                <a href="{% url 'playlists:editPlaylist' playlist.id %}" class="btn btn-secondary me-2">Edit</a>
+                <a href="{% url 'playlists:index' %}" class="btn btn-outline-light">Back to All</a>
+            </div>
+        </div>
+        {% else %}
+        <p>No playlist data found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
