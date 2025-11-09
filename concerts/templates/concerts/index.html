@@ -18,13 +18,70 @@
         </nav>
 
         <div class="mb-4">
-            <div class="card bg-dark text-white">
+            <div class="card bg-dark text-white mb-3">
                 <div class="card-body">
                     <h5 class="card-title mb-3">Search Concerts</h5>
                     <div class="input-group">
                         <input type="text" class="form-control form-control-lg bg-black text-white"
                             placeholder="Search by concert name...">
                         <button class="btn btn-primary" type="button">Search</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Filters</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="filterGenre" class="form-label">Genre</label>
+                            <select class="form-select bg-black text-white" id="filterGenre" name="genre">
+                                <option value="">All Genres</option>
+                                <option value="rock">Rock</option>
+                                <option value="pop">Pop</option>
+                                <option value="jazz">Jazz</option>
+                                <option value="classical">Classical</option>
+                                <option value="electronic">Electronic</option>
+                                <option value="hip_hop">Hip Hop</option>
+                                <option value="country">Country</option>
+                                <option value="blues">Blues</option>
+                                <option value="folk">Folk</option>
+                                <option value="metal">Metal</option>
+                                <option value="reggae">Reggae</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="filterStatus" class="form-label">Status</label>
+                            <select class="form-select bg-black text-white" id="filterStatus" name="status">
+                                <option value="">All Status</option>
+                                <option value="public">Public</option>
+                                <option value="private">Private</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="filterDate" class="form-label">Date Range</label>
+                            <select class="form-select bg-black text-white" id="filterDate" name="date">
+                                <option value="">All Dates</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="past">Past</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="filterScore" class="form-label">Min Score</label>
+                            <select class="form-select bg-black text-white" id="filterScore" name="score">
+                                <option value="">All Scores</option>
+                                <option value="9">9+</option>
+                                <option value="8">8+</option>
+                                <option value="7">7+</option>
+                                <option value="6">6+</option>
+                                <option value="5">5+</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
