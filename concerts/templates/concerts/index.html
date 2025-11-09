@@ -14,57 +14,23 @@
 
         <nav class="mb-4">
             <a href="{% url 'concerts:createConcert' %}" class="btn btn-outline-light me-2">Create Concert</a>
-            <a href="{% url 'concerts:searchConcert' %}" class="btn btn-outline-light me-2">Search Concerts</a>
             <a href="{% url 'homepage' %}" class="btn btn-outline-light">Back to Home</a>
         </nav>
 
         <div class="mb-4">
-            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel"
-                aria-expanded="false" aria-controls="filterPanel">
-                Filters
-            </button>
-            <div class="collapse mt-3" id="filterPanel">
-                <div class="card card-body bg-dark text-white">
-                    <form id="filterForm" class="row g-3">
-                        <div class="col-md-4">
-                            <label for="filterTitle" class="form-label">Title contains</label>
-                            <input type="text" id="filterTitle" class="form-control form-control-sm bg-black text-white"
-                                placeholder="e.g. Rock">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="filterGenre" class="form-label">Genre</label>
-                            <select id="filterGenre" class="form-select form-select-sm bg-black text-white">
-                                <option value="">Any</option>
-                                <option>Rock</option>
-                                <option>Jazz</option>
-                                <option>Electronic</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="filterMinScore" class="form-label">Min. score</label>
-                            <input type="number" step="0.1" min="0" max="10" id="filterMinScore"
-                                class="form-control form-control-sm bg-black text-white" placeholder="e.g. 8.0">
-                        </div>
-                        <div class="col-md-2">
-                            <label for="filterStatus" class="form-label">Status</label>
-                            <select id="filterStatus" class="form-select form-select-sm bg-black text-white">
-                                <option value="">Any</option>
-                                <option>Public</option>
-                                <option>Private</option>
-                            </select>
-                        </div>
-                        <div class="col-12 d-flex gap-2">
-                            <button type="submit" class="btn btn-success btn-sm">Apply</button>
-                            <button type="button" id="clearFilters" class="btn btn-secondary btn-sm">Clear</button>
-                        </div>
-                    </form>
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Search Concerts</h5>
+                    <div class="input-group">
+                        <input type="text" class="form-control form-control-lg bg-black text-white"
+                            placeholder="Search by concert name...">
+                        <button class="btn btn-primary" type="button">Search</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Sample concert data - replace with your SQL data -->
-        <div class="card bg-dark text-white mb-3 concert-card" data-title="Rock Festival 2024" data-genre="Rock"
-            data-score="8.5" data-status="Public">
+        <div class="card bg-dark text-white mb-3">
             <div class="card-body">
                 <h5 class="card-title">Rock Festival 2024</h5>
                 <p class="card-text"><strong>Start:</strong> Dec 15, 2024 19:00</p>
@@ -77,8 +43,7 @@
             </div>
         </div>
 
-        <div class="card bg-dark text-white mb-3 concert-card" data-title="Jazz Night" data-genre="Jazz"
-            data-score="9.2" data-status="Public">
+        <div class="card bg-dark text-white mb-3">
             <div class="card-body">
                 <h5 class="card-title">Jazz Night</h5>
                 <p class="card-text"><strong>Start:</strong> Dec 20, 2024 20:00</p>
@@ -91,8 +56,7 @@
             </div>
         </div>
 
-        <div class="card bg-dark text-white mb-3 concert-card" data-title="Electronic Music Show"
-            data-genre="Electronic" data-score="7.8" data-status="Private">
+        <div class="card bg-dark text-white mb-3">
             <div class="card-body">
                 <h5 class="card-title">Electronic Music Show</h5>
                 <p class="card-text"><strong>Start:</strong> Dec 25, 2024 21:00</p>
@@ -106,51 +70,6 @@
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        (function () {
-            const form = document.getElementById('filterForm');
-            const clearBtn = document.getElementById('clearFilters');
-            const cards = Array.from(document.querySelectorAll('.concert-card'));
-
-            function normalize(value) {
-                return String(value || '').trim().toLowerCase();
-            }
-
-            function applyFilters(event) {
-                if (event) event.preventDefault();
-                const title = normalize(document.getElementById('filterTitle').value);
-                const genre = normalize(document.getElementById('filterGenre').value);
-                const minScoreRaw = document.getElementById('filterMinScore').value;
-                const minScore = minScoreRaw === '' ? null : parseFloat(minScoreRaw);
-                const status = normalize(document.getElementById('filterStatus').value);
-
-                cards.forEach(card => {
-                    const cTitle = normalize(card.getAttribute('data-title'));
-                    const cGenre = normalize(card.getAttribute('data-genre'));
-                    const cStatus = normalize(card.getAttribute('data-status'));
-                    const cScore = parseFloat(card.getAttribute('data-score') || '0');
-
-                    let visible = true;
-                    if (title && !cTitle.includes(title)) visible = false;
-                    if (genre && cGenre !== genre) visible = false;
-                    if (status && cStatus !== status) visible = false;
-                    if (minScore !== null && !(cScore >= minScore)) visible = false;
-
-                    card.style.display = visible ? '' : 'none';
-                });
-            }
-
-            function clearFilters() {
-                form.reset();
-                cards.forEach(card => { card.style.display = ''; });
-            }
-
-            form.addEventListener('submit', applyFilters);
-            form.addEventListener('input', applyFilters);
-            clearBtn.addEventListener('click', clearFilters);
-        })();
-    </script>
 </body>
 
 </html>
