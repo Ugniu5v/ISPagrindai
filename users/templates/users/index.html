@@ -33,12 +33,18 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a class="nav-link" href="/">Pagrindinis</a>
+              <a class="nav-link" href="{% url 'homepage' %}">Pagrindinis</a>
             </li>
-            <li class="nav-item"><a class="nav-link" href="/music/">Dainos</a></li>
-            <li class="nav-item"><a class="nav-link" href="/playlists/">Grojaraščiai</a></li>
-            <li class="nav-item"><a class="nav-link" href="/concerts/">Koncertai</a></li>
-            <li class="nav-item"><a class="nav-link active" href="/users/">Naudotojai</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'music:index' %}">Dainos</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'playlists:index' %}/">Grojaraščiai</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'concerts:index' %}">Koncertai</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="{% url 'users:index' %}">Naudotojai</a>
+            </li>
             <li class="nav-item">
               <a class="nav-link" href="#"><i class="bi bi-person-circle"></i></a>
             </li>
@@ -52,56 +58,18 @@
         <div class="container my-5">
           <h2 class="mb-4 fw-semibold">Naudotojai</h2>
           <div class="row row-cols-auto g-4">
-            <div class="user-card">
+            {% for user in users %}
+            <a class="user-card" href="{% url 'users:userDetail' user.id %}">
               <img
                 height="180"
                 width="180"
-                src="https://picsum.photos/300?random=2"
+                src="{{ user.image_url }}"
                 class="rounded-circle shadow-sm"
                 alt="user profile picture"
               />
-              <h6 class="card-title mt-1 mb-1">Gytis Kaulakis</h6>
-            </div>
-            <div class="user-card">
-              <img
-                height="180"
-                width="180"
-                src="https://picsum.photos/300?random=3"
-                class="rounded-circle shadow-sm"
-                alt="user profile picture"
-              />
-              <h6 class="card-title mt-1 mb-1">Ramūnas Vengrauskas</h6>
-            </div>
-            <div class="user-card">
-              <img
-                height="180"
-                width="180"
-                src="https://picsum.photos/300?random=4"
-                class="rounded-circle shadow-sm"
-                alt="user profile picture"
-              />
-              <h6 class="card-title mt-1 mb-1">Ignas Nakčeris</h6>
-            </div>
-            <div class="user-card">
-              <img
-                height="180"
-                width="180"
-                src="https://picsum.photos/300?random=5"
-                class="rounded-circle shadow-sm"
-                alt="user profile picture"
-              />
-              <h6 class="card-title mt-1 mb-1">Ugnius Varžukas</h6>
-            </div>
-            <div class="user-card">
-              <img
-                height="180"
-                width="180"
-                src="https://picsum.photos/300?random=6"
-                class="rounded-circle shadow-sm"
-                alt="user profile picture"
-              />
-              <h6 class="card-title mt-1 mb-1">Cool dainininkas</h6>
-            </div>
+              <h6 class="card-title mt-1 mb-1">{{ user.name }}</h6>
+            </a>
+            {% endfor %}
           </div>
         </div>
       </main>

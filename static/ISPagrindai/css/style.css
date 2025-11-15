@@ -1,9 +1,6 @@
 :root {
   height: 100%;
   color-scheme: light dark;
-  --bg-color: #f8f9fa;
-  --text-color: #212529;
-  --card-bg: #fff;
   --nav-bg: #212529;
   --footer-bg: #212529;
 }
@@ -19,26 +16,16 @@
 }
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
   transition: background-color 0.3s, color 0.3s;
-  height: 100%;
-  overscroll-behavior-y: none;
-  overflow: hidden;
-  scrollbar-width: none;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  color: var(--bs-emphasis-color);
 }
 
 .navbar,
 footer {
   background-color: var(--nav-bg) !important;
-}
-
-.card {
-  background-color: var(--card-bg);
-  color: var(--text-color);
-  border: none;
 }
 
 .hero {
@@ -48,17 +35,17 @@ footer {
   text-align: center;
 }
 
-.card img {
+/* .card img {
   height: 180px;
   object-fit: cover;
-}
+} */
 
 :popover-open {
   position: absolute;
   top: auto;
   border: none;
   width: 100%;
-  background-color: var(--card-bg);
+  background-color: var(--bs-secondary-bg);
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   padding: 10px 20px;
   display: flex;
@@ -101,22 +88,27 @@ audio::-webkit-media-controls-enclosure {
 .song-card,
 .playlist-card,
 .user-card {
+  color: inherit;
   padding: 1rem;
   border-radius: 1rem;
   display: block;
 
   text-decoration: none;
   &:is(:hover) {
-    background-color: var(--card-bg);
+    background-color: var(--bs-secondary-bg);
   }
 
   & img {
-    box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.2);
+    background-color: var(--bs-secondary-bg);
   }
 
-  & h6 {
-    color: var(--text-color);
+  &:not(:hover) img {
+    box-shadow: 0 0 20px 5px rgb(0 0 0 / 15%);
   }
+
+  /* & h6 {
+    color: var(--text-color);
+  } */
 
   & h6,
   p {
@@ -128,6 +120,15 @@ audio::-webkit-media-controls-enclosure {
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+}
+
+.concert-card {
+  width: 18rem;
+  text-decoration: none;
+
+  &:is(:hover) {
+    background-color: var(--bs-secondary-bg);
   }
 }
 
