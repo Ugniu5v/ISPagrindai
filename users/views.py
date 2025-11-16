@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from datetime import date
+from django.contrib.auth import logout
 
 # -------------------------------
 # MOCK DATA (vietoj tikrų modelių)
@@ -108,7 +109,13 @@ MOCK_USERS = [
 
 # Create your views here.
 def index(request):
-    return render(request, "users/index.html", {"users": MOCK_USERS})
+
+    context = {
+        "request": request,
+        "users": MOCK_USERS,
+    }
+
+    return render(request, "users/index.html", context)
 
 
 def createUser(request):
@@ -123,6 +130,7 @@ def userDetail(request, user_id):
     user = next((user for user in MOCK_USERS if user["id"] == user_id), None)
 
     context = {
+        "request": request,
         "user": user,
         "music": MOCK_MUSIC,
         "playlists": MOCK_PLAYLISTS,
@@ -130,3 +138,8 @@ def userDetail(request, user_id):
     }
 
     return render(request, "users/userDetail.html", context)
+
+
+def logoutUser(request):
+    logout(request)
+    return redirect("homepage")

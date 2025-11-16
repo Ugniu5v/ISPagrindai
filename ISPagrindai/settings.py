@@ -41,6 +41,14 @@ INSTALLED_APPS = [
     "music",
     "playlists",
     "concerts",
+    "django_otp",
+    "django_otp.plugins.otp_static",
+    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_email",  # <- for email capability.
+    "two_factor",
+    "two_factor.plugins.phonenumber",  # <- for phone number capability.
+    "two_factor.plugins.email",  # <- for email capability.
+    "two_factor.plugins.webauthn",
 ]
 
 MIDDLEWARE = [
@@ -49,9 +57,15 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+LOGIN_URL = "two_factor:login"
+
+# this one is optional
+LOGIN_REDIRECT_URL = "two_factor:profile"
 
 ROOT_URLCONF = "ISPagrindai.urls"
 
@@ -133,3 +147,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Jei bus hostinama tai atkomentuot
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+TWO_FACTOR_WEBAUTHN_RP_NAME = "http://localhost:8000"

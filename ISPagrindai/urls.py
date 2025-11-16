@@ -18,6 +18,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from two_factor.urls import urlpatterns as tf_urls
+
 
 urlpatterns = [
     path("", views.homepage, name="homepage"),
@@ -26,4 +28,5 @@ urlpatterns = [
     path("music/", include("music.urls")),
     path("playlists/", include("playlists.urls")),
     path("concerts/", include("concerts.urls")),
+    path("", include(tf_urls)),
 ]

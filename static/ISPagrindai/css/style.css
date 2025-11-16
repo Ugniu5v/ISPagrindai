@@ -1,11 +1,11 @@
 :root {
   height: 100%;
-  color-scheme: light dark;
-  --nav-bg: #212529;
-  --footer-bg: #212529;
+  /* color-scheme: light dark; */
+  --nav-bg: #39444e;
+  --footer-bg: #5c6d7c;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --bg-color: #121212;
     --text-color: #f8f9fa;
@@ -13,6 +13,11 @@
     --nav-bg: #000;
     --footer-bg: #000;
   }
+} */
+
+[data-bs-theme=dark] {
+  --nav-bg: #02090f;
+  --footer-bg: #02090f;
 }
 
 body {
@@ -25,7 +30,7 @@ body {
 
 .navbar,
 footer {
-  background-color: var(--nav-bg) !important;
+  background-color: var(--footer-bg) !important;
 }
 
 .hero {

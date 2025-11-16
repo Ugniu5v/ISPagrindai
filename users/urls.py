@@ -8,4 +8,5 @@ urlpatterns = [
     # path("create/", views.createUser, name="createConcert"),
     # path("edit/", views.editUser, name="editConcert"),
     path("detail/<int:user_id>", views.userDetail, name="userDetail"),
+    path("logout/", views.logoutUser, name="userLogout"),
 ]
