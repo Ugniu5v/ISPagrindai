@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Similar Songs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-black text-white p-4">
+    <div class="container mt-4">
+        <h1 class="mb-4">Similar Songs</h1>
+
+        <nav class="mb-4">
+            <a href="{% url 'music:index' %}" class="btn btn-outline-light me-2">Back to Music</a>
+        </nav>
+
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <p class="mb-3">Here are some songs we think are similar based on genre and mood:</p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-dark text-white d-flex justify-content-between">
+                        <span>Midnight Drive</span>
+                        <span class="text-secondary small">Electronic · 3.45 min</span>
+                    </li>
+                    <li class="list-group-item bg-dark text-white d-flex justify-content-between">
+                        <span>Echoes in Stone</span>
+                        <span class="text-secondary small">Rock · 4.22 min</span>
+                    </li>
+                    <li class="list-group-item bg-dark text-white d-flex justify-content-between">
+                        <span>Sunrise Run</span>
+                        <span class="text-secondary small">Pop · 2.58 min</span>
+                    </li>
+                    <li class="list-group-item bg-dark text-white d-flex justify-content-between">
+                        <span>Autumn Leaves</span>
+                        <span class="text-secondary small">Jazz · 5.10 min</span>
+                    </li>
+                    <li class="list-group-item bg-dark text-white d-flex justify-content-between">
+                        <span>Calm Waters</span>
+                        <span class="text-secondary small">Classical · 6.05 min</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
