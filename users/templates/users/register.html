@@ -1,0 +1,10 @@
+{% extends "_base.html" %}
+{% block title %}Registracija • Muzikos sistema{% endblock %}
+{% block content %}
+<h2>Registracija</h2>
+<form class="form-with-validation" action="{% url "users:userRegister" %}" method="post" >
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit" class="form-submit">Registruotis</button>
+</form>
+{% endblock%}

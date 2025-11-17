@@ -2,3 +2,4 @@ asgiref==3.9.1
 Django==5.2.6
 sqlparse==0.5.3
 django-two-factor-auth[phonenumbers, webauthn]==1.18.1
+Pillow==12.0.0

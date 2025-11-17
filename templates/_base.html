@@ -22,6 +22,8 @@
       crossorigin="anonymous"
     ></script>
 
+    <script type="text/javascript" src="{% static "ISPagrindai/javascript/theme.js" %}"></script>
+
     <link rel="stylesheet" href="{% static 'ISPagrindai/css/style.css' %}" />
   </head>
   <body>
@@ -62,10 +64,11 @@
                   <li><a class="dropdown-item" href="{% url 'users:userLogout' %}">Atsijungti</a></li>
                 {% else %}
                   <li><a class="dropdown-item" href="/account/login">Prisijungti</a></li>
-                  <li><a class="dropdown-item" href="/account/register}">Registruotis</a></li>
+                  <li><a class="dropdown-item" href="{% url 'users:userRegister' %}">Registruotis</a></li>
                 {% endif %}
               </ul>
             </li>
+            <li class="nav-item" style="align-content: center">{% include 'theme-toggle.html' %}</li>
           </ul>
         </div>
       </div>
@@ -83,7 +86,7 @@
 
       <footer class="text-white text-center py-4 mt-5">
         <p class="mb-0">2025 • Kaunas</p>
-        <small class="text-secondary">Informacinių sistemų pagrindai</small>
+        <small>Informacinių sistemų pagrindai</small>
       </footer>
     </div>
     <div id="music-player" class="music-player" popover="manual">
