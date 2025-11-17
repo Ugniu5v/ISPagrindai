@@ -1,0 +1,93 @@
+{% extends "two_factor/_base_focus.html" %}
+{% load i18n %}
+
+{% block extra_media %}
+  {{ form.media }}
+{% endblock %}
+
+{% block content %}
+  <h1>{% block title %}{% trans "Įjungti dviejų faktorių autentifikavimą" %}{% endblock %}</h1>
+
+  {% if wizard.steps.current == 'welcome' %}
+    <p>{% blocktrans trimmed %}
+        Jūs netrukus pakelsite savo paskyros saugumą į aukštesnį lygį.
+        Vadovaukitės šio vedlio žingsniais, kad įjungtumėte dviejų faktorių
+        autentifikavimą.
+    {% endblocktrans %}</p>
+
+  {% elif wizard.steps.current == 'method' %}
+    <p>{% blocktrans trimmed %}
+        Pasirinkite, kurį autentifikavimo metodą norite naudoti.
+    {% endblocktrans %}</p>
+
+  {% elif wizard.steps.current == 'generator' %}
+    <p>{% blocktrans trimmed %}
+        Norėdami pradėti naudoti kodų generatorių, nuskenuokite žemiau esantį
+        QR kodą savo telefonu. Pavyzdžiui, galite naudoti Google Authenticator.
+    {% endblocktrans %}</p>
+
+    <p><img src="{{ QR_URL }}" alt="QR kodas" class="bg-white"/></p>
+
+    <p>{% blocktrans trimmed %}
+        Arba galite naudoti šią slaptą eilutę, kad rankiniu būdu nustatytumėte
+        TOTP savo autentifikavimo programėlėje arba slaptažodžių tvarkyklėje.
+    {% endblocktrans %}</p>
+
+    <p>{% translate "TOTP slaptas raktas:" %} <a href="{{ otpauth_url }}">{{ secret_key }}</a></p>
+
+    <p>{% blocktrans %}
+        Tuomet įveskite programėlės sugeneruotą kodą.
+    {% endblocktrans %}</p>
+
+  {% elif wizard.steps.current == 'sms' %}
+    <p>{% blocktrans trimmed %}
+        Įveskite telefono numerį, į kurį norite gauti SMS žinutes.
+        Šis numeris bus patikrintas kitame žingsnyje.
+    {% endblocktrans %}</p>
+
+  {% elif wizard.steps.current == 'call' %}
+    <p>{% blocktrans trimmed %}
+        Įveskite telefono numerį, kuriuo norite gauti skambučius.
+        Šis numeris bus patikrintas kitame žingsnyje.
+    {% endblocktrans %}</p>
+
+  {% elif wizard.steps.current == 'validation' %}
+
+    {% if challenge_succeeded %}
+
+      {% if device.method == 'call' %}
+        <p>{% blocktrans trimmed %}
+            Šiuo metu mes skambiname į jūsų telefoną — įveskite girdimus skaitmenis.
+        {% endblocktrans %}</p>
+
+      {% elif device.method == 'sms' %}
+        <p>{% blocktrans trimmed %}
+            Išsiuntėme jums SMS žinutę — įveskite joje gautą kodą.
+        {% endblocktrans %}</p>
+      {% endif %}
+
+    {% else %}
+      <p class="alert alert-warning" role="alert">{% blocktrans trimmed %}
+          Iškilo problema su pasirinktu autentifikavimo metodu.
+          Grįžkite atgal ir įsitikinkite, kad informacija suvestą teisingai,
+          bandykite dar kartą arba pasirinkite kitą autentifikavimo metodą.
+          Jei problema išlieka — susisiekite su svetainės administratoriumi.
+      {% endblocktrans %}</p>
+    {% endif %}
+
+  {% elif wizard.steps.current == 'yubikey' %}
+    <p>{% blocktrans trimmed %}
+        Norėdami atpažinti ir patvirtinti savo YubiKey, įveskite žemiau
+        sugeneruotą raktą. Jūsų YubiKey bus susietas su paskyra.
+    {% endblocktrans %}</p>
+  {% endif %}
+
+  <form action="" method="post">{% csrf_token %}
+    {% include "two_factor/_wizard_forms.html" %}
+
+    <!-- Paslėptas submit mygtukas, kad veiktų Enter klavišas -->
+    <input type="submit" value="" hidden />
+
+    {% include "two_factor/_wizard_actions.html" %}
+  </form>
+{% endblock %}

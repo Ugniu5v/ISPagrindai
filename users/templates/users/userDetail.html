@@ -1,0 +1,104 @@
+{% extends "_base.html" %}
+{% block title %}Muzikos sistema • {{ user.name }}{% endblock %}
+{% block content %}
+  <!-- User Header -->
+  <div class="card shadow-sm mb-4 bg-body-tertiary">
+    <div class="card-body d-flex align-items-center">
+      <img
+        src="{{ user.image_url }}"
+        class="rounded-circle me-3"
+        width="180"
+        height="180"
+        alt="profile"
+      />
+      <div>
+        <h3 class="mb-1 text-body-emphasis">{{ user.name }}</h3>
+        <p class="text-muted mb-0">{{ user.fallower_count }} sekėjai • {{ user.email }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-start">
+    <h2 class="mb-4 fw-semibold">Populiarios dainos</h2>
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'music:createSong' %}" class="btn btn-outline-light me-2">
+      Įkelti dainą
+    </a>
+    {% endif %}
+  </div>
+  <div class="row row-cols-auto g-4 mb-5">
+    {% if music %} {% for song in music %}
+    <a class="song-card" href="#">
+      <img
+        height="180"
+        width="180"
+        src="{{ song.cover_url }}"
+        class="rounded-2"
+        alt="song cover"
+      />
+      <h6 class="card-title mt-1 mb-1">{{ song.title }}</h6>
+      <p class="text-muted small mb-2">{{ song.genre }}</p>
+    </a>
+    {% endfor %} {% else %}
+    <p class="text-muted">Naudotojas dar nėra įkėlęs dainų.</p>
+    {% endif %}
+  </div>
+
+  <div class="d-flex justify-content-between align-items-start">
+    <h2 class="mb-4 fw-semibold">Grojaraščiai</h2>
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'playlists:createPlaylist' %}" class="btn btn-outline-light me-2">
+      Sukurti Grojaraštį
+    </a>
+    {% endif %}
+  </div>
+  <div class="row row-cols-auto g-4 mb-5">
+    {% if playlists %} {% for playlist in playlists %}
+    <a class="playlist-card" href="{% url 'playlists:playlistDetail' playlist.id %}">
+      <img
+        height="180"
+        width="180"
+        src="{{ playlist.cover_url }}"
+        class="rounded-2"
+        alt="album cover"
+      />
+      <h6 class="card-title mt-1 mb-1">{{ playlist.title }}</h6>
+      <p class="text-muted small mb-2">{{ playlist.author_names | join:', '}}</p>
+    </a>
+    {% endfor %} {% else %}
+    <p class="text-muted">Grojaraščių nėra.</p>
+    {% endif %}
+  </div>
+  
+  <div class="d-flex justify-content-between align-items-start">
+    <h2 class="mb-4 fw-semibold">Būsimi Koncertai</h2>
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'concerts:createConcert' %}" class="btn btn-outline-light me-2">
+      Skelbti Koncertą
+    </a>
+    {% endif %}
+  </div>
+  <div class="row row-cols-auto g-4 mb-5">
+    {% if concerts %} {% for concert in concerts %}
+    <a class="card concert-card px-0 mx-3" href="{% url 'concerts:concertDetail' %}">
+      <img
+        src="{{ concert.cover_url }}"
+        height="180"
+        width="320"
+        class="card-img-top"
+        alt="Concert cover"
+      />
+      <div class="card-body">
+        <small
+          >{{ concert.start_date }} • {{ concert.place.title }} ({{ concert.place.city}})</small
+        >
+        <h5 class="card-title">{{ concert.title }}</h5>
+        <small style="font-size: small" class="text-muted">
+          Susidomėjo: {{ concert.interested_count }} · Dalyvaus: {{ concert.going_count }}</small>
+      </div>
+    </a>
+    {% endfor %} {% else %}
+    <p class="text-muted">Nėra koncertų.</p>
+    {% endif %}
+  </div>
+{% endblock %}
