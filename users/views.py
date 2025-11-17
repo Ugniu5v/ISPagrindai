@@ -1,7 +1,5 @@
 from django.shortcuts import render, redirect
 from datetime import date
-from django.contrib.auth import logout
-from django.contrib.auth.forms import UserCreationForm
 
 # -------------------------------
 # MOCK DATA (vietoj tikrų modelių)
@@ -119,18 +117,23 @@ def index(request):
     return render(request, "users/index.html", context)
 
 
+def loginUser(request):
+    context = {}
+    return render(request, "users/login.html", context)
+
+
 def registerUser(request):
-    if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("homepage")
-    else:
-        form = UserCreationForm()
+    # if request.method == "POST":
+    #     form = UserCreationForm(request.POST)
+    #     if form.is_valid():
+    #         form.save()
+    #         return redirect("homepage")
+    # else:
+    #     form = UserCreationForm()
 
-    context = {"form": form}
+    # context = {"form": form}
 
-    return render(request, "users/register.html", context)
+    return render(request, "users/register.html")
 
 
 def editUser(request):
@@ -152,5 +155,5 @@ def userDetail(request, user_id):
 
 
 def logoutUser(request):
-    logout(request)
+    # logout(request)
     return redirect("homepage")

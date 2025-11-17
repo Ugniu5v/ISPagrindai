@@ -1,0 +1,17 @@
+{% extends "_base.html" %}
+{% block title %}Prisijungimas • Muzikos sistema{% endblock %}
+{% block content %}
+<form method="post" action="{% url "users:userLogin" %}" name="loginform" class="d-grid gap-3">
+    <div class="form-group">
+        <label for="login_input_username">Naudotojo vardas ar paštas</label>
+        <input id="login_input_username" class="form-control" type="text" name="user_name" required />
+    </div>
+    <div class="form-group">
+        <label for="login_input_password">Slaptažodis</label>
+        <input id="login_input_password" class="form-control" type="password" name="user_password" autocomplete="off" required />
+    </div>
+    <input type="submit" name="login" value="Prisijungti" class="btn btn-primary w-25"/>
+</form>
+
+<a href="{% url "users:userRegister" %}">Registracija</a>
+{% endblock%}

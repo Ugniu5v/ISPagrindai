@@ -31,34 +31,21 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
-    "django.contrib.messages",
     "django.contrib.staticfiles",
     "users",
     "music",
     "playlists",
     "concerts",
-    "django_otp",
-    "django_otp.plugins.otp_static",
-    "django_otp.plugins.otp_totp",
-    "django_otp.plugins.otp_email",  # <- for email capability.
-    "two_factor",
-    "two_factor.plugins.phonenumber",  # <- for phone number capability.
-    "two_factor.plugins.email",  # <- for email capability.
-    "two_factor.plugins.webauthn",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django_otp.middleware.OTPMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -78,7 +65,6 @@ TEMPLATES = [
             "context_processors": [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
@@ -150,6 +136,3 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Jei bus hostinama tai atkomentuot
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-
-TWO_FACTOR_WEBAUTHN_RP_NAME = "http://localhost:8000"

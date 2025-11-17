@@ -9,5 +9,6 @@ urlpatterns = [
     # path("edit/", views.editUser, name="editConcert"),
     path("detail/<int:user_id>", views.userDetail, name="userDetail"),
     path("logout/", views.logoutUser, name="userLogout"),
+    path("login/", views.loginUser, name="userLogin"),
     path("register/", views.registerUser, name="userRegister"),
 ]
