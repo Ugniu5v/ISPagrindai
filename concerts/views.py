@@ -1,4 +1,5 @@
 from django.shortcuts import render
+import requests
 
 
 # Create your views here.
@@ -19,7 +20,12 @@ def searchConcert(request):
 
 
 def concertDetail(request):
-    return render(request, "concerts/concertDetail.html")
+    concert_location = {
+        'lat': 40.7128,
+        'lng': -74.0060,
+        'name': 'Madison Square Garden'
+    }
+    return render(request, "concerts/concertDetail.html", {'location': concert_location})
 
 
 def recommendationConcert(request):

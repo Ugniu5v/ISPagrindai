@@ -8,6 +8,17 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+      #map {
+        height: 400px;
+        width: 100%;
+      }
+    </style>
   </head>
 
   <body class="bg-black text-white p-4">
@@ -91,18 +102,44 @@
               <span class="text-muted">Nov 20, 2025 14:45</span>
             </div>
           </div>
-          <div class="mt-4">
-            <strong class="d-block mb-2">Concert Location</strong>
-            <div class="border border-secondary rounded overflow-hidden">
-              <div id="map" class="bg-success ratio ratio-16x9"></div>
-            </div>
+          <hr class="my-3" />
+
+      {% if location %}
+        {{ location|json_script:"location-data" }}
+          <div>
+            <strong>Location:</strong><br />
+            <div id="map" class="mt-2 rounded"></div>
           </div>
+          <script>
+            window.addEventListener('load', function () {
+              const locationDataEl = document.getElementById('location-data');
+              const locationData = locationDataEl ? JSON.parse(locationDataEl.textContent) : null;
+              const lat = locationData?.lat;
+              const lng = locationData?.lng;
+              const name = locationData?.name;
+
+              const map = L.map('map').setView([lat, lng], 13);
+
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors',
+              }).addTo(map);
+
+              L.marker([lat, lng]).addTo(map).bindPopup(name).openPopup();
+
+            });
+            </script>
+        {% else %}
+          <div>
+            <strong>Location:</strong><br />
+            <span class="text-muted">No location data available</span>
+          </div>
+      {% endif %}
         </div>
       </div>
-
-      <div class="mt-4">
+        <div class="mt-4">
         <a href="{% url 'concerts:editConcert' %}" class="btn btn-primary">Edit Concert</a>
       </div>
-    </div>
-  </body>
+    </div> 
+</body>
 </html>
