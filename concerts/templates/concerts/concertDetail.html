@@ -23,7 +23,7 @@
 
   <body class="bg-black text-white p-4">
     <div class="container mt-4">
-      <h1 class="mb-4">Rock Festival 2025</h1>
+      <h1 class="mb-4">{{ koncertas.pavadinimas }}</h1>
 
       <nav class="mb-4">
         <a href="{% url 'concerts:index' %}" class="btn btn-outline-light me-2"
@@ -38,68 +38,75 @@
 
           <div class="row">
             <div class="col-md-6 mb-3">
-              <strong>Start Date & Time:</strong><br />
-              <span class="text-light">December 15, 2025 at 7:00 PM</span>
+              <strong>Start Date:</strong><br />
+              <span class="text-light">{% if koncertas.pradzios_data %}{{ koncertas.pradzios_data|date:"M d, Y" }}{% else %}Not specified{% endif %}</span>
             </div>
             <div class="col-md-6 mb-3">
-              <strong>End Date & Time:</strong><br />
-              <span class="text-light">December 15, 2025 at 11:00 PM</span>
+              <strong>End Date:</strong><br />
+              <span class="text-light">{% if koncertas.pabaigos_data %}{{ koncertas.pabaigos_data|date:"M d, Y" }}{% else %}Not specified{% endif %}</span>
             </div>
           </div>
 
           <div class="row">
             <div class="col-md-6 mb-3">
               <strong>Genre:</strong><br />
-              <span class="text-light">Rock</span>
+              <span class="text-light">{{ koncertas.get_zanras_display }}</span>
             </div>
             <div class="col-md-6 mb-3">
               <strong>Maximum Tickets:</strong><br />
-              <span class="text-light">500 tickets available</span>
+              <span class="text-light">{{ koncertas.zmoniu_talpa }} tickets available</span>
             </div>
           </div>
 
           <div class="row">
             <div class="col-md-6 mb-3">
               <strong>Recommendation Score:</strong><br />
-              <span class="text-success">8.5/10</span>
+              <span class="text-success">{{ koncertas.rekomendacijos_ivertis|floatformat:1 }}/10</span>
             </div>
+            {% if koncertas.bilietu_url %}
             <div class="col-md-6 mb-3">
               <strong>Ticket URL:</strong><br />
-              <a href="https://example.com/tickets" target="_blank" class="text-primary"
-                >https://example.com/tickets</a
+              <a href="{{ koncertas.bilietu_url }}" target="_blank" class="text-primary"
+                >{{ koncertas.bilietu_url }}</a
               >
             </div>
+            {% endif %}
           </div>
 
+          {% if koncertas.aprasymas %}
           <div class="mb-3">
             <strong>Description:</strong><br />
-            <span class="text-light"
-              >Amazing rock festival featuring top artists from around the world. Join us for an
-              unforgettable night of music and entertainment.</span
-            >
+            <span class="text-light">{{ koncertas.aprasymas }}</span>
           </div>
+          {% endif %}
 
           <hr class="my-3" />
 
+          {% if user.is_authenticated %}
           <div class="mb-3">
             <strong>Attendance Status:</strong><br />
-            <select class="form-select form-select-lg mt-3 w-100 w-md-25">
-              <option value="interested">Interested</option>
-              <option value="not_attending" selected>Not Attending</option>
-              <option value="attending">Attending</option>
-            </select>
+            <form method="post" action="#">
+              {% csrf_token %}
+              <select class="form-select form-select-lg mt-3 w-100 w-md-25" name="dalyvavimo_busena">
+                <option value="domina" {% if dalyvavimo_busena == 'domina' %}selected{% endif %}>Interested</option>
+                <option value="nedalyvauja" {% if not dalyvavimo_busena %}selected{% endif %}>Not Attending</option>
+                <option value="dalyvauja" {% if dalyvavimo_busena == 'dalyvauja' %}selected{% endif %}>Attending</option>
+              </select>
+              <button type="submit" class="btn btn-primary mt-2">Update Status</button>
+            </form>
           </div>
+          {% endif %}
 
           <hr class="my-3" />
 
           <div class="row">
             <div class="col-md-6">
               <strong>Created:</strong><br />
-              <span class="text-muted">Nov 15, 2025 10:30</span>
+              <span class="text-muted">{% if koncertas.sukurimo_data %}{{ koncertas.sukurimo_data|date:"M d, Y" }}{% else %}Not specified{% endif %}</span>
             </div>
             <div class="col-md-6">
               <strong>Last Updated:</strong><br />
-              <span class="text-muted">Nov 20, 2025 14:45</span>
+              <span class="text-muted">{% if koncertas.atnaujinimo_data %}{{ koncertas.atnaujinimo_data|date:"M d, Y" }}{% else %}Not specified{% endif %}</span>
             </div>
           </div>
           <hr class="my-3" />
@@ -138,7 +145,7 @@
         </div>
       </div>
         <div class="mt-4">
-        <a href="{% url 'concerts:editConcert' %}" class="btn btn-primary">Edit Concert</a>
+        <a href="{% url 'concerts:editConcert' pk=koncertas.pk %}" class="btn btn-primary">Edit Concert</a>
       </div>
     </div> 
 </body>
