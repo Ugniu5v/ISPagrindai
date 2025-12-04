@@ -1,28 +1,40 @@
 {% extends "_base.html" %}
 {% block title %}Registracija • Muzikos sistema{% endblock %}
 {% block content %}
+{% if errors %}
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Klaida</h4>
+    <ul class="mb-0">
+    {% for error in errors %}
+        <li>
+            {{error}}
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
 <h3>Registracija</h3>
 <div class="d-flex justify-content-center my-4">
     <form method="post" action="{% url "users:userRegister" %}" name="registerform" class="d-grid gap-3">
 
         <div class="d-flex align-items-sm-center flex-column flex-sm-row gap-2">
             <label for="login_input_username">Naudotojo vardas</label>
-            <input id="login_input_username" class="form-control ms-auto" style="width: 16em" type="text" pattern="[a-zA-ZąčęėįšųūĄČĘĖĮŠŲŪ0-9]{2,64}" name="user_name" required aria-describedby="usernameHelp"/>
+            <input id="login_input_username" value="{{ form.username }}" class="form-control ms-auto" style="width: 16em" type="text" pattern="[a-zA-ZąčęėįšųūĄČĘĖĮŠŲŪ0-9]{2,64}" name="username" required aria-describedby="usernameHelp"/>
         </div>
             
         <div class="d-flex align-items-sm-center flex-column flex-sm-row gap-2">
             <label for="login_input_email">Naudotojo el. paštas</label>
-            <input id="login_input_email" class="form-control ms-auto" style="width: 16em" type="email" name="user_email" required />
+            <input id="login_input_email" value="{{ form.email }}" class="form-control ms-auto" style="width: 16em" type="email" name="email" required />
         </div>
 
         <div class="d-flex align-items-sm-center flex-column flex-sm-row gap-2">
             <label for="login_input_password_new">Slaptažodis</label>
-            <input id="login_input_password_new" class="form-control ms-auto" style="width: 16em" type="password" name="user_password_new" pattern=".{6,}" required autocomplete="off" aria-describedby="passwordHelp"/>
+            <input id="login_input_password_new" value="{{ form.password_new }}" class="form-control ms-auto" style="width: 16em" type="password" name="password_new" pattern=".{6,}" required autocomplete="off" aria-describedby="passwordHelp"/>
         </div>
 
         <div class="d-flex align-items-sm-center flex-column flex-sm-row gap-2">
             <label for="login_input_password_repeat">Pakartoti slaptažodį</label>
-            <input id="login_input_password_repeat" class="form-control ms-auto" style="width: 16em" type="password" name="user_password_repeat" pattern=".{6,}" required autocomplete="off" />
+            <input id="login_input_password_repeat" value="{{ form.password_repeat }}" class="form-control ms-auto" style="width: 16em" type="password" name="password_repeat" pattern=".{6,}" required autocomplete="off" />
         </div>
         
         <input class="btn btn-primary w-50 mx-auto me-sm-0" type="submit" name="register" value="Registruotis" />

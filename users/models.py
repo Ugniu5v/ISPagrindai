@@ -2,11 +2,12 @@ from django.db import models
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 
 
+
+
 class User(models.Model):
     class RoleChoices(models.TextChoices):
         ADMIN = "Admin", "Administratorius"
         REGISTERED = "Registered", "Registruotas naudotojas"
-        GUEST = "Guest", "Naudotojas"
 
     username = models.CharField(
         max_length=50,
@@ -16,20 +17,20 @@ class User(models.Model):
         ],
     )
     email = models.EmailField(max_length=254)
-    password_hash = models.CharField(max_length=50)
-    role = models.CharField(max_length=10, choices=RoleChoices)
+    password_hash = models.BinaryField(max_length=60)
+    role = models.CharField(max_length=10, choices=RoleChoices, default=RoleChoices.REGISTERED)
     display_name = models.CharField(max_length=50)
-    biography = models.TextField()
-    profile_cover_url = models.ImageField(null=True)
-    profile_cover_small_url = models.ImageField(null=True)
-    two_factor_enabled = models.BooleanField()
-    two_factor_method = models.IntegerField()
-    two_factor_secret = models.TextField()
+    biography = models.TextField(blank=True, null=True)
+    profile_cover_url = models.ImageField(blank=True, null=True)
+    profile_cover_small_url = models.ImageField(blank=True, null=True)
+    two_factor_enabled = models.BooleanField(default=False)
+    two_factor_method = models.IntegerField(blank=True, null=True)
+    two_factor_secret = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    last_login_at = models.DateTimeField()
-    is_active = models.BooleanField()
-    is_public = models.BooleanField()
-    date_of_birth = models.DateField()
+    last_login_at = models.DateTimeField(blank=True, null=True)
+    is_active = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=True)
+    date_of_birth = models.DateField(blank=True, null=True)
 
     def __str__(self) -> str:
         return self.username

@@ -89,42 +89,47 @@
     </a>
   </div>
 
-  <h2 class="mt-5 mb-4 fw-semibold">Būsimi Koncertai</h2>
-  <div class="row g-4">
-    <div class="col-sm-6 mb-3 mb-sm-0">
-      <a class="card concert-card" href="{% url 'concerts:concertDetail' %}">
-        <img
-          src="https://picsum.photos/320/180?random=9"
-          class="card-img-top"
-          alt="Concert cover"
-        />
-        <div class="card-body">
-          <small>Dec 15, 2024 19:00 - 23:00 · Rock</small>
-          <h5 class="card-title">Rock Festival 2024</h5>
-          <small style="font-size: small" class="text-muted">
-            Susidomėjo: 57 · Dalyvaus: 30
-          </small>
-          {% comment %} <div class="card-footer">
-            <div class="dropdown mt-3">
-              <button
-                class="btn btn-secondary dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Nedomina
-              </button>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Domina</a></li>
-                <li><a class="dropdown-item" href="#">Dayvausiu</a></li>
-                <li><a class="dropdown-item active" href="#">Nedomina</a></li>
-              </ul>
+  {% if koncertai %}
+    <h2 class="mt-5 mb-4 fw-semibold">Būsimi Koncertai</h2>
+    <div class="row g-4">
+      <div class="col-sm-6 mb-3 mb-sm-0">
+        {% for koncertas in koncertai %}
+          <a class="card concert-card" href="{% url 'concerts:concertDetail' pk=koncertas.pk %}">
+            <img
+              src="https://picsum.photos/320/180?random=9"
+              class="card-img-top"
+              alt="Concert cover"
+            />
+            <div class="card-body">
+              <small>{% if koncertas.pradzios_data %}{{ koncertas.pradzios_data|date:"Y M d" }}{% endif %} - {% if koncertas.pabaigos_data %}{{ koncertas.pabaigos_data|date:"d" }}{% endif %} · {{ koncertas.get_zanras_display }}</small>
+              <h5 class="card-title">{{ koncertas.pavadinimas }}</h5>
+              <small style="font-size: small" class="text-muted">
+                Bielietų: {{ koncertas.zmoniu_talpa }} · Įvertis: {{ koncertas.rekomendacijos_ivertis|floatformat:1 }}/10
+              </small>
+              {% comment %} <div class="card-footer">
+                <div class="dropdown mt-3">
+                  <button
+                    class="btn btn-secondary dropdown-toggle"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    Nedomina
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">Domina</a></li>
+                    <li><a class="dropdown-item" href="#">Dayvausiu</a></li>
+                    <li><a class="dropdown-item active" href="#">Nedomina</a></li>
+                  </ul>
+                </div>
+              </div> {% endcomment %}
             </div>
-          </div> {% endcomment %}
-        </div>
-      </a>
+          </a>
+        {% endfor %}
+      </div>
     </div>
-  </div>
+
+  {% endif %}
 
   <h2 class="mt-5 mb-4 fw-semibold">Naudotojai</h2>
   <div class="row row-cols-auto g-4">

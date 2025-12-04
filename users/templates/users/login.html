@@ -2,18 +2,27 @@
 {% block title %}Prisijungimas • Muzikos sistema{% endblock %}
 {% block content %}
 {% if errors %}
-<p> Kažkas negerai </p>
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Klaida</h4>
+    <ul class="mb-0">
+    {% for error in errors %}
+        <li>
+            {{error}}
+        </li>
+    {% endfor %}
+    </ul>
+</div>
 {% endif %}
 <h3>Įveskite savo prisijungimo vardą ir slaptažodį</h3>
 <div class="d-flex justify-content-center my-4">
         <form method="post" action="{% url "users:userLogin" %}" name="loginform" class="d-grid gap-3 align-items-end">
             <div class="d-flex align-items-sm-center flex-column flex-sm-row gap-2">
                 <label for="login_input_username">Prisijungimo vardas</label>
-                <input id="login_input_username" class="form-control ms-auto" style="width: 16em" type="text" name="user_name" required />
+                <input id="login_input_username" value="{{ form.username }}" class="form-control ms-auto" style="width: 16em" type="text" name="username" required />
             </div>
             <div class="d-flex align-items-sm-center flex-column flex-sm-row gap-2">
                 <label for="login_input_password">Slaptažodis</label>
-                <input id="login_input_password" class="form-control ms-auto" style="width: 16em" type="password" name="user_password" autocomplete="off" required />
+                <input id="login_input_password" value="{{ form.password }}" class="form-control ms-auto" style="width: 16em" type="password" name="password" autocomplete="off" required />
             </div>
             <input type="submit" name="login" value="Prisijungti" class="btn btn-primary w-50 mx-auto me-sm-0 "/>
         </form>

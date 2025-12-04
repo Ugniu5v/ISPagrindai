@@ -1,10 +1,18 @@
 from django.shortcuts import render
-
+from concerts.models import Koncertas
+from datetime import datetime
+from datetime import timedelta
+from django.utils import timezone
 
 def homepage(request):
-    user = None
-    if "user" in request.session:
-        user = {"name": request.session["user_name"]}
+    # user = None
+    # if "user" in request.session:
+    #     user = {"name": request.session["user_name"]}
 
-    context = {"request": request, "user": user}
+    today = timezone.now().date()
+    week_end = today + timedelta(days=7)
+    koncertai = Koncertas.objects.filter(pradzios_data__gte=today, pradzios_data__lte=week_end)
+    koncertai = koncertai.order_by("-pradzios_data")
+
+    context = {"request": request, "koncertai": koncertai}
     return render(request, "homepage.html", context)

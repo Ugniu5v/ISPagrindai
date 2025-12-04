@@ -1,6 +1,10 @@
 from django.shortcuts import render, redirect
+from django.http import HttpRequest
+from .models import User
+import bcrypt
 
-from django.contrib.auth import logout, authenticate, login
+
+# from django.contrib.auth import logout, authenticate, login
 from datetime import date
 
 # -------------------------------
@@ -107,6 +111,15 @@ MOCK_USERS = [
     },
 ]
 
+def get_hashed_password(plain_text_password):
+    # Hash a password for the first time
+    #   (Using bcrypt, the salt is saved into the hash itself)
+    return bcrypt.hashpw(bytes(plain_text_password, "utf-8"), bcrypt.gensalt())
+
+def check_password(plain_text_password, hashed_password):
+    # Check hashed password. Using bcrypt, the salt is saved into the hash itself
+    return bcrypt.checkpw(bytes(plain_text_password, "utf-8"), hashed_password)
+
 
 # Create your views here.
 def index(request):
@@ -120,38 +133,80 @@ def index(request):
 
 
 def loginUser(request):
-    context = {"errors": False}
+    errors = []
+    form = {"username": "", "password": ""}
     if request.method == "POST":
-        username = request.POST["user_name"]
-        password = request.POST["user_password"]
-        # TODO: Patikrinti naudotoją
-        request.session["user"] = True
-        request.session["user_name"] = username
-        request.session["user_password"] = password
-        request.session.modified = True
-        return redirect("homepage")
-        # user = authenticate(request, username=username, password=password)
-        # if user is not None:
-        #    login(request, user)
-        #    return redirect("homepage")
-        # else:
-        #     context = {"errors": True}
-        #     Return an 'invalid login' error message.
-    return render(request, "users/login.html", context)
+        # Gaunami duomenys
+        username = request.POST["username"]
+        password = request.POST["password"]
+
+        # Formoje palaikomi duomenys klaidos atveju
+        form["username"] = username
+        form["password"] = password
+
+        # Duomenų tikrinimas
+        if len(username) == 0:
+            errors.append("Naudotojo vardas tuščias.")
+        if len(password) == 0:
+            errors.append("Slaptažodis tuščias.")
+        if len(username) > 0 and len(password) > 0:
+            try:
+                user = User.objects.get(username=username)
+
+                if(not check_password(password, user.password_hash)):
+                    errors.append("Slaptažodis neteisingas. Pabandykite dar kartą.")
+                    form["password"] = ""
+                else:
+                    request.session["user"] = True
+                    request.session["user_id"] = user.pk
+                    request.session["user_name"] = user.username
+                    request.session["user_email"] = user.email
+                    request.session.modified = True
+                    return redirect("homepage")
+            except User.DoesNotExist:
+                errors.append("Šis naudotojas neegzistuoja.")
+        
+    return render(request, "users/login.html", {"errors": errors, "form": form})
 
 
 def registerUser(request):
-    # if request.method == "POST":
-    #     form = UserCreationForm(request.POST)
-    #     if form.is_valid():
-    #         form.save()
-    #         return redirect("homepage")
-    # else:
-    #     form = UserCreationForm()
+    errors = []
+    form = {"username": "", "email": "", "password_new": "", "password_repeat": ""}
+    if request.method == "POST":
+        # Gaunami duomenys
+        username = request.POST["username"]
+        email = request.POST["email"]
+        password_new = request.POST["password_new"]
+        password_repeat = request.POST["password_repeat"]
 
-    # context = {"form": form}
+        # Formoje palaikomi duomenys klaidos atveju
+        form["username"] = username
+        form["email"] = email
+        form["password_new"] = password_new
+        form["password_repeat"] = password_repeat
 
-    return render(request, "users/register.html")
+        # Duomenų tikrinimas
+        if (password_new != password_repeat):
+            errors.append("Slaptažodis ir jo pakartojimas nėra vienodi")
+            form["password_new"] = ""
+            form["password_repeat"] = ""
+        else:
+            password_hash = get_hashed_password(password_new)
+
+            user, created = User.objects.get_or_create(
+                username = username,
+                email = email,
+                password_hash = password_hash,
+                display_name = username,
+            )
+            if created:
+                return redirect('users:userLogin')
+            else:
+                errors.append("Naudotojas jau egzistuoja.")
+
+    context = {"errors": errors, "form": form}
+
+    return render(request, "users/register.html", context)
 
 
 def editUser(request):

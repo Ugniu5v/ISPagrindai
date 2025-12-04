@@ -1,6 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
-
+from users.models import User
 
 class Vieta(models.Model):
     pavadinimas = models.TextField()
@@ -16,7 +15,6 @@ class Vieta(models.Model):
 
 
 class Koncertas(models.Model):
-
     class Zanras(models.TextChoices):
         # DB value | Display label
         POPMUZIKA = "popmuzika", "Pop muzika"

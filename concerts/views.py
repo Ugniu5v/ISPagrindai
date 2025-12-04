@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+# from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.http import HttpRequest
 from datetime import datetime
 from datetime import timedelta
 from .models import Koncertas, Vieta, KoncertoDalyvis
@@ -65,7 +66,7 @@ def index(request):
 
 # veliau nuimti 
 #@login_required
-def createConcert(request):
+def createConcert(request: HttpRequest):
     if request.method == "POST":
         vieta_id = request.POST.get("vieta", "").strip()
         vieta = None
@@ -191,9 +192,9 @@ def concertDetail(request, pk):
         }
     
     dalyvavimo_busena = None
-    if request.user.is_authenticated:
+    if "user" in request.session and request.session["user"] == True:
         try:
-            dalyvis = KoncertoDalyvis.objects.get(vartotojas=request.user, koncertas=koncertas)
+            dalyvis = KoncertoDalyvis.objects.get(vartotojas=request.session["user_id"], koncertas=koncertas)
             dalyvavimo_busena = dalyvis.dalyvavimo_busena
         except KoncertoDalyvis.DoesNotExist:
             pass
