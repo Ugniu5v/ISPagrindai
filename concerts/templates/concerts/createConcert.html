@@ -23,90 +23,92 @@
 
       <div class="card bg-dark text-white">
         <div class="card-body">
-          <form method="post" action="#">
+          <form method="post">
+            {% csrf_token %}
             <div class="mb-3">
-              <label for="name" class="form-label">Concert Name *</label>
+              <label for="pavadinimas" class="form-label">Concert Name *</label>
               <input
                 type="text"
                 class="form-control bg-dark text-white"
-                id="name"
-                name="name"
+                id="pavadinimas"
+                name="pavadinimas"
                 required
               />
             </div>
 
             <div class="mb-3">
-              <label for="start_date" class="form-label">Start Date & Time *</label>
+              <label for="pradzios_data" class="form-label">Start Date *</label>
               <input
-                type="datetime-local"
+                type="date"
                 class="form-control bg-dark text-white"
-                id="start_date"
-                name="start_date"
+                id="pradzios_data"
+                name="pradzios_data"
                 required
               />
             </div>
 
             <div class="mb-3">
-              <label for="finish_date" class="form-label">Finish Date & Time *</label>
+              <label for="pabaigos_data" class="form-label">Finish Date *</label>
               <input
-                type="datetime-local"
+                type="date"
                 class="form-control bg-dark text-white"
-                id="finish_date"
-                name="finish_date"
+                id="pabaigos_data"
+                name="pabaigos_data"
                 required
               />
             </div>
 
             <div class="mb-3">
-              <label for="ticket_url" class="form-label">Ticket URL</label>
+              <label for="bilietu_url" class="form-label">Ticket URL</label>
               <input
                 type="url"
                 class="form-control bg-dark text-white"
-                id="ticket_url"
-                name="ticket_url"
+                id="bilietu_url"
+                name="bilietu_url"
                 placeholder="https://example.com/tickets"
               />
             </div>
 
             <div class="mb-3">
-              <label for="description" class="form-label">Description</label>
+              <label for="aprasymas" class="form-label">Description</label>
               <textarea
                 class="form-control bg-dark text-white"
-                id="description"
-                name="description"
+                id="aprasymas"
+                name="aprasymas"
                 rows="4"
                 placeholder="Enter concert description"
               ></textarea>
             </div>
 
             <div class="mb-3">
-              <label for="ticket_number" class="form-label">Number of Tickets *</label>
+              <label for="zmoniu_talpa" class="form-label">Number of Tickets *</label>
               <input
                 type="number"
                 class="form-control bg-dark text-white"
-                id="ticket_number"
-                name="ticket_number"
+                id="zmoniu_talpa"
+                name="zmoniu_talpa"
                 min="1"
                 required
               />
             </div>
 
             <div class="mb-3">
-              <label for="genre" class="form-label">Genre *</label>
-              <select class="form-select bg-dark text-white" id="genre" name="genre" required>
+              <label for="zanras" class="form-label">Genre *</label>
+              <select class="form-select bg-dark text-white" id="zanras" name="zanras" required>
                 <option value="">Select Genre</option>
-                <option value="rock">Rock</option>
-                <option value="pop">Pop</option>
-                <option value="jazz">Jazz</option>
-                <option value="classical">Classical</option>
-                <option value="electronic">Electronic</option>
-                <option value="hip_hop">Hip Hop</option>
-                <option value="country">Country</option>
-                <option value="blues">Blues</option>
-                <option value="folk">Folk</option>
-                <option value="metal">Metal</option>
-                <option value="reggae">Reggae</option>
-                <option value="other">Other</option>
+                {% for value, label in zanrai %}
+                  <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="vieta" class="form-label">Location</label>
+              <select class="form-select bg-dark text-white" id="vieta" name="vieta">
+                <option value="">Select Location</option>
+                {% for vieta in vietos %}
+                  <option value="{{ vieta.id }}">{{ vieta.pavadinimas }} - {{ vieta.miestas }}</option>
+                {% endfor %}
               </select>
             </div>
 
@@ -114,11 +116,11 @@
               <input
                 type="checkbox"
                 class="form-check-input"
-                id="is_public"
-                name="is_public"
+                id="yra_viesas"
+                name="yra_viesas"
                 checked
               />
-              <label class="form-check-label" for="is_public">Is Public</label>
+              <label class="form-check-label" for="yra_viesas">Is Public</label>
             </div>
 
             <button type="submit" class="btn btn-primary me-2">Create Concert</button>

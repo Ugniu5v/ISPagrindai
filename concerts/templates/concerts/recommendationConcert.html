@@ -33,18 +33,11 @@
                 name="preferred_genre"
               >
                 <option value="">Any Genre</option>
-                <option value="rock">Rock</option>
-                <option value="pop">Pop</option>
-                <option value="jazz">Jazz</option>
-                <option value="classical">Classical</option>
-                <option value="electronic">Electronic</option>
-                <option value="hip_hop">Hip Hop</option>
-                <option value="country">Country</option>
-                <option value="blues">Blues</option>
-                <option value="folk">Folk</option>
-                <option value="metal">Metal</option>
-                <option value="reggae">Reggae</option>
-                <option value="other">Other</option>
+                {% if zanrai %}
+                  {% for value, label in zanrai %}
+                    <option value="{{ value }}">{{ label }}</option>
+                  {% endfor %}
+                {% endif %}
               </select>
             </div>
 
@@ -127,66 +120,35 @@
         <div class="card-body">
           <h2 class="card-title">Recommended Concerts</h2>
 
-          <div class="card bg-secondary text-white mb-3">
-            <div class="card-body">
-              <h5 class="card-title">Jazz Night</h5>
-              <p class="card-text"><strong>Start:</strong> Dec 20, 2024 20:00</p>
-              <p class="card-text"><strong>End:</strong> Dec 20, 2024 22:30</p>
-              <p class="card-text"><strong>Genre:</strong> Jazz</p>
-              <p class="card-text"><strong>Tickets:</strong> 200</p>
-              <p class="card-text">
-                <strong>Recommendation Score:</strong> <span class="text-success">9.2/10</span>
-              </p>
-              <p class="card-text">
-                <strong>Why Recommended:</strong> High score, matches your preferences, intimate
-                venue
-              </p>
-              <a href="{% url 'concerts:concertDetail' %}" class="btn btn-primary me-2"
-                >View Details</a
-              >
-              <a href="{% url 'concerts:editConcert' %}" class="btn btn-secondary">Edit</a>
+          {% if koncertai %}
+            {% for koncertas in koncertai %}
+              <div class="card bg-secondary text-white mb-3">
+                <div class="card-body">
+                  <h5 class="card-title">{{ koncertas.pavadinimas }}</h5>
+                  {% if koncertas.pradzios_data %}
+                    <p class="card-text"><strong>Start:</strong> {{ koncertas.pradzios_data|date:"M d, Y" }}</p>
+                  {% endif %}
+                  {% if koncertas.pabaigos_data %}
+                    <p class="card-text"><strong>End:</strong> {{ koncertas.pabaigos_data|date:"M d, Y" }}</p>
+                  {% endif %}
+                  <p class="card-text"><strong>Genre:</strong> {{ koncertas.get_zanras_display }}</p>
+                  <p class="card-text"><strong>Tickets:</strong> {{ koncertas.zmoniu_talpa }}</p>
+                  <p class="card-text">
+                    <strong>Recommendation Score:</strong> 
+                    <span class="{% if koncertas.rekomendacijos_ivertis >= 9 %}text-success{% elif koncertas.rekomendacijos_ivertis >= 7 %}text-warning{% else %}text-info{% endif %}">
+                      {{ koncertas.rekomendacijos_ivertis|floatformat:1 }}/10
+                    </span>
+                  </p>
+                  <a href="{% url 'concerts:concertDetail' pk=koncertas.pk %}" class="btn btn-primary me-2">View Details</a>
+                  <a href="{% url 'concerts:editConcert' pk=koncertas.pk %}" class="btn btn-secondary">Edit</a>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-info">
+              No concerts match your criteria. Try adjusting your filters.
             </div>
-          </div>
-
-          <div class="card bg-secondary text-white mb-3">
-            <div class="card-body">
-              <h5 class="card-title">Rock Festival 2024</h5>
-              <p class="card-text"><strong>Start:</strong> Dec 15, 2024 19:00</p>
-              <p class="card-text"><strong>End:</strong> Dec 15, 2024 23:00</p>
-              <p class="card-text"><strong>Genre:</strong> Rock</p>
-              <p class="card-text"><strong>Tickets:</strong> 500</p>
-              <p class="card-text">
-                <strong>Recommendation Score:</strong> <span class="text-success">8.5/10</span>
-              </p>
-              <p class="card-text">
-                <strong>Why Recommended:</strong> Popular event, good score, public concert
-              </p>
-              <a href="{% url 'concerts:concertDetail' %}" class="btn btn-primary me-2"
-                >View Details</a
-              >
-              <a href="{% url 'concerts:editConcert' %}" class="btn btn-secondary">Edit</a>
-            </div>
-          </div>
-
-          <div class="card bg-secondary text-white mb-3">
-            <div class="card-body">
-              <h5 class="card-title">Classical Symphony</h5>
-              <p class="card-text"><strong>Start:</strong> Dec 18, 2024 19:30</p>
-              <p class="card-text"><strong>End:</strong> Dec 18, 2024 21:30</p>
-              <p class="card-text"><strong>Genre:</strong> Classical</p>
-              <p class="card-text"><strong>Tickets:</strong> 300</p>
-              <p class="card-text">
-                <strong>Recommendation Score:</strong> <span class="text-warning">7.8/10</span>
-              </p>
-              <p class="card-text">
-                <strong>Why Recommended:</strong> Good score, cultural event, suitable timing
-              </p>
-              <a href="{% url 'concerts:concertDetail' %}" class="btn btn-primary me-2"
-                >View Details</a
-              >
-              <a href="{% url 'concerts:editConcert' %}" class="btn btn-secondary">Edit</a>
-            </div>
-          </div>
+          {% endif %}
         </div>
       </div>
     </div>

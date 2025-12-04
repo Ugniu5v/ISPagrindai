@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Edit Concert</title>
+    <title>Edit Concert - {{ koncertas.pavadinimas }}</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -15,108 +15,108 @@
       <h1 class="mb-4">Edit Concert</h1>
 
       <nav class="mb-4">
-        <a href="{% url 'concerts:concertDetail' %}" class="btn btn-outline-light me-2"
+        <a href="{% url 'concerts:concertDetail' pk=koncertas.pk %}" class="btn btn-outline-light me-2"
           >← View Details</a
         >
         <a href="{% url 'homepage' %}" class="btn btn-outline-light">Back to Home</a>
       </nav>
 
       <div class="alert alert-info">
-        <strong>Editing:</strong> Rock Festival 2024<br />
-        <strong>Created:</strong> Nov 15, 2024 10:30<br />
-        <strong>Last Updated:</strong> Nov 20, 2024 14:45
+        <strong>Editing:</strong> {{ koncertas.pavadinimas }}<br />
+        <strong>Created:</strong> {% if koncertas.sukurimo_data %}{{ koncertas.sukurimo_data|date:"M d, Y" }}{% else %}Not specified{% endif %}<br />
+        <strong>Last Updated:</strong> {% if koncertas.atnaujinimo_data %}{{ koncertas.atnaujinimo_data|date:"M d, Y" }}{% else %}Not specified{% endif %}
       </div>
 
       <div class="card bg-dark text-white">
         <div class="card-body">
-          <form method="post" action="#">
+          <form method="post">
+            {% csrf_token %}
             <div class="mb-3">
-              <label for="name" class="form-label">Concert Name *</label>
+              <label for="pavadinimas" class="form-label">Concert Name *</label>
               <input
                 type="text"
                 class="form-control bg-dark text-white"
-                id="name"
-                name="name"
-                value="Rock Festival 2024"
+                id="pavadinimas"
+                name="pavadinimas"
+                value="{{ koncertas.pavadinimas }}"
                 required
               />
             </div>
 
             <div class="mb-3">
-              <label for="start_date" class="form-label">Start Date & Time *</label>
+              <label for="pradzios_data" class="form-label">Start Date *</label>
               <input
-                type="datetime-local"
+                type="date"
                 class="form-control bg-dark text-white"
-                id="start_date"
-                name="start_date"
-                value="2024-12-15T19:00"
+                id="pradzios_data"
+                name="pradzios_data"
+                value="{% if koncertas.pradzios_data %}{{ koncertas.pradzios_data|date:'Y-m-d' }}{% endif %}"
                 required
               />
             </div>
 
             <div class="mb-3">
-              <label for="finish_date" class="form-label">Finish Date & Time *</label>
+              <label for="pabaigos_data" class="form-label">Finish Date *</label>
               <input
-                type="datetime-local"
+                type="date"
                 class="form-control bg-dark text-white"
-                id="finish_date"
-                name="finish_date"
-                value="2024-12-15T23:00"
+                id="pabaigos_data"
+                name="pabaigos_data"
+                value="{% if koncertas.pabaigos_data %}{{ koncertas.pabaigos_data|date:'Y-m-d' }}{% endif %}"
                 required
               />
             </div>
 
             <div class="mb-3">
-              <label for="ticket_url" class="form-label">Ticket URL</label>
+              <label for="bilietu_url" class="form-label">Ticket URL</label>
               <input
                 type="url"
                 class="form-control bg-dark text-white"
-                id="ticket_url"
-                name="ticket_url"
-                value="https://example.com/tickets"
+                id="bilietu_url"
+                name="bilietu_url"
+                value="{{ koncertas.bilietu_url }}"
               />
             </div>
 
             <div class="mb-3">
-              <label for="description" class="form-label">Description</label>
+              <label for="aprasymas" class="form-label">Description</label>
               <textarea
                 class="form-control bg-dark text-white"
-                id="description"
-                name="description"
+                id="aprasymas"
+                name="aprasymas"
                 rows="4"
-              >
-Amazing rock festival featuring top artists from around the world.</textarea
-              >
+              >{{ koncertas.aprasymas }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="ticket_number" class="form-label">Maximum Tickets *</label>
+              <label for="zmoniu_talpa" class="form-label">Maximum Tickets *</label>
               <input
                 type="number"
                 class="form-control bg-dark text-white"
-                id="ticket_number"
-                name="ticket_number"
-                value="500"
+                id="zmoniu_talpa"
+                name="zmoniu_talpa"
+                value="{{ koncertas.zmoniu_talpa }}"
                 min="1"
                 required
               />
             </div>
 
             <div class="mb-3">
-              <label for="genre" class="form-label">Genre *</label>
-              <select class="form-select bg-dark text-white" id="genre" name="genre" required>
-                <option value="rock" selected>Rock</option>
-                <option value="pop">Pop</option>
-                <option value="jazz">Jazz</option>
-                <option value="classical">Classical</option>
-                <option value="electronic">Electronic</option>
-                <option value="hip_hop">Hip Hop</option>
-                <option value="country">Country</option>
-                <option value="blues">Blues</option>
-                <option value="folk">Folk</option>
-                <option value="metal">Metal</option>
-                <option value="reggae">Reggae</option>
-                <option value="other">Other</option>
+              <label for="zanras" class="form-label">Genre *</label>
+              <select class="form-select bg-dark text-white" id="zanras" name="zanras" required>
+                {% for value, label in zanrai %}
+                  <option value="{{ value }}" {% if koncertas.zanras == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="vieta" class="form-label">Location</label>
+              <select class="form-select bg-dark text-white" id="vieta" name="vieta">
+                <option value="">Select Location</option>
+                {% for vieta in vietos %}
+                  <option value="{{ vieta.id }}" {% if koncertas.vieta.id == vieta.id %}selected{% endif %}>{{ vieta.pavadinimas }} - {{ vieta.miestas }}</option>
+                {% endfor %}
               </select>
             </div>
 
@@ -124,25 +124,26 @@ Amazing rock festival featuring top artists from around the world.</textarea
               <input
                 type="checkbox"
                 class="form-check-input"
-                id="is_cancelled"
-                name="is_cancelled"
+                id="yra_atsauktas"
+                name="yra_atsauktas"
+                {% if koncertas.yra_atsauktas %}checked{% endif %}
               />
-              <label class="form-check-label" for="is_cancelled">Is Cancelled</label>
+              <label class="form-check-label" for="yra_atsauktas">Is Cancelled</label>
             </div>
 
             <div class="mb-3 form-check">
               <input
                 type="checkbox"
                 class="form-check-input"
-                id="is_public"
-                name="is_public"
-                checked
+                id="yra_viesas"
+                name="yra_viesas"
+                {% if koncertas.yra_viesas %}checked{% endif %}
               />
-              <label class="form-check-label" for="is_public">Is Public</label>
+              <label class="form-check-label" for="yra_viesas">Is Public</label>
             </div>
 
             <button type="submit" class="btn btn-primary me-2">Update Concert</button>
-            <a href="{% url 'concerts:concertDetail' %}" class="btn btn-secondary me-2"
+            <a href="{% url 'concerts:concertDetail' pk=koncertas.pk %}" class="btn btn-secondary me-2"
               >View Details</a
             >
             <a href="{% url 'concerts:index' %}" class="btn btn-outline-light">Cancel</a>

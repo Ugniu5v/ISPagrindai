@@ -22,117 +22,111 @@
       </nav>
 
       <div class="mb-4">
-        <div class="card bg-dark text-white mb-3">
-          <div class="card-body">
-            <h5 class="card-title mb-3">Search Concerts</h5>
-            <div class="input-group">
-              <input
-                type="text"
-                class="form-control form-control-lg bg-black text-white"
-                placeholder="Search by concert name..."
-              />
-              <button class="btn btn-primary" type="button">Search</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card bg-dark text-white">
-          <div class="card-body">
-            <h5 class="card-title mb-3">Filters</h5>
-            <div class="row g-3">
-              <div class="col-md-3">
-                <label for="filterGenre" class="form-label">Genre</label>
-                <select class="form-select bg-black text-white" id="filterGenre" name="genre">
-                  <option value="">All Genres</option>
-                  <option value="rock">Rock</option>
-                  <option value="pop">Pop</option>
-                  <option value="jazz">Jazz</option>
-                  <option value="classical">Classical</option>
-                  <option value="electronic">Electronic</option>
-                  <option value="hip_hop">Hip Hop</option>
-                  <option value="country">Country</option>
-                  <option value="blues">Blues</option>
-                  <option value="folk">Folk</option>
-                  <option value="metal">Metal</option>
-                  <option value="reggae">Reggae</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label for="filterStatus" class="form-label">Status</label>
-                <select class="form-select bg-black text-white" id="filterStatus" name="status">
-                  <option value="">All Status</option>
-                  <option value="public">Public</option>
-                  <option value="private">Private</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label for="filterDate" class="form-label">Date Range</label>
-                <select class="form-select bg-black text-white" id="filterDate" name="date">
-                  <option value="">All Dates</option>
-                  <option value="today">Today</option>
-                  <option value="week">This Week</option>
-                  <option value="month">This Month</option>
-                  <option value="upcoming">Upcoming</option>
-                  <option value="past">Past</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label for="filterScore" class="form-label">Min Score</label>
-                <select class="form-select bg-black text-white" id="filterScore" name="score">
-                  <option value="">All Scores</option>
-                  <option value="9">9+</option>
-                  <option value="8">8+</option>
-                  <option value="7">7+</option>
-                  <option value="6">6+</option>
-                  <option value="5">5+</option>
-                </select>
+        <form method="get" action="{% url 'concerts:index' %}">
+          <div class="card bg-dark text-white mb-3">
+            <div class="card-body">
+              <h5 class="card-title mb-3">Search Concerts</h5>
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control form-control-lg bg-black text-white"
+                  placeholder="Search by concert name..."
+                  name="q"
+                  value="{{ search_query }}"
+                />
+                <button class="btn btn-primary" type="submit">Search</button>
               </div>
             </div>
           </div>
-        </div>
+
+          <div class="card bg-dark text-white">
+            <div class="card-body">
+              <h5 class="card-title mb-3">Filters</h5>
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label for="filterGenre" class="form-label">Genre</label>
+                  <select class="form-select bg-black text-white" id="filterGenre" name="genre">
+                    <option value="">All Genres</option>
+                    {% if zanrai %}
+                      {% for value, label in zanrai %}
+                        <option value="{{ value }}" {% if selected_genre == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    {% endif %}
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label for="filterStatus" class="form-label">Status</label>
+                  <select class="form-select bg-black text-white" id="filterStatus" name="status">
+                    <option value="">All Status</option>
+                    <option value="public" {% if selected_status == 'public' %}selected{% endif %}>Public</option>
+                    <option value="private" {% if selected_status == 'private' %}selected{% endif %}>Private</option>
+                    <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label for="filterDate" class="form-label">Date Range</label>
+                  <select class="form-select bg-black text-white" id="filterDate" name="date">
+                    <option value="">All Dates</option>
+                    <option value="today" {% if selected_date == 'today' %}selected{% endif %}>Today</option>
+                    <option value="week" {% if selected_date == 'week' %}selected{% endif %}>This Week</option>
+                    <option value="month" {% if selected_date == 'month' %}selected{% endif %}>This Month</option>
+                    <option value="upcoming" {% if selected_date == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                    <option value="past" {% if selected_date == 'past' %}selected{% endif %}>Past</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label for="filterScore" class="form-label">Min Score</label>
+                  <select class="form-select bg-black text-white" id="filterScore" name="score">
+                    <option value="">All Scores</option>
+                    <option value="9" {% if selected_score == '9' %}selected{% endif %}>9+</option>
+                    <option value="8" {% if selected_score == '8' %}selected{% endif %}>8+</option>
+                    <option value="7" {% if selected_score == '7' %}selected{% endif %}>7+</option>
+                    <option value="6" {% if selected_score == '6' %}selected{% endif %}>6+</option>
+                    <option value="5" {% if selected_score == '5' %}selected{% endif %}>5+</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mt-3">
+                <button type="submit" class="btn btn-primary me-2">Apply Filters</button>
+                <a href="{% url 'concerts:index' %}" class="btn btn-secondary">Clear Filters</a>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
 
-      <div class="card bg-dark text-white mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Rock Festival 2024</h5>
-          <p class="card-text"><strong>Start:</strong> Dec 15, 2024 19:00</p>
-          <p class="card-text"><strong>End:</strong> Dec 15, 2024 23:00</p>
-          <p class="card-text"><strong>Genre:</strong> Rock</p>
-          <p class="card-text"><strong>Tickets:</strong> 500</p>
-          <p class="card-text"><strong>Score:</strong> 8.5/10</p>
-          <a href="{% url 'concerts:concertDetail' %}" class="btn btn-primary me-2">View Details</a>
-          <a href="{% url 'concerts:editConcert' %}" class="btn btn-secondary">Edit</a>
+      {% if koncertai %}
+        {% for koncertas in koncertai %}
+          <div class="card bg-dark text-white mb-3">
+            <div class="card-body">
+              <h5 class="card-title">{{ koncertas.pavadinimas }}</h5>
+              {% if koncertas.pradzios_data %}
+                <p class="card-text"><strong>Start:</strong> {{ koncertas.pradzios_data|date:"M d, Y" }}</p>
+              {% endif %}
+              {% if koncertas.pabaigos_data %}
+                <p class="card-text"><strong>End:</strong> {{ koncertas.pabaigos_data|date:"M d, Y" }}</p>
+              {% endif %}
+              <p class="card-text"><strong>Genre:</strong> {{ koncertas.get_zanras_display }}</p>
+              <p class="card-text"><strong>Tickets:</strong> {{ koncertas.zmoniu_talpa }}</p>
+              {% if koncertas.rekomendacijos_ivertis %}
+                <p class="card-text"><strong>Score:</strong> {{ koncertas.rekomendacijos_ivertis }}/10</p>
+              {% endif %}
+              {% if not koncertas.yra_viesas %}
+                <p class="card-text"><strong>Status:</strong> Private</p>
+              {% endif %}
+              {% if koncertas.yra_atsauktas %}
+                <p class="card-text text-danger"><strong>Status:</strong> Cancelled</p>
+              {% endif %}
+              <a href="{% url 'concerts:concertDetail' pk=koncertas.pk %}" class="btn btn-primary me-2">View Details</a>
+              <a href="{% url 'concerts:editConcert' pk=koncertas.pk %}" class="btn btn-secondary">Edit</a>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="alert alert-info">
+          No concerts found. <a href="{% url 'concerts:createConcert' %}">Create one now!</a>
         </div>
-      </div>
-
-      <div class="card bg-dark text-white mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Jazz Night</h5>
-          <p class="card-text"><strong>Start:</strong> Dec 20, 2024 20:00</p>
-          <p class="card-text"><strong>End:</strong> Dec 20, 2024 22:30</p>
-          <p class="card-text"><strong>Genre:</strong> Jazz</p>
-          <p class="card-text"><strong>Tickets:</strong> 200</p>
-          <p class="card-text"><strong>Score:</strong> 9.2/10</p>
-          <a href="{% url 'concerts:concertDetail' %}" class="btn btn-primary me-2">View Details</a>
-          <a href="{% url 'concerts:editConcert' %}" class="btn btn-secondary">Edit</a>
-        </div>
-      </div>
-
-      <div class="card bg-dark text-white mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Electronic Music Show</h5>
-          <p class="card-text"><strong>Start:</strong> Dec 25, 2024 21:00</p>
-          <p class="card-text"><strong>End:</strong> Dec 26, 2024 02:00</p>
-          <p class="card-text"><strong>Genre:</strong> Electronic</p>
-          <p class="card-text"><strong>Tickets:</strong> 1000</p>
-          <p class="card-text"><strong>Score:</strong> 7.8/10</p>
-          <p class="card-text"><strong>Status:</strong> Private</p>
-          <a href="{% url 'concerts:concertDetail' %}" class="btn btn-primary me-2">View Details</a>
-          <a href="{% url 'concerts:editConcert' %}" class="btn btn-secondary">Edit</a>
-        </div>
-      </div>
+      {% endif %}
     </div>
   </body>
 </html>
