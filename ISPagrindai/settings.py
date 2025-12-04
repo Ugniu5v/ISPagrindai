@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.auth",
+    # "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.staticfiles",
@@ -45,14 +45,14 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-LOGIN_URL = "two_factor:login"
+# LOGIN_URL = "two_factor:login"
 
 # this one is optional
-LOGIN_REDIRECT_URL = "two_factor:profile"
+# LOGIN_REDIRECT_URL = "two_factor:profile"
 
 ROOT_URLCONF = "ISPagrindai.urls"
 
@@ -64,7 +64,7 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
+                # "django.contrib.auth.context_processors.auth",
             ],
         },
     },

@@ -55,15 +55,15 @@
                 <i class="bi bi-person-circle"></i>
               </a>
               <ul class="dropdown-menu">
-                {% if request.user.is_authenticated %}
-                  <li><h6 class="dropdown-header">{{ request.user.get_username }}</h6></li>
+                {% if user != None %}
+                  <li><h6 class="dropdown-header">{{ user.name }}</h6></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="/admin">Admin</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="{% url 'users:userDetail' 1 %}">Mano profilis</a></li>
                   <li><a class="dropdown-item" href="{% url 'users:userLogout' %}">Atsijungti</a></li>
                 {% else %}
-                  <li><a class="dropdown-item" href="/account/login">Prisijungti</a></li>
+                  <li><a class="dropdown-item" href="{% url 'users:userLogin' %}">Prisijungti</a></li>
                   <li><a class="dropdown-item" href="{% url 'users:userRegister' %}">Registruotis</a></li>
                 {% endif %}
               </ul>

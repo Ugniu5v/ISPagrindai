@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+
+from django.contrib.auth import logout, authenticate, login
 from datetime import date
 
 # -------------------------------
@@ -118,7 +120,23 @@ def index(request):
 
 
 def loginUser(request):
-    context = {}
+    context = {"errors": False}
+    if request.method == "POST":
+        username = request.POST["user_name"]
+        password = request.POST["user_password"]
+        # TODO: Patikrinti naudotoją
+        request.session["user"] = True
+        request.session["user_name"] = username
+        request.session["user_password"] = password
+        request.session.modified = True
+        return redirect("homepage")
+        # user = authenticate(request, username=username, password=password)
+        # if user is not None:
+        #    login(request, user)
+        #    return redirect("homepage")
+        # else:
+        #     context = {"errors": True}
+        #     Return an 'invalid login' error message.
     return render(request, "users/login.html", context)
 
 
@@ -155,5 +173,5 @@ def userDetail(request, user_id):
 
 
 def logoutUser(request):
-    # logout(request)
+    request.session.flush()
     return redirect("homepage")
