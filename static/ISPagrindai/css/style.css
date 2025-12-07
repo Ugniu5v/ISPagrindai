@@ -119,11 +119,20 @@ audio::-webkit-media-controls-enclosure {
 }
 
 .concert-card {
-  width: 18rem;
   text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s;
 
   &:is(:hover) {
-    background-color: var(--bs-secondary-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  & .card-img-top {
+    object-fit: cover;
+    height: 180px;
   }
 }
 

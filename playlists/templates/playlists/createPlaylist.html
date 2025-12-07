@@ -20,41 +20,43 @@
         <div class="card bg-dark text-white p-4 shadow-lg">
             <form method="POST" action="{% url 'playlists:createPlaylist' %}">
                 {% csrf_token %}
-                
+
+                <!-- TITLE / PAVADINIMAS -->
                 <div class="mb-3">
-                    <label for="title" class="form-label">Playlist Title</label>
-                    <input type="text" id="title" name="title" class="form-control bg-black text-white" placeholder="e.g. Road Trip Mix" required>
+                    <label for="pavadinimas" class="form-label">Playlist Title</label>
+                    <input 
+                        type="text" 
+                        id="pavadinimas" 
+                        name="pavadinimas" 
+                        class="form-control bg-black text-white" 
+                        placeholder="e.g. Road Trip Mix" 
+                        required
+                    >
                 </div>
 
+                <!-- DESCRIPTION / APRASYMAS -->
                 <div class="mb-3">
-                    <label for="genre" class="form-label">Genre</label>
-                    <select id="genre" name="genre" class="form-select bg-black text-white" required>
-                        <option value="">Select a genre</option>
-                        <option>Pop</option>
-                        <option>Rock</option>
-                        <option>Hip-Hop</option>
-                        <option>Jazz</option>
-                        <option>Electronic</option>
-                        <option>Classical</option>
-                        <option>Other</option>
-                    </select>
+                    <label for="aprasymas" class="form-label">Description</label>
+                    <textarea 
+                        id="aprasymas" 
+                        name="aprasymas" 
+                        rows="3" 
+                        class="form-control bg-black text-white"
+                        placeholder="Describe your playlist..."
+                    ></textarea>
                 </div>
 
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea id="description" name="description" rows="3" class="form-control bg-black text-white" placeholder="Describe your playlist..."></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label for="songs" class="form-label">Number of Songs</label>
-                    <input type="number" id="songs" name="songs" min="1" class="form-control bg-black text-white" placeholder="e.g. 15">
-                </div>
-
+                <!-- VISIBILITY / YRA_VIESAS -->
                 <div class="mb-3">
                     <label for="visibility" class="form-label">Visibility</label>
-                    <select id="visibility" name="visibility" class="form-select bg-black text-white" required>
-                        <option value="Public">Public</option>
-                        <option value="Private">Private</option>
+                    <select 
+                        id="visibility"
+                        name="yra_viesas"
+                        class="form-select bg-black text-white"
+                        required
+                    >
+                        <option value="on">Public</option>
+                        <option value="off">Private</option>
                     </select>
                 </div>
 
