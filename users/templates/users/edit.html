@@ -44,10 +44,10 @@
         <label for="profile_cover_url">Profilio nuotrauka{% if user.profile_cover_url %} | {{ user.profile_cover_url.name}}{% endif %}</label>
         <input id="profile_cover_url" class="form-control" type="file" accept="image/png, image/jpeg" name="profile_cover_url" />
     </div>
-    <div class="">
+    <!-- <div class="">
         <input id="two_factor_enabled" class="form-check-input" type="checkbox" value="1" name="two_factor_enabled" {{ form.two_factor_enabled|yesno:"checked," }}/>
         <label for="two_factor_enabled" class="form-check-label">Dviejų faktorių autentifikacija</label>
-    </div>
+    </div> -->
     <div class="">
         <label for="login_input_username">Gimimo data</label>
         <input id="date_of_birth" value="{{ form.date_of_birth }}" class="form-control" type="date" name="date_of_birth" />
@@ -56,6 +56,13 @@
         <input id="is_public" value="1" class="form-check-input" type="checkbox" value="1" name="is_public" {{ form.is_public|yesno:"checked," }} />
         <label for="is_public" class="form-check-label">Matomumas</label>
     </div>
-    <input type="submit" name="action" value="submit" class="btn btn-primary w-50 mx-auto me-sm-0 "/>
+    <div class="row">
+        <div class="col-6">
+            <input type="submit" formaction="{% url "users:userTwoFa" %}" name="editTwoFa" value="{{ form.two_factor_enabled|yesno:"Išjungti,Įjungti" }} dvejų faktorių autentifikaciją" class="btn btn-outline-primary w-100 me-sm-0 "/>
+        </div>
+        <div class="col-6">
+            <input type="submit" name="save" value="Išsaugoti" class="btn btn-primary w-100 me-sm-0 "/>
+        </div>
+    </div>
 </form>
 {% endblock%}

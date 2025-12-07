@@ -204,6 +204,12 @@ def userEdit(request: HttpRequest):
 
     return render(request, "users/edit.html", context)
 
+# TODO: Sugalvot ar daryt modalą ar ką
+@login_required
+def userTwoFa(request: HttpRequest):
+    print("Labas")
+    return redirect('users:userEdit')
+
 
 def userDetail(request, user_id):
     user = get_object_or_404(User, pk=user_id)
