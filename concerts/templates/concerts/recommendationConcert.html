@@ -1,156 +1,137 @@
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Recommendation Concert</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
+{% extends "_base.html" %}
+{% block title %}Koncerto rekomendacijos • Muzikos sistema{% endblock %}
 
-  <body class="bg-black text-white p-4">
-    <div class="container mt-4">
-      <h1 class="mb-4">Recommendation Concert</h1>
+{% block content %}
+  <h2 class="mb-4 fw-semibold">Koncerto rekomendacijos</h2>
 
-      <nav class="mb-4">
-        <a href="{% url 'concerts:index' %}" class="btn btn-outline-light me-2"
-          >← Back to Concerts</a
-        >
-        <a href="{% url 'homepage' %}" class="btn btn-outline-light">Back to Home</a>
-      </nav>
+  <div class="card shadow-sm mb-4 bg-body-tertiary">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Gauti koncerto rekomendacijas</h5>
+      <form method="post" action="#">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="preferred_genre" class="form-label">Pageidaujamas žanras</label>
+            <select
+              class="form-select"
+              id="preferred_genre"
+              name="preferred_genre"
+            >
+              <option value="">Bet koks žanras</option>
+              {% if zanrai %}
+                {% for value, label in zanrai %}
+                  <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              {% endif %}
+            </select>
+          </div>
 
-      <div class="card bg-dark text-white mb-4">
-        <div class="card-body">
-          <h2 class="card-title">Get Concert Recommendations</h2>
-          <form method="post" action="#">
-            <div class="mb-3">
-              <label for="preferred_genre" class="form-label">Preferred Genre</label>
-              <select
-                class="form-select bg-dark text-white"
-                id="preferred_genre"
-                name="preferred_genre"
-              >
-                <option value="">Any Genre</option>
-                {% if zanrai %}
-                  {% for value, label in zanrai %}
-                    <option value="{{ value }}">{{ label }}</option>
-                  {% endfor %}
-                {% endif %}
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label for="min_score" class="form-label">Minimum Recommendation Score</label>
-              <input
-                type="number"
-                class="form-control bg-dark text-white"
-                id="min_score"
-                name="min_score"
-                min="0"
-                max="10"
-                step="0.1"
-                placeholder="0.0 to 10.0"
-              />
-            </div>
-
-            <div class="mb-3">
-              <label for="date_from" class="form-label">From Date</label>
-              <input
-                type="datetime-local"
-                class="form-control bg-dark text-white"
-                id="date_from"
-                name="date_from"
-              />
-            </div>
-
-            <div class="mb-3">
-              <label for="date_to" class="form-label">To Date</label>
-              <input
-                type="datetime-local"
-                class="form-control bg-dark text-white"
-                id="date_to"
-                name="date_to"
-              />
-            </div>
-
-            <div class="mb-3">
-              <label for="max_tickets" class="form-label">Maximum Ticket Capacity</label>
-              <input
-                type="number"
-                class="form-control bg-dark text-white"
-                id="max_tickets"
-                name="max_tickets"
-                min="1"
-                placeholder="Leave empty for any size"
-              />
-            </div>
-
-            <div class="mb-3 form-check">
-              <input
-                type="checkbox"
-                class="form-check-input"
-                id="public_only"
-                name="public_only"
-                checked
-              />
-              <label class="form-check-label" for="public_only">Public concerts only</label>
-            </div>
-
-            <div class="mb-3 form-check">
-              <input
-                type="checkbox"
-                class="form-check-input"
-                id="exclude_cancelled"
-                name="exclude_cancelled"
-                checked
-              />
-              <label class="form-check-label" for="exclude_cancelled"
-                >Exclude cancelled concerts</label
-              >
-            </div>
-
-            <button type="submit" class="btn btn-primary">Get Recommendations</button>
-          </form>
+          <div class="col-md-6 mb-3">
+            <label for="min_score" class="form-label">Minimalus rekomendacijos įvertis</label>
+            <input
+              type="number"
+              class="form-control"
+              id="min_score"
+              name="min_score"
+              min="0"
+              max="10"
+              step="0.1"
+              placeholder="0.0 iki 10.0"
+            />
+          </div>
         </div>
-      </div>
 
-      <div class="card bg-dark text-white">
-        <div class="card-body">
-          <h2 class="card-title">Recommended Concerts</h2>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="date_from" class="form-label">Nuo datos</label>
+            <input
+              type="datetime-local"
+              class="form-control"
+              id="date_from"
+              name="date_from"
+            />
+          </div>
 
-          {% if koncertai %}
-            {% for koncertas in koncertai %}
-              <div class="card bg-secondary text-white mb-3">
-                <div class="card-body">
-                  <h5 class="card-title">{{ koncertas.pavadinimas }}</h5>
-                  {% if koncertas.pradzios_data %}
-                    <p class="card-text"><strong>Start:</strong> {{ koncertas.pradzios_data|date:"M d, Y" }}</p>
-                  {% endif %}
-                  {% if koncertas.pabaigos_data %}
-                    <p class="card-text"><strong>End:</strong> {{ koncertas.pabaigos_data|date:"M d, Y" }}</p>
-                  {% endif %}
-                  <p class="card-text"><strong>Genre:</strong> {{ koncertas.get_zanras_display }}</p>
-                  <p class="card-text"><strong>Tickets:</strong> {{ koncertas.zmoniu_talpa }}</p>
-                  <p class="card-text">
-                    <strong>Recommendation Score:</strong> 
-                    <span class="{% if koncertas.rekomendacijos_ivertis >= 9 %}text-success{% elif koncertas.rekomendacijos_ivertis >= 7 %}text-warning{% else %}text-info{% endif %}">
-                      {{ koncertas.rekomendacijos_ivertis|floatformat:1 }}/10
-                    </span>
-                  </p>
-                  <a href="{% url 'concerts:concertDetail' pk=koncertas.pk %}" class="btn btn-primary me-2">View Details</a>
-                  <a href="{% url 'concerts:editConcert' pk=koncertas.pk %}" class="btn btn-secondary">Edit</a>
-                </div>
-              </div>
-            {% endfor %}
-          {% else %}
-            <div class="alert alert-info">
-              No concerts match your criteria. Try adjusting your filters.
-            </div>
-          {% endif %}
+          <div class="col-md-6 mb-3">
+            <label for="date_to" class="form-label">Iki datos</label>
+            <input
+              type="datetime-local"
+              class="form-control"
+              id="date_to"
+              name="date_to"
+            />
+          </div>
         </div>
-      </div>
+
+        <div class="mb-3">
+          <label for="max_tickets" class="form-label">Maksimalus bilietų kiekis</label>
+          <input
+            type="number"
+            class="form-control"
+            id="max_tickets"
+            name="max_tickets"
+            min="1"
+            placeholder="Palikite tuščią, jei bet koks dydis"
+          />
+        </div>
+
+        <div class="mb-3 form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="public_only"
+            name="public_only"
+            checked
+          />
+          <label class="form-check-label" for="public_only">Tik vieši koncertai</label>
+        </div>
+
+        <div class="mb-3 form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="exclude_cancelled"
+            name="exclude_cancelled"
+            checked
+          />
+          <label class="form-check-label" for="exclude_cancelled">
+            Neįtraukti atšauktų koncertų
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Gauti rekomendacijas</button>
+      </form>
     </div>
-  </body>
-</html>
+  </div>
+
+  {% if koncertai %}
+    <h3 class="mb-4 fw-semibold">Rekomenduojami koncertai</h3>
+    <div class="row g-4">
+      {% for koncertas in koncertai %}
+        <div class="col-sm-6 col-md-4 col-lg-3">
+          <a class="card concert-card" href="{% url 'concerts:concertDetail' pk=koncertas.pk %}">
+            <img
+              src="https://picsum.photos/320/180?random={{ koncertas.pk }}"
+              class="card-img-top"
+              alt="Concert cover"
+            />
+            <div class="card-body">
+              <small class="text-muted">{% if koncertas.pradzios_data %}{{ koncertas.pradzios_data|date:"Y M d" }}{% endif %} - {% if koncertas.pabaigos_data %}{{ koncertas.pabaigos_data|date:"d" }}{% endif %} · {{ koncertas.get_zanras_display }}</small>
+              <h5 class="card-title mt-2">{{ koncertas.pavadinimas }}</h5>
+              <small class="text-muted">
+                Bilietų: {{ koncertas.zmoniu_talpa }} · Įvertis: 
+                <span class="{% if koncertas.rekomendacijos_ivertis >= 9 %}text-success{% elif koncertas.rekomendacijos_ivertis >= 7 %}text-warning{% else %}text-info{% endif %}">
+                  {{ koncertas.rekomendacijos_ivertis|floatformat:1 }}/10
+                </span>
+              </small>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info">
+      Koncertų, atitinkančių jūsų kriterijus, nerasta. Pabandykite pakoreguoti filtrus.
+    </div>
+  {% endif %}
+{% endblock %}

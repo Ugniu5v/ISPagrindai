@@ -1,133 +1,118 @@
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create Concert</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
+{% extends "_base.html" %}
+{% block title %}Sukurti koncertą • Muzikos sistema{% endblock %}
 
-  <body class="bg-black text-white p-4">
-    <div class="container mt-4">
-      <h1 class="mb-4">Create Concert</h1>
+{% block content %}
+  <h2 class="mb-4 fw-semibold">Sukurti koncertą</h2>
 
-      <nav class="mb-4">
-        <a href="{% url 'concerts:index' %}" class="btn btn-outline-light me-2"
-          >← Back to Concerts</a
-        >
-        <a href="{% url 'homepage' %}" class="btn btn-outline-light">Back to Home</a>
-      </nav>
-
-      <div class="card bg-dark text-white">
-        <div class="card-body">
-          <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-              <label for="pavadinimas" class="form-label">Concert Name *</label>
-              <input
-                type="text"
-                class="form-control bg-dark text-white"
-                id="pavadinimas"
-                name="pavadinimas"
-                required
-              />
-            </div>
-
-            <div class="mb-3">
-              <label for="pradzios_data" class="form-label">Start Date *</label>
-              <input
-                type="date"
-                class="form-control bg-dark text-white"
-                id="pradzios_data"
-                name="pradzios_data"
-                required
-              />
-            </div>
-
-            <div class="mb-3">
-              <label for="pabaigos_data" class="form-label">Finish Date *</label>
-              <input
-                type="date"
-                class="form-control bg-dark text-white"
-                id="pabaigos_data"
-                name="pabaigos_data"
-                required
-              />
-            </div>
-
-            <div class="mb-3">
-              <label for="bilietu_url" class="form-label">Ticket URL</label>
-              <input
-                type="url"
-                class="form-control bg-dark text-white"
-                id="bilietu_url"
-                name="bilietu_url"
-                placeholder="https://example.com/tickets"
-              />
-            </div>
-
-            <div class="mb-3">
-              <label for="aprasymas" class="form-label">Description</label>
-              <textarea
-                class="form-control bg-dark text-white"
-                id="aprasymas"
-                name="aprasymas"
-                rows="4"
-                placeholder="Enter concert description"
-              ></textarea>
-            </div>
-
-            <div class="mb-3">
-              <label for="zmoniu_talpa" class="form-label">Number of Tickets *</label>
-              <input
-                type="number"
-                class="form-control bg-dark text-white"
-                id="zmoniu_talpa"
-                name="zmoniu_talpa"
-                min="1"
-                required
-              />
-            </div>
-
-            <div class="mb-3">
-              <label for="zanras" class="form-label">Genre *</label>
-              <select class="form-select bg-dark text-white" id="zanras" name="zanras" required>
-                <option value="">Select Genre</option>
-                {% for value, label in zanrai %}
-                  <option value="{{ value }}">{{ label }}</option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label for="vieta" class="form-label">Location</label>
-              <select class="form-select bg-dark text-white" id="vieta" name="vieta">
-                <option value="">Select Location</option>
-                {% for vieta in vietos %}
-                  <option value="{{ vieta.id }}">{{ vieta.pavadinimas }} - {{ vieta.miestas }}</option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <div class="mb-3 form-check">
-              <input
-                type="checkbox"
-                class="form-check-input"
-                id="yra_viesas"
-                name="yra_viesas"
-                checked
-              />
-              <label class="form-check-label" for="yra_viesas">Is Public</label>
-            </div>
-
-            <button type="submit" class="btn btn-primary me-2">Create Concert</button>
-            <a href="{% url 'concerts:index' %}" class="btn btn-secondary">Cancel</a>
-          </form>
+  <div class="card shadow-sm bg-body-tertiary">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="pavadinimas" class="form-label">Koncerto pavadinimas *</label>
+          <input
+            type="text"
+            class="form-control"
+            id="pavadinimas"
+            name="pavadinimas"
+            required
+          />
         </div>
-      </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="pradzios_data" class="form-label">Pradžios data *</label>
+            <input
+              type="date"
+              class="form-control"
+              id="pradzios_data"
+              name="pradzios_data"
+              required
+            />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="pabaigos_data" class="form-label">Pabaigos data *</label>
+            <input
+              type="date"
+              class="form-control"
+              id="pabaigos_data"
+              name="pabaigos_data"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="bilietu_url" class="form-label">Bilietų nuoroda</label>
+          <input
+            type="url"
+            class="form-control"
+            id="bilietu_url"
+            name="bilietu_url"
+            placeholder="https://example.com/bilietai"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="aprasymas" class="form-label">Aprašymas</label>
+          <textarea
+            class="form-control"
+            id="aprasymas"
+            name="aprasymas"
+            rows="4"
+            placeholder="Įveskite koncerto aprašymą"
+          ></textarea>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="zmoniu_talpa" class="form-label">Bilietų kiekis *</label>
+            <input
+              type="number"
+              class="form-control"
+              id="zmoniu_talpa"
+              name="zmoniu_talpa"
+              min="1"
+              required
+            />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="zanras" class="form-label">Žanras *</label>
+            <select class="form-select" id="zanras" name="zanras" required>
+              <option value="">Pasirinkite žanrą</option>
+              {% for value, label in zanrai %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="vieta" class="form-label">Vieta</label>
+          <select class="form-select" id="vieta" name="vieta">
+            <option value="">Pasirinkite vietą</option>
+            {% for vieta in vietos %}
+              <option value="{{ vieta.id }}">{{ vieta.pavadinimas }} - {{ vieta.miestas }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3 form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="yra_viesas"
+            name="yra_viesas"
+            checked
+          />
+          <label class="form-check-label" for="yra_viesas">Viešas koncertas</label>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary">Sukurti koncertą</button>
+          <a href="{% url 'concerts:index' %}" class="btn btn-secondary">Atšaukti</a>
+        </div>
+      </form>
     </div>
-  </body>
-</html>
+  </div>
+{% endblock %}

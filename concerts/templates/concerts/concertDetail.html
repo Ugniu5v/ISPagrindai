@@ -1,99 +1,73 @@
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Concert Details - Rock Festival 2024</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-      #map {
-        height: 400px;
-        width: 100%;
-      }
-    </style>
-  </head>
+{% extends "_base.html" %}
+{% block title %}{{ koncertas.pavadinimas }} • Muzikos sistema{% endblock %}
 
-  <body class="bg-black text-white p-4">
-    <div class="container mt-4">
-      <h1 class="mb-4">{{ koncertas.pavadinimas }}</h1>
+{% block content %}
+  <!-- Concert Header -->
+  <div class="card shadow-sm mb-4 bg-body-tertiary">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="flex-grow-1">
+          <h2 class="mb-2 text-body-emphasis">{{ koncertas.pavadinimas }}</h2>
+          <p class="text-muted mb-0">
+            {% if koncertas.pradzios_data %}{{ koncertas.pradzios_data|date:"Y M d" }}{% endif %} - {% if koncertas.pabaigos_data %}{{ koncertas.pabaigos_data|date:"d" }}{% endif %} · {{ koncertas.get_zanras_display }}
+          </p>
+        </div>
+        {% if "user" in request.session and user and koncertas.autorius.id == user.id %}
+          <a href="{% url 'concerts:editConcert' pk=koncertas.pk %}" class="btn btn-outline-light me-2">
+            Redaguoti koncertą
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 
-      <nav class="mb-4">
-        <a href="{% url 'concerts:index' %}" class="btn btn-outline-light me-2"
-          >← Back to Concerts</a
-        >
-        <a href="{% url 'homepage' %}" class="btn btn-outline-light">Back to Home</a>
-      </nav>
-
-      <div class="card bg-dark text-white mb-4">
+  <div class="row g-4">
+    <div class="col-md-8">
+      <div class="card shadow-sm mb-4 bg-body-tertiary">
         <div class="card-body">
-          <h5 class="card-title mb-4">Concert Information</h5>
+          <h5 class="card-title mb-4">Koncerto informacija</h5>
 
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <strong>Start Date:</strong><br />
-              <span class="text-light">{% if koncertas.pradzios_data %}{{ koncertas.pradzios_data|date:"M d, Y" }}{% else %}Not specified{% endif %}</span>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <strong>Pradžios data:</strong><br />
+              <span class="text-muted">{% if koncertas.pradzios_data %}{{ koncertas.pradzios_data|date:"Y M d" }}{% else %}Nenurodyta{% endif %}</span>
             </div>
-            <div class="col-md-6 mb-3">
-              <strong>End Date:</strong><br />
-              <span class="text-light">{% if koncertas.pabaigos_data %}{{ koncertas.pabaigos_data|date:"M d, Y" }}{% else %}Not specified{% endif %}</span>
+            <div class="col-md-6">
+              <strong>Pabaigos data:</strong><br />
+              <span class="text-muted">{% if koncertas.pabaigos_data %}{{ koncertas.pabaigos_data|date:"Y M d" }}{% else %}Nenurodyta{% endif %}</span>
             </div>
           </div>
 
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <strong>Genre:</strong><br />
-              <span class="text-light">{{ koncertas.get_zanras_display }}</span>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <strong>Žanras:</strong><br />
+              <span class="text-muted">{{ koncertas.get_zanras_display }}</span>
             </div>
-            <div class="col-md-6 mb-3">
-              <strong>Maximum Tickets:</strong><br />
-              <span class="text-light">{{ koncertas.zmoniu_talpa }} tickets available</span>
+            <div class="col-md-6">
+              <strong>Bilietų kiekis:</strong><br />
+              <span class="text-muted">{{ koncertas.zmoniu_talpa }} bilietų</span>
             </div>
           </div>
 
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <strong>Recommendation Score:</strong><br />
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <strong>Rekomendacijos įvertis:</strong><br />
               <span class="text-success">{{ koncertas.rekomendacijos_ivertis|floatformat:1 }}/10</span>
             </div>
             {% if koncertas.bilietu_url %}
-            <div class="col-md-6 mb-3">
-              <strong>Ticket URL:</strong><br />
-              <a href="{{ koncertas.bilietu_url }}" target="_blank" class="text-primary"
-                >{{ koncertas.bilietu_url }}</a
-              >
+            <div class="col-md-6">
+              <strong>Bilietų nuoroda:</strong><br />
+              <a href="{{ koncertas.bilietu_url }}" target="_blank" class="text-primary">
+                {{ koncertas.bilietu_url }}
+              </a>
             </div>
             {% endif %}
           </div>
 
           {% if koncertas.aprasymas %}
           <div class="mb-3">
-            <strong>Description:</strong><br />
-            <span class="text-light">{{ koncertas.aprasymas }}</span>
-          </div>
-          {% endif %}
-
-          <hr class="my-3" />
-
-          {% if "user" in request.session %}
-          <div class="mb-3">
-            <strong>Attendance Status:</strong><br />
-            <form method="post" action="#">
-              {% csrf_token %}
-              <select class="form-select form-select-lg mt-3 w-100 w-md-25" name="dalyvavimo_busena">
-                <option value="domina" {% if dalyvavimo_busena == 'domina' %}selected{% endif %}>Interested</option>
-                <option value="nedalyvauja" {% if not dalyvavimo_busena %}selected{% endif %}>Not Attending</option>
-                <option value="dalyvauja" {% if dalyvavimo_busena == 'dalyvauja' %}selected{% endif %}>Attending</option>
-              </select>
-              <button type="submit" class="btn btn-primary mt-2">Update Status</button>
-            </form>
+            <strong>Aprašymas:</strong><br />
+            <span class="text-muted">{{ koncertas.aprasymas }}</span>
           </div>
           {% endif %}
 
@@ -101,54 +75,73 @@
 
           <div class="row">
             <div class="col-md-6">
-              <strong>Created:</strong><br />
-              <span class="text-muted">{% if koncertas.sukurimo_data %}{{ koncertas.sukurimo_data|date:"M d, Y" }}{% else %}Not specified{% endif %}</span>
+              <strong>Sukurta:</strong><br />
+              <span class="text-muted">{% if koncertas.sukurimo_data %}{{ koncertas.sukurimo_data|date:"Y M d" }}{% else %}Nenurodyta{% endif %}</span>
             </div>
             <div class="col-md-6">
-              <strong>Last Updated:</strong><br />
-              <span class="text-muted">{% if koncertas.atnaujinimo_data %}{{ koncertas.atnaujinimo_data|date:"M d, Y" }}{% else %}Not specified{% endif %}</span>
+              <strong>Paskutinį kartą atnaujinta:</strong><br />
+              <span class="text-muted">{% if koncertas.atnaujinimo_data %}{{ koncertas.atnaujinimo_data|date:"Y M d" }}{% else %}Nenurodyta{% endif %}</span>
             </div>
           </div>
-          <hr class="my-3" />
 
-      {% if location %}
-        {{ location|json_script:"location-data" }}
-          <div>
-            <strong>Location:</strong><br />
-            <div id="map" class="mt-2 rounded"></div>
-          </div>
-          <script>
-            window.addEventListener('load', function () {
-              const locationDataEl = document.getElementById('location-data');
-              const locationData = locationDataEl ? JSON.parse(locationDataEl.textContent) : null;
-              const lat = locationData?.lat;
-              const lng = locationData?.lng;
-              const name = locationData?.name;
+          {% if location %}
+            <hr class="my-3" />
+            {{ location|json_script:"location-data" }}
+            <div>
+              <strong>Vieta:</strong><br />
+              <div id="map" class="mt-2 rounded" style="height: 400px; width: 100%;"></div>
+            </div>
+            <link
+              rel="stylesheet"
+              href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            />
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <script>
+              window.addEventListener('load', function () {
+                const locationDataEl = document.getElementById('location-data');
+                const locationData = locationDataEl ? JSON.parse(locationDataEl.textContent) : null;
+                const lat = locationData?.lat;
+                const lng = locationData?.lng;
+                const name = locationData?.name;
 
-              const map = L.map('map').setView([lat, lng], 13);
+                const map = L.map('map').setView([lat, lng], 13);
 
-              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap contributors',
-              }).addTo(map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  maxZoom: 19,
+                  attribution: '© OpenStreetMap contributors',
+                }).addTo(map);
 
-              L.marker([lat, lng]).addTo(map).bindPopup(name).openPopup();
-
-            });
+                L.marker([lat, lng]).addTo(map).bindPopup(name).openPopup();
+              });
             </script>
-        {% else %}
-          <div>
-            <strong>Location:</strong><br />
-            <span class="text-muted">No location data available</span>
-          </div>
-      {% endif %}
+          {% else %}
+            <hr class="my-3" />
+            <div>
+              <strong>Vieta:</strong><br />
+              <span class="text-muted">Vietos duomenys neprieinami</span>
+            </div>
+          {% endif %}
         </div>
       </div>
-        {% if user and koncertas.autorius.id == user.id %}
-        <div class="mt-4">
-          <a href="{% url 'concerts:editConcert' pk=koncertas.pk %}" class="btn btn-primary">Edit Concert</a>
+    </div>
+
+    <div class="col-md-4">
+      {% if "user" in request.session %}
+      <div class="card shadow-sm mb-4 bg-body-tertiary">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Dalyvavimo būsena</h5>
+          <form method="post" action="#">
+            {% csrf_token %}
+            <select class="form-select mb-3" name="dalyvavimo_busena">
+              <option value="domina" {% if dalyvavimo_busena == 'domina' %}selected{% endif %}>Domina</option>
+              <option value="nedalyvauja" {% if not dalyvavimo_busena %}selected{% endif %}>Nedalyvauja</option>
+              <option value="dalyvauja" {% if dalyvavimo_busena == 'dalyvauja' %}selected{% endif %}>Dalyvauja</option>
+            </select>
+            <button type="submit" class="btn btn-primary w-100">Atnaujinti būseną</button>
+          </form>
         </div>
-        {% endif %}
-    </div> 
-</body>
-</html>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
