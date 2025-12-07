@@ -17,36 +17,48 @@
         </nav>
 
 
+        {% if success_message %}
+        <div class="alert alert-success" role="alert">
+            {{ success_message }}
+        </div>
+        {% endif %}
+
+        {% if errors %}
+        <div class="alert alert-danger" role="alert">
+            <ul class="mb-0">
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
         <div class="card bg-dark text-white">
             <div class="card-body">
-                <form method="post" action="#">
-                    {% with selected_song=request.GET.song %}
-                        {% if selected_song %}
-                            <div class="mb-3">
-                                <label class="form-label">Song</label>
-                                <input type="text" class="form-control bg-dark text-white" value="{{ selected_song }}"
-                                    disabled>
-                                <input type="hidden" name="song" value="{{ selected_song }}">
-                            </div>
-                        {% else %}
-                            <div class="mb-3">
-                                <label for="song" class="form-label">Select Song *</label>
-                                <select class="form-select bg-dark text-white" id="song" name="song" required>
-                                    <option value="">Choose a song</option>
-                                    <option {% if request.GET.song == 'Midnight Drive' %}selected{% endif %}>Midnight Drive</option>
-                                    <option {% if request.GET.song == 'Autumn Leaves' %}selected{% endif %}>Autumn Leaves</option>
-                                    <option {% if request.GET.song == 'Sunrise Run' %}selected{% endif %}>Sunrise Run</option>
-                                    <option {% if request.GET.song == 'Echoes in Stone' %}selected{% endif %}>Echoes in Stone</option>
-                                    <option {% if request.GET.song == 'Calm Waters' %}selected{% endif %}>Calm Waters</option>
-                                </select>
-                            </div>
-                        {% endif %}
-                    {% endwith %}
+                <form method="post" action="{% url 'music:rateSong' %}">
+                    {% csrf_token %}
+                    {% if selected_song %}
+                    <div class="mb-3">
+                        <label class="form-label">Song</label>
+                        <input type="text" class="form-control bg-dark text-white" value="{{ selected_song.pavadinimas }}" disabled>
+                        <input type="hidden" name="song" value="{{ selected_song.pk }}">
+                    </div>
+                    {% else %}
+                    <div class="mb-3">
+                        <label for="song" class="form-label">Select Song *</label>
+                        <select class="form-select bg-dark text-white" id="song" name="song">
+                            <option value="">Choose a song</option>
+                            {% for s in songs %}
+                            <option value="{{ s.pk }}" {% if request.GET.song|default:'' == s.pk|stringformat:'s' %}selected{% endif %}>{{ s.pavadinimas }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
 
                     <div class="mb-3">
                         <label for="rating" class="form-label">Rating (1-5) *</label>
                         <input type="number" class="form-control bg-dark text-white" id="rating" name="rating" min="1"
-                            max="5" step="1" required>
+                            max="5" step="1" value="{{ rating_value|default:'' }}">
                     </div>
 
                     <div class="mb-3">

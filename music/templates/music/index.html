@@ -15,104 +15,50 @@
     </div>
 
     <div class="mt-4">
-        <h2 class="h4">Demo Songs</h2>
+        <h2 class="h4">Songs</h2>
+        {% if songs %}
         <div class="row g-3 mt-2">
+            {% for song in songs %}
             <div class="col-md-6 col-lg-4">
                 <div class="card bg-dark text-white h-100">
                     <div class="card-body">
-                        <h5 class="card-title mb-1">Midnight Drive</h5>
-                        <p class="card-subtitle text-secondary mb-2">Genre: Electronic · Time: 3.45 min</p>
-                        <p class="mb-1">Release: 2023-08-12</p>
-                        <p class="mb-2 small text-secondary">Description: Neon synths for late-night rides.</p>
+                        <h5 class="card-title mb-1">{{ song.pavadinimas }}</h5>
+                        <p class="card-subtitle text-secondary mb-2">
+                            Genre: {{ song.get_zanras_display }} • Time: {{ song.trukme_sekundes }}s
+                        </p>
+                        {% if song.isleidimo_data %}
+                        <p class="mb-1">Release: {{ song.isleidimo_data }}</p>
+                        {% endif %}
+                        {% if song.aprasymas %}
+                        <p class="mb-2 small text-secondary">{{ song.aprasymas }}</p>
+                        {% endif %}
+                        {% if song.yra_viesa %}
                         <span class="badge bg-success">Public</span>
-                    </div>
-                    <div class="card-footer bg-transparent border-top border-secondary">
-                        <div class="d-flex flex-wrap gap-2">
-                            <button type="button" popovertarget="music-player" class="btn btn-sm btn-outline-light">Play</button>
-                            <a href="{% url 'music:editSong' %}?song=Midnight%20Drive" class="btn btn-sm btn-outline-warning">Edit Song</a>
-                            <a href="{% url 'music:similarSongs' %}?song=Midnight%20Drive" class="btn btn-sm btn-outline-secondary">Similar Songs</a>
-                            <a href="{% url 'music:rateSong' %}?song=Midnight%20Drive" class="btn btn-sm btn-outline-info">Rate Song</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card bg-dark text-white h-100">
-                    <div class="card-body">
-                        <h5 class="card-title mb-1">Autumn Leaves</h5>
-                        <p class="card-subtitle text-secondary mb-2">Genre: Jazz · Time: 5.10 min</p>
-                        <p class="mb-1">Release: 2022-10-02</p>
-                        <p class="mb-2 small text-secondary">Description: Smooth brass and gentle piano.</p>
-                        <span class="badge bg-success">Public</span>
-                    </div>
-                    <div class="card-footer bg-transparent border-top border-secondary">
-                        <div class="d-flex flex-wrap gap-2">
-                            <button type="button" popovertarget="music-player" class="btn btn-sm btn-outline-light">Play</button>
-                            <a href="{% url 'music:editSong' %}?song=Autumn%20Leaves" class="btn btn-sm btn-outline-warning">Edit Song</a>
-                            <a href="{% url 'music:similarSongs' %}?song=Autumn%20Leaves" class="btn btn-sm btn-outline-secondary">Similar Songs</a>
-                            <a href="{% url 'music:rateSong' %}?song=Autumn%20Leaves" class="btn btn-sm btn-outline-info">Rate Song</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card bg-dark text-white h-100">
-                    <div class="card-body">
-                        <h5 class="card-title mb-1">Sunrise Run</h5>
-                        <p class="card-subtitle text-secondary mb-2">Genre: Pop · Time: 2.58 min</p>
-                        <p class="mb-1">Release: 2024-03-15</p>
-                        <p class="mb-2 small text-secondary">Description: Upbeat start to your day.</p>
-                        <span class="badge bg-success">Public</span>
-                    </div>
-                    <div class="card-footer bg-transparent border-top border-secondary">
-                        <div class="d-flex flex-wrap gap-2">
-                            <button type="button" popovertarget="music-player" class="btn btn-sm btn-outline-light">Play</button>
-                            <a href="{% url 'music:editSong' %}?song=Sunrise%20Run" class="btn btn-sm btn-outline-warning">Edit Song</a>
-                            <a href="{% url 'music:similarSongs' %}?song=Sunrise%20Run" class="btn btn-sm btn-outline-secondary">Similar Songs</a>
-                            <a href="{% url 'music:rateSong' %}?song=Sunrise%20Run" class="btn btn-sm btn-outline-info">Rate Song</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card bg-dark text-white h-100">
-                    <div class="card-body">
-                        <h5 class="card-title mb-1">Echoes in Stone</h5>
-                        <p class="card-subtitle text-secondary mb-2">Genre: Rock · Time: 4.22 min</p>
-                        <p class="mb-1">Release: 2021-06-30</p>
-                        <p class="mb-2 small text-secondary">Description: Gritty guitars with melodic hooks.</p>
+                        {% else %}
                         <span class="badge bg-secondary">Private</span>
+                        {% endif %}
                     </div>
                     <div class="card-footer bg-transparent border-top border-secondary">
                         <div class="d-flex flex-wrap gap-2">
-                            <button type="button" popovertarget="music-player" class="btn btn-sm btn-outline-light">Play</button>
-                            <a href="{% url 'music:editSong' %}?song=Echoes%20in%20Stone" class="btn btn-sm btn-outline-warning">Edit Song</a>
-                            <a href="{% url 'music:similarSongs' %}?song=Echoes%20in%20Stone" class="btn btn-sm btn-outline-secondary">Similar Songs</a>
-                            <a href="{% url 'music:rateSong' %}?song=Echoes%20in%20Stone" class="btn btn-sm btn-outline-info">Rate Song</a>
+                            {% if song.failas_url %}
+                            <a href="{% url 'music:playSong' %}?song={{ song.pk }}" class="btn btn-sm btn-outline-light">Play</a>
+                            {% else %}
+                            <button type="button" class="btn btn-sm btn-outline-light disabled" aria-disabled="true">No file</button>
+                            {% endif %}
+                            <a href="{% url 'music:editSong' %}?song={{ song.pk }}" class="btn btn-sm btn-outline-warning">Edit Song</a>
+                            <a href="{% url 'music:similarSongs' %}?song={{ song.pk }}" class="btn btn-sm btn-outline-secondary">Similar Songs</a>
+                            <a href="{% url 'music:rateSong' %}?song={{ song.pk }}" class="btn btn-sm btn-outline-info">Rate Song</a>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card bg-dark text-white h-100">
-                    <div class="card-body">
-                        <h5 class="card-title mb-1">Calm Waters</h5>
-                        <p class="card-subtitle text-secondary mb-2">Genre: Classical · Time: 6.05 min</p>
-                        <p class="mb-1">Release: 2020-12-01</p>
-                        <p class="mb-2 small text-secondary">Description: Strings and piano for focus time.</p>
-                        <span class="badge bg-success">Public</span>
-                    </div>
-                    <div class="card-footer bg-transparent border-top border-secondary">
-                        <div class="d-flex flex-wrap gap-2">
-                            <button type="button" popovertarget="music-player" class="btn btn-sm btn-outline-light">Play</button>
-                            <a href="{% url 'music:editSong' %}?song=Calm%20Waters" class="btn btn-sm btn-outline-warning">Edit Song</a>
-                            <a href="{% url 'music:similarSongs' %}?song=Calm%20Waters" class="btn btn-sm btn-outline-secondary">Similar Songs</a>
-                            <a href="{% url 'music:rateSong' %}?song=Calm%20Waters" class="btn btn-sm btn-outline-info">Rate Song</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
+        {% else %}
+        <div class="alert alert-secondary text-dark mt-3" role="alert">
+            No songs yet. Create one to get started.
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>
