@@ -17,52 +17,58 @@
             <a href="{% url 'homepage' %}" class="btn btn-outline-light">Home</a>
         </nav>
 
-        {% if playlist %}
+        {% if grojarastis %}
         <div class="card bg-dark text-white p-4 shadow-lg">
-            <form method="POST" action="{% url 'playlists:editPlaylist' playlist.id %}">
+            <form method="POST" action="{% url 'playlists:editPlaylist' grojarastis.pk %}">
                 {% csrf_token %}
 
+                <!-- TITLE / PAVADINIMAS -->
                 <div class="mb-3">
-                    <label for="title" class="form-label">Playlist Title</label>
-                    <input type="text" id="title" name="title" class="form-control bg-black text-white" value="{{ playlist.title }}" required>
+                    <label for="pavadinimas" class="form-label">Playlist Title</label>
+                    <input 
+                        type="text" 
+                        id="pavadinimas" 
+                        name="pavadinimas" 
+                        class="form-control bg-black text-white"
+                        value="{{ grojarastis.pavadinimas }}"
+                        required
+                    >
                 </div>
 
+                <!-- DESCRIPTION / APRASYMAS -->
                 <div class="mb-3">
-                    <label for="genre" class="form-label">Genre</label>
-                    <select id="genre" name="genre" class="form-select bg-black text-white" required>
-                        <option {% if playlist.genre == "" %}selected{% endif %}>Select a genre</option>
-                        <option {% if playlist.genre == "Pop" %}selected{% endif %}>Pop</option>
-                        <option {% if playlist.genre == "Rock" %}selected{% endif %}>Rock</option>
-                        <option {% if playlist.genre == "Hip-Hop" %}selected{% endif %}>Hip-Hop</option>
-                        <option {% if playlist.genre == "Jazz" %}selected{% endif %}>Jazz</option>
-                        <option {% if playlist.genre == "Electronic" %}selected{% endif %}>Electronic</option>
-                        <option {% if playlist.genre == "Classical" %}selected{% endif %}>Classical</option>
-                        <option {% if playlist.genre == "Other" %}selected{% endif %}>Other</option>
-                    </select>
+                    <label for="aprasymas" class="form-label">Description</label>
+                    <textarea 
+                        id="aprasymas" 
+                        name="aprasymas" 
+                        rows="3" 
+                        class="form-control bg-black text-white"
+                    >{{ grojarastis.aprasymas }}</textarea>
                 </div>
 
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea id="description" name="description" rows="3" class="form-control bg-black text-white">{{ playlist.description }}</textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label for="songs" class="form-label">Number of Songs</label>
-                    <input type="number" id="songs" name="songs" min="1" class="form-control bg-black text-white" value="{{ playlist.songs }}">
-                </div>
-
+                <!-- VISIBILITY / YRA_VIESAS -->
                 <div class="mb-3">
                     <label for="visibility" class="form-label">Visibility</label>
-                    <select id="visibility" name="visibility" class="form-select bg-black text-white" required>
-                        <option {% if playlist.visibility == "Public" %}selected{% endif %}>Public</option>
-                        <option {% if playlist.visibility == "Private" %}selected{% endif %}>Private</option>
+                    <select 
+                        id="visibility"
+                        name="yra_viesas"
+                        class="form-select bg-black text-white"
+                        required
+                    >
+                        <option value="on" {% if grojarastis.yra_viesas %}selected{% endif %}>
+                            Public
+                        </option>
+                        <option value="off" {% if not grojarastis.yra_viesas %}selected{% endif %}>
+                            Private
+                        </option>
                     </select>
                 </div>
 
                 <button type="submit" class="btn btn-success">Save Changes</button>
-                <a href="{% url 'playlists:playlistDetail' playlist.id %}" class="btn btn-secondary ms-2">Cancel</a>
+                <a href="{% url 'playlists:PlaylistDetail' grojarastis.pk %}" class="btn btn-secondary ms-2">Cancel</a>
             </form>
         </div>
+
         {% else %}
         <p>Playlist not found.</p>
         {% endif %}
