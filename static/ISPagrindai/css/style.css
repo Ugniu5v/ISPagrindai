@@ -1,19 +1,9 @@
 :root {
   height: 100%;
-  /* color-scheme: light dark; */
-  --nav-bg: #39444e;
-  --footer-bg: #5c6d7c;
+  --nav-bg: #2c6597;
+  --footer-bg: #2c6597;
 }
 
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #121212;
-    --text-color: #f8f9fa;
-    --card-bg: #1e1e1e;
-    --nav-bg: #000;
-    --footer-bg: #000;
-  }
-} */
 
 [data-bs-theme=dark] {
   --nav-bg: #02090f;
@@ -147,4 +137,62 @@ audio::-webkit-media-controls-enclosure {
 
 main {
   flex: 1;
+}
+
+/* THEME SWITCH */
+.theme-toggle {
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    background: transparent;
+    vertical-align: middle;
+    margin-inline-start: 5px;
+    margin-top: -1px;
+}
+
+.theme-toggle svg {
+    vertical-align: middle;
+    height: 1.5rem;
+    width: 1.5rem;
+    display: none;
+}
+
+/*
+Fully hide screen reader text so we only show the one matching the current
+theme.
+*/
+.theme-toggle .visually-hidden {
+    display: none;
+}
+
+html[data-bs-theme="auto"] .theme-toggle .theme-label-when-auto {
+    display: block;
+}
+
+html[data-bs-theme="dark"] .theme-toggle .theme-label-when-dark {
+    display: block;
+}
+
+html[data-bs-theme="light"] .theme-toggle .theme-label-when-light {
+    display: block;
+}
+
+/* ICONS */
+.theme-toggle svg.theme-icon-when-auto,
+.theme-toggle svg.theme-icon-when-dark,
+.theme-toggle svg.theme-icon-when-light {
+    fill: var(--bs-nav-link-color);
+    color: var(--nav-bg);
+}
+
+html[data-bs-theme="auto"] .theme-toggle svg.theme-icon-when-auto {
+    display: block;
+}
+
+html[data-bs-theme="dark"] .theme-toggle svg.theme-icon-when-dark {
+    display: block;
+}
+
+html[data-bs-theme="light"] .theme-toggle svg.theme-icon-when-light {
+    display: block;
 }

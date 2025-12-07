@@ -1,0 +1,52 @@
+{% extends "_base.html" %}
+{% block title %}Naudotojai • Administratorius{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 fw-semibold">Naudotojų tvarkyklė</h2>
+
+<table class="table table-bordered table-striped align-middle shadow-sm" style="table-layout: fixed;">
+    <colgroup>
+        <col style="width: 2.5em;"/>
+        <col span="3"/>
+        <col style="width: 5.3em;"/>
+    </colgroup>
+    <thead class="table-dark">
+        <tr>
+            <th class="text-center">#</th>
+            <th>Vardas</th>
+            <th>El. paštas</th>
+            <th>Rolė</th>
+            <th>Veiksmai</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <form method="post" id="form-{{ u.id }}" action="{% url 'users:adminUsers' %}">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value="{{ u.pk }}">
+                <td class="text-center">{{ u.pk }}</td>
+                <td>{{ u.username|escape }}</td>
+                <td>{{ u.email|escape }}</td>
+                <td>{{ u.role|escape }}</td>
+                <td class="text-center">
+                    {% if u.pk != request.session.user_id %}
+                    <button type="submit"
+                            title="Blokuoti"
+                            class="btn btn-sm btn-outline-danger"
+                            name="submit"
+                            value="block"
+                            form="form-{{ u.id }}"
+                            onclick="return confirm('Ar tikrai? Naudotojas bus užblokuotas.');">
+                            Blokuoti
+                    </button>
+                    {% endif %}
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

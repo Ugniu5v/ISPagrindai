@@ -17,11 +17,3 @@ source .venv/bin/activate
 5.  python manage.py migrate
 
 6.  python manage.py runserver
-
-# Admin
-
-localhost/admin
-
-- Username - gytis
-- Email address - djgytis231@gmail.com
-- Password - bobas231

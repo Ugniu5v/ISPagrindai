@@ -1,18 +1,26 @@
 {% extends "_base.html" %}
-{% block title %}Muzikos sistema - Naudotojai{% endblock %}
+{% block title %}Naudotojai • Muzikos sistema{% endblock %}
 {% block content %}
   <h2 class="mb-4 fw-semibold">Naudotojai</h2>
   <div class="row row-cols-auto g-4">
     {% for user in users %}
-    <a class="user-card" href="{% url 'users:userDetail' user.id %}">
-      <img
-        height="180"
-        width="180"
-        src="{{ user.image_url }}"
-        class="rounded-circle shadow-sm"
-        alt="user profile picture"
-      />
-      <h6 class="card-title mt-1 mb-1">{{ user.name }}</h6>
+    <a class="user-card" href="{% url 'users:userDetail' user.pk %}">
+      {% if user.profile_cover_url %}
+        <img
+          height="180"
+          width="180"
+          src="{{ user.profile_cover_url }}"
+          class="rounded-circle shadow-sm"
+          alt="user profile cover"
+        />
+      {% else %}
+        <div
+        style="width: 180px; height: 180px; box-shadow: inset 0px 0px 16px 0px #000c;"
+        class="rounded-circle bg-secondary"
+        >
+        </div>
+      {% endif %}
+      <h6 class="card-title mt-1 mb-1">{{ user.display_name }}</h6>
     </a>
     {% endfor %}
   </div>
