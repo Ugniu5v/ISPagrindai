@@ -144,9 +144,11 @@
       {% endif %}
         </div>
       </div>
+        {% if user and koncertas.autorius.id == user.id %}
         <div class="mt-4">
-        <a href="{% url 'concerts:editConcert' pk=koncertas.pk %}" class="btn btn-primary">Edit Concert</a>
-      </div>
+          <a href="{% url 'concerts:editConcert' pk=koncertas.pk %}" class="btn btn-primary">Edit Concert</a>
+        </div>
+        {% endif %}
     </div> 
 </body>
 </html>
