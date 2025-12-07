@@ -17,7 +17,8 @@ Including another URLconf
 
 from django.urls import path, include
 from . import views
-
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path("", views.homepage, name="homepage"),
@@ -26,3 +27,5 @@ urlpatterns = [
     path("playlists/", include("playlists.urls")),
     path("concerts/", include("concerts.urls")),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

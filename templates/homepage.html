@@ -143,17 +143,16 @@
             <img
               height="180"
               width="180"
-              src="{{ user.profile_cover_url }}"
+              src="{{ user.profile_cover_url.url }}"
               class="rounded-circle shadow-sm"
               alt="user profile cover"
             />
-          {% else %}
+        {% else %}
             <div
-            style="width: 180px; height: 180px; box-shadow: inset 0px 0px 16px 0px #000c;"
-            class="rounded-circle bg-secondary"
-            >
-            </div>
-          {% endif %}
+              style="width: 180px; height: 180px; box-shadow: inset 0px 0px 16px 0px #000c;"
+              class="rounded-circle bg-secondary"
+            ></div>
+        {% endif %}
           <h6 class="card-title mt-1 mb-1">{{ user.display_name }}</h6>
         </a>
       {% endfor %}

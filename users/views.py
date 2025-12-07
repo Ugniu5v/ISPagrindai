@@ -99,9 +99,10 @@ def loginUser(request: HttpRequest):
                     request.session["user"] = True
                     request.session["user_id"] = user.pk
                     request.session["user_name"] = user.username
+                    request.session["user_display_name"] = user.display_name
                     request.session["user_email"] = user.email
                     request.session["user_role"] = user.role
-                    request.session["user_role_label"] = user.get_role_display()
+                    request.session["user_role_label"] = user.get_role_display() # type: ignore
                     request.session.modified = True
 
                     user.last_login_at = datetime.now()
@@ -156,9 +157,52 @@ def registerUser(request):
 
 
 @login_required
-def userEdit(request):
+def userEdit(request: HttpRequest):
+    errors = []
+    info = []
+    form = {"display_name": "", "email": "", "biography": "", "two_factor_enabled": False, "is_public": False, "date_of_birth": ""}
     user = User.objects.get(pk=request.session["user_id"])
-    return render(request, "users/edit.html", {"user": user})
+    context = {"errors": errors, "info": info, "form": form, "user": user}
+
+    if request.method == "GET":
+        form["display_name"] =      user.display_name
+        form["email"] =             user.email
+        form["biography"] =         user.biography or "" 
+        form["two_factor_enabled"] = user.two_factor_enabled
+        form["is_public"] =         user.is_public
+        form["date_of_birth"] =     user.date_of_birth
+    elif request.method == "POST":
+        # Gaunami duomenys
+        display_name =           form["display_name"] =      request.POST["display_name"]
+        email =              form["email"] =             request.POST["email"]
+        biography =          form["biography"] =         request.POST["biography"]
+        profile_cover =  request.FILES["profile_cover_url"] if "profile_cover_url" in request.FILES else None 
+        two_factor_enabled = form["two_factor_enabled"] = "two_factor_enabled" in request.POST
+        is_public =          form["is_public"] =         "is_public" in request.POST
+        date_of_birth =      form["date_of_birth"] =     request.POST["date_of_birth"]
+
+        user.display_name = display_name
+        user.email = email
+        user.biography = biography
+        if profile_cover:
+            user.profile_cover_url = profile_cover # type: ignore
+        user.two_factor_enabled = two_factor_enabled
+        user.is_public = is_public
+
+        if date_of_birth != "":
+            user.date_of_birth = date.fromisoformat(date_of_birth)
+
+        user.save()
+
+        request.session["user_display_name"] = display_name
+        request.session["user_email"] = email
+        request.session["user_profile_cover_url"] = user.profile_cover_url.path
+
+        info.append("Profilio informacija sėkmingai atnaujinta!")
+        # return redirect("users:userDetail", user_id=request.session["user_id"])
+
+
+    return render(request, "users/edit.html", context)
 
 
 def userDetail(request, user_id):

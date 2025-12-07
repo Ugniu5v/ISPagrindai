@@ -129,6 +129,10 @@ STATICFILES_DIRS = [
 # Where files will be collected when you run `collectstatic`
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# Kur laikyti įkeltus failus
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
