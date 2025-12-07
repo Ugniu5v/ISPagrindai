@@ -118,7 +118,9 @@
                 <p class="card-text text-danger"><strong>Status:</strong> Cancelled</p>
               {% endif %}
               <a href="{% url 'concerts:concertDetail' pk=koncertas.pk %}" class="btn btn-primary me-2">View Details</a>
+              {% if user and koncertas.autorius.id == user.id %}
               <a href="{% url 'concerts:editConcert' pk=koncertas.pk %}" class="btn btn-secondary">Edit</a>
+              {% endif %}
             </div>
           </div>
         {% endfor %}

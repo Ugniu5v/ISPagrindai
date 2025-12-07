@@ -56,6 +56,13 @@ def index(request):
     koncertai = koncertai.order_by("-pradzios_data")
     zanrai = Koncertas.Zanras.choices
     
+    user = None
+    if "user" in request.session:
+        try:
+            user = User.objects.get(pk=request.session["user_id"])
+        except User.DoesNotExist:
+            pass
+    
     return render(request, "concerts/index.html", {
         "koncertai": koncertai,
         "zanrai": zanrai,
@@ -64,6 +71,7 @@ def index(request):
         "selected_status": status_filter,
         "selected_date": date_filter,
         "selected_score": score_filter,
+        "user": user,
     })
 
 @login_required
@@ -200,18 +208,20 @@ def concertDetail(request, pk):
         }
     
     dalyvavimo_busena = None
+    user = None
     if "user" in request.session:
         try:
             user = User.objects.get(pk=request.session["user_id"])
             dalyvis = KoncertoDalyvis.objects.get(vartotojas=user.pk, koncertas=koncertas)
             dalyvavimo_busena = dalyvis.dalyvavimo_busena
-        except KoncertoDalyvis.DoesNotExist or User.DoesNotExist:
+        except (KoncertoDalyvis.DoesNotExist, User.DoesNotExist):
             pass
     
     return render(request, "concerts/concertDetail.html", {
         'koncertas': koncertas,
         'location': concert_location,
-        'dalyvavimo_busena': dalyvavimo_busena
+        'dalyvavimo_busena': dalyvavimo_busena,
+        'user': user,
     })
 
 
