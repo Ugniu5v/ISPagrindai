@@ -5,6 +5,7 @@ from .decorators import login_required
 from concerts.models import Koncertas
 import bcrypt
 from datetime import date
+from datetime import datetime
 
 # -------------------------------
 # MOCK DATA (vietoj tikrų modelių)
@@ -64,7 +65,7 @@ def index(request):
 
     context = {
         "request": request,
-        "users": User.objects.all()
+        "users": User.objects.filter(is_public=True, is_blocked=False)
     }
 
     return render(request, "users/index.html", context)
@@ -100,10 +101,13 @@ def loginUser(request: HttpRequest):
                     request.session["user_name"] = user.username
                     request.session["user_email"] = user.email
                     request.session["user_role"] = user.role
+                    request.session["user_role_label"] = user.get_role_display()
                     request.session.modified = True
 
+                    user.last_login_at = datetime.now()
+                    user.save()
+
                     next = request.POST.get("next") or "homepage"
-                    print("NEXT", next)
                     return redirect(next)
             except User.DoesNotExist:
                 errors.append("Šis naudotojas neegzistuoja.")
@@ -182,5 +186,29 @@ def admin(request: HttpRequest):
 
 @login_required(User.RoleChoices.ADMIN)
 def adminUsers(request: HttpRequest):
-    context = {"errors": [], "users": User.objects.all()}
+    errors = []
+    info = []
+    if request.method == "POST":
+        if "block" in request.POST:
+            user_id = request.POST["block"]
+            if user_id == request.session["user_id"]:
+                errors.append("Negalima blokuoti savęs")
+            else:
+                user = User.objects.get(pk=user_id)
+                user.is_blocked = True
+                user.save()
+                info.append(f"Sėkmingai užblokuotas naudotojas '{user.display_name}'")
+        elif "unblock" in request.POST:
+            user_id = request.POST["unblock"]
+            if user_id == request.session["user_id"]:
+                errors.append("Negalima atblokuoti savęs")
+            else:
+                user = User.objects.get(pk=user_id)
+                user.is_blocked = False
+                user.save()
+                info.append(f"Sėkmingai atblokuotas naudotojas '{user.display_name}'")
+        else:
+            errors.append("Nesuprastas veiksmas")
+
+    context = {"errors": errors, "info": info, "users": User.objects.all()}
     return render(request, "users/adminUsers.html", context)

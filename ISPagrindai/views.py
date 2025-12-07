@@ -15,7 +15,7 @@ def homepage(request):
     koncertai = Koncertas.objects.filter(pradzios_data__gte=today, pradzios_data__lte=week_end)
     koncertai = koncertai.order_by("-pradzios_data")
 
-    users = User.objects.all()
+    users = User.objects.filter(is_public=True, is_blocked=False)
 
     context = {"request": request, "koncertai": koncertai, "users": users}
     return render(request, "homepage.html", context)

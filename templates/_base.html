@@ -53,10 +53,17 @@
             <li class="nav-item dropdown-center">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-person-circle"></i>
+                {% if "user" in request.session  %}
+                    {{ request.session.user_name }}
+                {% endif %}
               </a>
               <ul class="dropdown-menu">
                 {% if "user" in request.session  %}
-                  <li><h6 class="dropdown-header">{{ request.session.user_name }}</h6></li>
+                  <li>
+                    <h6 class="dropdown-header">
+                      {{ request.session.user_role_label }}
+                    </h6>
+                  </li>
                   <li><hr class="dropdown-divider"></li>
                   {% if request.session.user_role == "Admin" %}
                     <li><a class="dropdown-item" href="{% url 'users:admin' %}">Admin</a></li>
