@@ -58,9 +58,11 @@
                 {% if "user" in request.session  %}
                   <li><h6 class="dropdown-header">{{ request.session.user_name }}</h6></li>
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="/admin">Admin</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="{% url 'users:userDetail' 1 %}">Mano profilis</a></li>
+                  {% if request.session.user_role == "Admin" %}
+                    <li><a class="dropdown-item" href="{% url 'users:admin' %}">Admin</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                  {% endif %}
+                  <li><a class="dropdown-item" href="{% url 'users:userDetail' request.session.user_id %}">Mano profilis</a></li>
                   <li><a class="dropdown-item" href="{% url 'users:userLogout' %}">Atsijungti</a></li>
                 {% else %}
                   <li><a class="dropdown-item" href="{% url 'users:userLogin' %}">Prisijungti</a></li>

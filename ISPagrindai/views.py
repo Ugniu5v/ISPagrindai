@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from concerts.models import Koncertas
+from users.models import User
 from datetime import datetime
 from datetime import timedelta
 from django.utils import timezone
@@ -14,5 +15,7 @@ def homepage(request):
     koncertai = Koncertas.objects.filter(pradzios_data__gte=today, pradzios_data__lte=week_end)
     koncertai = koncertai.order_by("-pradzios_data")
 
-    context = {"request": request, "koncertai": koncertai}
+    users = User.objects.all()
+
+    context = {"request": request, "koncertai": koncertai, "users": users}
     return render(request, "homepage.html", context)

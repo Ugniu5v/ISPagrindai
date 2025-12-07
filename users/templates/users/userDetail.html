@@ -3,24 +3,31 @@
 {% block content %}
   <!-- User Header -->
   <div class="card shadow-sm mb-4 bg-body-tertiary">
-    <div class="card-body d-flex align-items-center">
-      <img
-        src="{{ user.image_url }}"
-        class="rounded-circle me-3"
-        width="180"
-        height="180"
-        alt="profile"
-      />
-      <div>
-        <h3 class="mb-1 text-body-emphasis">{{ user.name }}</h3>
-        <p class="text-muted mb-0">{{ user.fallower_count }} sekėjai • {{ user.email }}</p>
+    <div class="card-body d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <img
+          src="{{ user.image_url }}"
+          class="rounded-circle me-3"
+          width="180"
+          height="180"
+          alt="profile"
+        />
+        <div>
+          <h3 class="mb-1 text-body-emphasis">{{ user.name }}</h3>
+          <p class="text-muted mb-0">{{ user.fallower_count }} sekėjai • {{ user.email }}</p>
+        </div>
       </div>
+      {% if "user" in request.session and user.pk == request.session.user_id %}
+        <a href="{% url 'users:userEdit' %}" class="btn btn-outline-light me-2">
+            Redaguoti profilį
+        </a>
+      {% endif %}
     </div>
   </div>
 
   <div class="d-flex justify-content-between align-items-start">
     <h2 class="mb-4 fw-semibold">Dainos</h2>
-    {% if request.user.is_authenticated %}
+    {% if "user" in request.session and user.pk == request.session.user_id %}
     <a href="{% url 'music:createSong' %}" class="btn btn-outline-light me-2">
       Įkelti dainą
     </a>
@@ -46,7 +53,7 @@
 
   <div class="d-flex justify-content-between align-items-start">
     <h2 class="mb-4 fw-semibold">Grojaraščiai</h2>
-    {% if request.user.is_authenticated %}
+    {% if "user" in request.session and user.pk == request.session.user_id %}
     <a href="{% url 'playlists:createPlaylist' %}" class="btn btn-outline-light me-2">
       Sukurti Grojaraštį
     </a>
@@ -70,35 +77,51 @@
     {% endif %}
   </div>
   
-  <div class="d-flex justify-content-between align-items-start">
-    <h2 class="mb-4 fw-semibold">Būsimi Koncertai</h2>
-    {% if request.user.is_authenticated %}
-    <a href="{% url 'concerts:createConcert' %}" class="btn btn-outline-light me-2">
-      Skelbti Koncertą
-    </a>
-    {% endif %}
-  </div>
-  <div class="row row-cols-auto g-4 mb-5">
-    {% if concerts %} {% for concert in concerts %}
-    <a class="card concert-card px-0 mx-3" href="{% url 'concerts:concertDetail' %}">
-      <img
-        src="{{ concert.cover_url }}"
-        height="180"
-        width="320"
-        class="card-img-top"
-        alt="Concert cover"
-      />
-      <div class="card-body">
-        <small
-          >{{ concert.start_date }} • {{ concert.place.title }} ({{ concert.place.city}})</small
-        >
-        <h5 class="card-title">{{ concert.title }}</h5>
-        <small style="font-size: small" class="text-muted">
-          Susidomėjo: {{ concert.interested_count }} · Dalyvaus: {{ concert.going_count }}</small>
+  {% if koncertai %}
+    <div class="d-flex justify-content-between align-items-start">
+      <h2 class="mb-4 fw-semibold">Būsimi Koncertai</h2>
+      {% if "user" in request.session and user.pk == request.session.user_id %}
+        <a href="{% url 'concerts:createConcert' %}" class="btn btn-outline-light me-2">
+          Skelbti naują Koncertą
+        </a>
+      {% endif %}
+    </div>
+    <div class="row g-4">
+      <div class="col-sm-6 mb-3 mb-sm-0">
+        {% for koncertas in koncertai %}
+          <a class="card concert-card" href="{% url 'concerts:concertDetail' pk=koncertas.pk %}">
+            <img
+              src="https://picsum.photos/320/180?random=9"
+              class="card-img-top"
+              alt="Concert cover"
+            />
+            <div class="card-body">
+              <small>{% if koncertas.pradzios_data %}{{ koncertas.pradzios_data|date:"Y M d" }}{% endif %} - {% if koncertas.pabaigos_data %}{{ koncertas.pabaigos_data|date:"d" }}{% endif %} · {{ koncertas.get_zanras_display }}</small>
+              <h5 class="card-title">{{ koncertas.pavadinimas }}</h5>
+              <small style="font-size: small" class="text-muted">
+                Bielietų: {{ koncertas.zmoniu_talpa }} · Įvertis: {{ koncertas.rekomendacijos_ivertis|floatformat:1 }}/10
+              </small>
+              {% comment %} <div class="card-footer">
+                <div class="dropdown mt-3">
+                  <button
+                    class="btn btn-secondary dropdown-toggle"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    Nedomina
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">Domina</a></li>
+                    <li><a class="dropdown-item" href="#">Dayvausiu</a></li>
+                    <li><a class="dropdown-item active" href="#">Nedomina</a></li>
+                  </ul>
+                </div>
+              </div> {% endcomment %}
+            </div>
+          </a>
+        {% endfor %}
       </div>
-    </a>
-    {% endfor %} {% else %}
-    <p class="text-muted">Nėra koncertų.</p>
-    {% endif %}
-  </div>
+    </div>
+  {% endif %}
 {% endblock %}

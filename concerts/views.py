@@ -5,6 +5,8 @@ from django.http import HttpRequest
 from datetime import datetime
 from datetime import timedelta
 from .models import Koncertas, Vieta, KoncertoDalyvis
+from users.models import User
+from users.decorators import login_required
 import requests
 
 
@@ -64,10 +66,15 @@ def index(request):
         "selected_score": score_filter,
     })
 
-# veliau nuimti 
-#@login_required
+@login_required
 def createConcert(request: HttpRequest):
     if request.method == "POST":
+        user = None
+        try:
+            user = User.objects.get(pk=request.session["user_id"])
+        except User.DoesNotExist:
+            redirect("concerts:index")
+
         vieta_id = request.POST.get("vieta", "").strip()
         vieta = None
         if vieta_id:
@@ -89,8 +96,9 @@ def createConcert(request: HttpRequest):
                 pabaigos_data = datetime.strptime(request.POST["pabaigos_data"], '%Y-%m-%d').date()
             except (ValueError, TypeError):
                 pass
-        
+                         
         koncertas = Koncertas.objects.create(
+            autorius=user,
             pavadinimas=request.POST["pavadinimas"],
             pradzios_data=pradzios_data,
             pabaigos_data=pabaigos_data,
@@ -192,11 +200,12 @@ def concertDetail(request, pk):
         }
     
     dalyvavimo_busena = None
-    if "user" in request.session and request.session["user"] == True:
+    if "user" in request.session:
         try:
-            dalyvis = KoncertoDalyvis.objects.get(vartotojas=request.session["user_id"], koncertas=koncertas)
+            user = User.objects.get(pk=request.session["user_id"])
+            dalyvis = KoncertoDalyvis.objects.get(vartotojas=user.pk, koncertas=koncertas)
             dalyvavimo_busena = dalyvis.dalyvavimo_busena
-        except KoncertoDalyvis.DoesNotExist:
+        except KoncertoDalyvis.DoesNotExist or User.DoesNotExist:
             pass
     
     return render(request, "concerts/concertDetail.html", {

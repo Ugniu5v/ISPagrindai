@@ -82,7 +82,7 @@
 
           <hr class="my-3" />
 
-          {% if user.is_authenticated %}
+          {% if "user" in request.session %}
           <div class="mb-3">
             <strong>Attendance Status:</strong><br />
             <form method="post" action="#">

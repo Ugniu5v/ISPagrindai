@@ -1,10 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest
 from .models import User
+from .decorators import login_required
+from concerts.models import Koncertas
 import bcrypt
-
-
-# from django.contrib.auth import logout, authenticate, login
 from datetime import date
 
 # -------------------------------
@@ -50,67 +49,6 @@ MOCK_PLAYLISTS = [
     },
 ]
 
-MOCK_CONCERTS = [
-    {
-        "id": 1,
-        "title": "Vasaros Festas",
-        "start_date": date(2024, 6, 15),
-        "place": {"title": "Vingio parkas", "city": "Vilnius"},
-        "going_state": "Dalyvauja",
-        "cover_url": "https://picsum.photos/320/180?random=31",
-        "going_count": 12,
-        "interested_count": 35,
-    },
-    {
-        "id": 2,
-        "title": "Roko Naktis",
-        "start_date": date(2024, 8, 20),
-        "place": {"title": "Žalgirio Arena", "city": "Kaunas"},
-        "going_state": "Domina",
-        "cover_url": "https://picsum.photos/320/180?random=32",
-        "going_count": 22,
-        "interested_count": 47,
-    },
-]
-
-MOCK_USERS = [
-    {
-        "id": 1,
-        "name": "Gytis Kaulakis",
-        "email": "gytis@gmail.com",
-        "image_url": "https://picsum.photos/180?random=1",
-        "fallower_count": 31,
-    },
-    {
-        "id": 2,
-        "name": "Ramūnas Vengrauskas",
-        "email": "ramunas@gmail.com",
-        "image_url": "https://picsum.photos/180?random=2",
-        "fallower_count": 52,
-    },
-    {
-        "id": 3,
-        "name": "Ignas Nakčeris",
-        "email": "ignas@gmail.com",
-        "image_url": "https://picsum.photos/180?random=3",
-        "fallower_count": 7,
-    },
-    {
-        "id": 4,
-        "name": "Ugnius Varžukas",
-        "email": "ugnius@gmail.com",
-        "image_url": "https://picsum.photos/180?random=4",
-        "fallower_count": 70,
-    },
-    {
-        "id": 5,
-        "name": "Cool dainininkas",
-        "email": "dainininkas@gmail.com",
-        "image_url": "https://picsum.photos/180?random=5",
-        "fallower_count": 32946,
-    },
-]
-
 def get_hashed_password(plain_text_password):
     # Hash a password for the first time
     #   (Using bcrypt, the salt is saved into the hash itself)
@@ -126,15 +64,15 @@ def index(request):
 
     context = {
         "request": request,
-        "users": MOCK_USERS,
+        "users": User.objects.all()
     }
 
     return render(request, "users/index.html", context)
 
 
-def loginUser(request):
+def loginUser(request: HttpRequest):
     errors = []
-    form = {"username": "", "password": ""}
+    form = {"username": "", "password": "", "next": request.GET.get("next", "")}
     if request.method == "POST":
         # Gaunami duomenys
         username = request.POST["username"]
@@ -161,11 +99,15 @@ def loginUser(request):
                     request.session["user_id"] = user.pk
                     request.session["user_name"] = user.username
                     request.session["user_email"] = user.email
+                    request.session["user_role"] = user.role
                     request.session.modified = True
-                    return redirect("homepage")
+
+                    next = request.POST.get("next") or "homepage"
+                    print("NEXT", next)
+                    return redirect(next)
             except User.DoesNotExist:
                 errors.append("Šis naudotojas neegzistuoja.")
-        
+
     return render(request, "users/login.html", {"errors": errors, "form": form})
 
 
@@ -209,24 +151,36 @@ def registerUser(request):
     return render(request, "users/register.html", context)
 
 
-def editUser(request):
-    return render(request, "users/editUser.html")
+@login_required
+def userEdit(request):
+    user = User.objects.get(pk=request.session["user_id"])
+    return render(request, "users/edit.html", {"user": user})
 
 
 def userDetail(request, user_id):
-    user = next((user for user in MOCK_USERS if user["id"] == user_id), None)
+    user = get_object_or_404(User, pk=user_id)
+    # user.koncertai - Pagal `Koncertas` modelio `author` atributą, kuriam related_name="koncertai"
+    concerts = user.koncertai.all() # type: ignore
 
     context = {
         "request": request,
         "user": user,
         "music": MOCK_MUSIC,
         "playlists": MOCK_PLAYLISTS,
-        "concerts": MOCK_CONCERTS,
+        "koncertai": concerts,
     }
 
     return render(request, "users/userDetail.html", context)
 
-
 def logoutUser(request):
     request.session.flush()
     return redirect("homepage")
+
+@login_required(User.RoleChoices.ADMIN)
+def admin(request: HttpRequest):
+    return render(request, "users/admin.html")
+
+@login_required(User.RoleChoices.ADMIN)
+def adminUsers(request: HttpRequest):
+    context = {"errors": [], "users": User.objects.all()}
+    return render(request, "users/adminUsers.html", context)

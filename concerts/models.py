@@ -41,6 +41,7 @@ class Koncertas(models.Model):
         TECHNO = "techno", "Techno"
         HOUSE = "house", "House"
 
+    autorius = models.ForeignKey(User, on_delete=models.CASCADE, related_name="koncertai")
     pavadinimas = models.TextField()
     pradzios_data = models.DateField(blank=True, null=True)
     pabaigos_data = models.DateField(blank=True, null=True)

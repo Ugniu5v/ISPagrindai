@@ -11,7 +11,7 @@
 
     function cycleTheme() {
         const currentTheme = localStorage.getItem("theme") || "auto";
-        console.log("current theme", currentTheme);
+        // console.log("current theme", currentTheme);
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
         if (prefersDark) {

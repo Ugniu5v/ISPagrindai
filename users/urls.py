@@ -5,10 +5,11 @@ app_name = "users"
 
 urlpatterns = [
     path("", views.index, name="index"),
-    # path("create/", views.createUser, name="createConcert"),
-    # path("edit/", views.editUser, name="editConcert"),
-    path("detail/<int:user_id>", views.userDetail, name="userDetail"),
+    path("<int:user_id>/", views.userDetail, name="userDetail"),
+    path("edit/", views.userEdit, name="userEdit"),
     path("logout/", views.logoutUser, name="userLogout"),
     path("login/", views.loginUser, name="userLogin"),
     path("register/", views.registerUser, name="userRegister"),
+    path("admin/", views.admin, name="admin"), # type: ignore
+    path("admin/users/", views.adminUsers, name="adminUsers"), # type: ignore
 ]

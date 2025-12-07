@@ -1,0 +1,7 @@
+{% extends "_base.html" %}
+{% block title %}Administratorius{% endblock %}
+{% block content %}
+  <h2 class="mb-4 fw-semibold">Administratorius</h2>
+  <p>Čia yra bendras administratoriaus langas.</p>
+  <a href="{% url "users:adminUsers" %}">Naudotojai</a>
+{% endblock %}
