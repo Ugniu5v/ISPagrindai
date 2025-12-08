@@ -7,9 +7,11 @@
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="text-white">Playlists</h1>
-        <a href="{% url 'playlists:createPlaylist' %}" class="btn btn-success btn-lg">
-            Create New Playlist
-        </a>
+        {% if "user" in request.session %}
+            <a href="{% url 'playlists:createPlaylist' %}" class="btn btn-success btn-lg">
+                Create New Playlist
+            </a>
+        {% endif %}
     </div>
 
     <div class="row">
@@ -54,7 +56,7 @@
                     </p>
 
                     <div class="mt-auto">
-                        <a href="{% url 'playlists:PlaylistDetail' grojarastis.pk %}" 
+                        <a href="{% url 'playlists:playlistDetail' grojarastis.pk %}" 
                            class="btn btn-primary btn-sm me-2">View</a>
 
                         {% if grojarastis.savininkas.pk == request.session.user_id %}
@@ -70,8 +72,10 @@
         {% empty %}
         <div class="col-12">
             <div class="alert alert-info text-center">
-                No playlists available yet.
-                <a href="{% url 'playlists:createPlaylist' %}">Create the first one!</a>
+                Dar nėra grojaraščių
+                {% if "user" in request.session %}
+                    <a href="{% url 'playlists:createPlaylist' %}">Sukurti naują grojaraštį.</a>
+                {% endif %}
             </div>
         </div>
         {% endfor %}

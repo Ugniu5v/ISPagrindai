@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-kl81@79*&s+1mc4ec#4*hg3c#gs1m&#p+%&u-fmkgv%ux_)iq#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -131,6 +131,10 @@ STATICFILES_DIRS = [
 
 # Where files will be collected when you run `collectstatic`
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Kur laikyti įkeltus failus
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

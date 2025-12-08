@@ -2,13 +2,37 @@
 {% block title %}Naudotojai • Administratorius{% endblock %}
 
 {% block content %}
+{% if errors %}
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Klaida</h4>
+    <ul class="mb-0">
+    {% for error in errors %}
+        <li>
+            {{error}}
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% if info %}
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Pranešimas</h4>
+    <ul class="mb-0">
+    {% for line in info %}
+        <li>
+            {{line}}
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
 <h2 class="mb-4 fw-semibold">Naudotojų tvarkyklė</h2>
 
 <table class="table table-bordered table-striped align-middle shadow-sm" style="table-layout: fixed;">
     <colgroup>
         <col style="width: 2.5em;"/>
-        <col span="3"/>
-        <col style="width: 5.3em;"/>
+        <col span="4"/>
+        <col style="width: 6.2em;"/>
     </colgroup>
     <thead class="table-dark">
         <tr>
@@ -16,6 +40,7 @@
             <th>Vardas</th>
             <th>El. paštas</th>
             <th>Rolė</th>
+            <th>Užblokuotas</th>
             <th>Veiksmai</th>
         </tr>
     </thead>
@@ -23,30 +48,43 @@
     <tbody>
         {% for u in users %}
         <tr>
-            <form method="post" id="form-{{ u.id }}" action="{% url 'users:adminUsers' %}">
-                {% csrf_token %}
-                <input type="hidden" name="user_id" value="{{ u.pk }}">
-                <td class="text-center">{{ u.pk }}</td>
-                <td>{{ u.username|escape }}</td>
-                <td>{{ u.email|escape }}</td>
-                <td>{{ u.role|escape }}</td>
-                <td class="text-center">
-                    {% if u.pk != request.session.user_id %}
-                    <button type="submit"
-                            title="Blokuoti"
-                            class="btn btn-sm btn-outline-danger"
-                            name="submit"
-                            value="block"
-                            form="form-{{ u.id }}"
-                            onclick="return confirm('Ar tikrai? Naudotojas bus užblokuotas.');">
-                            Blokuoti
-                    </button>
+            <td class="text-center">{{ u.pk }}</td>
+            <td>{{ u.display_name|escape }}</td>
+            <td>{{ u.email|escape }}</td>
+            <td>{{ u.get_role_display }}</td>
+            <td>{{ u.is_blocked|yesno:"Taip,Ne" }}</td>
+            <td class="text-center">
+                {% if u.pk != request.session.user_id %}
+                    {% if u.is_blocked %}
+                        <button type="submit"
+                                title="Atblokuoti"
+                                class="btn btn-sm btn-outline-success"
+                                name="unblock"
+                                value="{{ u.pk }}"
+                                form="adminUserForm"
+                                onclick="return confirm('Ar tikrai? Naudotojas bus atblokuotas.');">
+                                Atblokuoti
+                        </button>
+                    {% else %}
+                        <button type="submit"
+                                title="Blokuoti"
+                                class="btn btn-sm btn-outline-danger"
+                                name="block"
+                                value="{{ u.pk }}"
+                                form="adminUserForm"
+                                onclick="return confirm('Ar tikrai? Naudotojas bus užblokuotas.');">
+                                Blokuoti
+                        </button>
                     {% endif %}
-                </td>
-            </form>
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<form method="post" id="adminUserForm" action="{% url 'users:adminUsers' %}">
+    {% csrf_token %}
+</form>
 
 {% endblock %}

@@ -29,7 +29,7 @@
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container">
-        <a class="navbar-brand fw-bold" href="#">Muzikos Sistema</a>
+        <a class="navbar-brand fw-bold" href="/">Muzikos Sistema</a>
         <button
           class="navbar-toggler"
           type="button"
@@ -50,13 +50,21 @@
             <li class="nav-item"><a class="nav-link {% if playlists_index in request.path %}active{% endif %}" href="{{ playlists_index }}">Grojaraščiai</a></li>
             <li class="nav-item"><a class="nav-link {% if concerts_index  in request.path %}active{% endif %}" href="{{ concerts_index }}">Koncertai</a></li>
             <li class="nav-item"><a class="nav-link {% if users_index     in request.path %}active{% endif %}" href="{{ users_index }}">Naudotojai</a></li>
+            <div class="vr mx-2"></div>
             <li class="nav-item dropdown-center">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-person-circle"></i>
+                <i class="bi bi-person-circle me-1"></i>
+                {% if "user" in request.session  %}
+                    {{ request.session.user_display_name }}
+                {% endif %}
               </a>
               <ul class="dropdown-menu">
                 {% if "user" in request.session  %}
-                  <li><h6 class="dropdown-header">{{ request.session.user_name }}</h6></li>
+                  <li>
+                    <h6 class="dropdown-header">
+                      {{ request.session.user_role_label }}
+                    </h6>
+                  </li>
                   <li><hr class="dropdown-divider"></li>
                   {% if request.session.user_role == "Admin" %}
                     <li><a class="dropdown-item" href="{% url 'users:admin' %}">Admin</a></li>
@@ -70,6 +78,7 @@
                 {% endif %}
               </ul>
             </li>
+            <div class="vr mx-2"></div>
             <li class="nav-item" style="align-content: center">{% include 'theme-toggle.html' %}</li>
           </ul>
         </div>
