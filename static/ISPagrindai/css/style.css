@@ -15,7 +15,8 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  color: var(--bs-emphasis-color);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
 }
 
 .navbar,

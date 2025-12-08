@@ -1,74 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Play Song</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-black text-white p-4">
-    <div class="container">
-        <h1 class="mb-4">Play Song</h1>
-        <a href="{% url 'music:index' %}" class="btn btn-outline-light mb-3">Back to Music</a>
+{% extends "_base.html" %}
+{% block title %}Klausyti dainą › Muzikos sistema{% endblock %}
 
-        {% if errors %}
-        <div class="alert alert-danger" role="alert">
-            <ul class="mb-0">
-                {% for error in errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <h2 class="fw-semibold mb-0">Klausyti dainą</h2>
+  <a href="{% url 'music:index' %}" class="btn btn-primary">Atgal</a>
+</div>
 
-        {% if song %}
-        <div class="card bg-dark text-white">
-            <div class="card-body">
-                <h4 class="card-title">{{ song.pavadinimas }}</h4>
-                <p class="mb-2 text-secondary">Genre: {{ song.get_zanras_display }} | Duration: {{ song.trukme_sekundes }}s</p>
-                {% if song.isleidimo_data %}
-                <p class="mb-3">Release date: {{ song.isleidimo_data }}</p>
-                {% endif %}
+{% if errors %}
+<div class="alert alert-danger" role="alert">
+  <ul class="mb-0">
+    {% for error in errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
 
-                <div class="mb-3">
-                    <strong>Average rating:</strong>
-                    {% if rating_avg %}
-                        {{ rating_avg|floatformat:1 }} ({{ rating_count }} rating{% if rating_count != 1 %}s{% endif %})
-                    {% else %}
-                        Not rated yet
-                    {% endif %}
-                </div>
+{% if song %}
+<div class="card bg-body-tertiary shadow-sm">
+  <div class="card-body">
+    <h4 class="card-title">{{ song.pavadinimas }}</h4>
+    <p class="mb-2 text-secondary">Žanras: {{ song.get_zanras_display }} • Trukmė: {{ song.trukme_sekundes }}s</p>
+    {% if song.isleidimo_data %}<p class="mb-2 text-secondary">Išleidimo data: {{ song.isleidimo_data }}</p>{% endif %}
 
-                {% if song.virselis_url %}
-                <div class="mb-3">
-                    <img src="{{ song.virselis_url }}" alt="Cover for {{ song.pavadinimas }}" class="img-fluid rounded border border-secondary">
-                </div>
-                {% endif %}
-
-                {% if song.failas_url %}
-                <div class="mb-3">
-                    <audio id="audio-player" controls autoplay class="w-100">
-                        <source src="{{ audio_url }}" {% if audio_mime %}type="{{ audio_mime }}"{% endif %} />
-                        Your browser does not support the audio element.
-                    </audio>
-                </div>
-                {% else %}
-                <div class="alert alert-warning text-dark" role="alert">
-                    No file URL available for this song.
-                </div>
-                {% endif %}
-
-                <div class="mt-3">
-                    <h6>Lyrics</h6>
-                    {% if song.zodziai %}
-                    <pre class="bg-black text-white border border-secondary rounded p-3" style="white-space: pre-wrap;">{{ song.zodziai }}</pre>
-                    {% else %}
-                    <p class="text-secondary small mb-0">No lyrics uploaded.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
+    <div class="mb-3">
+      <strong>Vidutinis įvertinimas:</strong>
+      {% if rating_avg %}
+        {{ rating_avg|floatformat:1 }} ({{ rating_count }} įvert.)
+      {% else %}
+        Nėra įvertinimų
+      {% endif %}
     </div>
-</body>
-</html>
+
+    {% if song.virselis_url %}
+    <div class="mb-3">
+      <img src="{{ song.virselis_url }}" alt="Cover for {{ song.pavadinimas }}" class="img-fluid rounded border border-secondary">
+    </div>
+    {% endif %}
+
+    {% if song.failas_url %}
+    <div class="mb-3">
+      <audio id="audio-player" controls autoplay class="w-100">
+        <source src="{{ audio_url }}" {% if audio_mime %}type="{{ audio_mime }}"{% endif %} />
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+    <div class="mt-4">
+      <h5>Pridėti į grojaraštį</h5>
+
+      {% if user_playlists %}
+      <form method="POST" action="{% url 'music:addToPlaylist' song.id %}">
+        {% csrf_token %}
+
+        <div class="input-group">
+          <select class="form-select" name="playlist_id" required>
+            {% for g in user_playlists %}
+              <option value="{{ g.id }}">{{ g.pavadinimas }}</option>
+            {% endfor %}
+          </select>
+
+          <button class="btn btn-success">Pridėti</button>
+        </div>
+      </form>
+      {% else %}
+        <p class="text-secondary">Neturite jokių grojaraščių.</p>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning text-dark" role="alert">
+      Nėra failo URL šiai dainai.
+    </div>
+    {% endif %}
+
+    <div class="mt-3">
+      <h6>Žodžiai</h6>
+      {% if song.zodziai %}
+      <pre class="border border-secondary rounded p-3" style="white-space: pre-wrap;">{{ song.zodziai }}</pre>
+      {% else %}
+      <p class="text-secondary small mb-0">Žodžių failas nepateiktas.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

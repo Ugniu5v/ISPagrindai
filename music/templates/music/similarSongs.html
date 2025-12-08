@@ -1,74 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Similar Songs</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-black text-white p-4">
-    <div class="container mt-4">
-        <h1 class="mb-4">Similar Songs</h1>
+{% extends "_base.html" %}
+{% block title %}Panašios dainos › Muzikos sistema{% endblock %}
 
-        <nav class="mb-4">
-            <a href="{% url 'music:index' %}" class="btn btn-outline-light me-2">Back to Music</a>
-        </nav>
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <h2 class="fw-semibold mb-0">Panašios dainos</h2>
+  <a href="{% url 'music:index' %}" class="btn btn-primary">Atgal</a>
+</div>
 
-        {% if errors %}
-        <div class="alert alert-danger" role="alert">
-            <ul class="mb-0">
-                {% for error in errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
+{% if errors %}
+<div class="alert alert-danger" role="alert">
+  <ul class="mb-0">
+    {% for error in errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
 
-        {% if info %}
-        <div class="alert alert-info" role="alert">
-            {{ info }}
-        </div>
-        {% endif %}
+{% if info %}
+<div class="alert alert-info" role="alert">
+  {{ info }}
+</div>
+{% endif %}
 
-        {% if target_song %}
-        <div class="card bg-dark text-white mb-4">
-            <div class="card-body">
-                <h4 class="card-title mb-1">{{ target_song.pavadinimas }}</h4>
-                <p class="mb-1 text-secondary">Genre: {{ target_song.get_zanras_display }}</p>
-                <p class="mb-1 text-secondary">Duration: {{ target_song.trukme_sekundes }}s</p>
-                {% if target_song.isleidimo_data %}
-                <p class="mb-0 text-secondary">Release date: {{ target_song.isleidimo_data }}</p>
-                {% endif %}
+{% if target_song %}
+<div class="card bg-body-tertiary shadow-sm mb-4">
+  <div class="card-body">
+    <h4 class="card-title mb-1">{{ target_song.pavadinimas }}</h4>
+    <p class="mb-1 text-secondary">Žanras: {{ target_song.get_zanras_display }}</p>
+    <p class="mb-1 text-secondary">Trukmė: {{ target_song.trukme_sekundes }}s</p>
+    {% if target_song.isleidimo_data %}
+    <p class="mb-0 text-secondary">Išleidimo data: {{ target_song.isleidimo_data }}</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<div class="card bg-body-tertiary shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Rekomenduojamos</h5>
+    {% if similar_songs %}
+    <div class="row g-3">
+      {% for song in similar_songs %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card bg-black h-100 border border-secondary">
+          <div class="card-body">
+            <h6 class="card-title mb-1">{{ song.pavadinimas }}</h6>
+            <p class="card-subtitle text-secondary mb-2">
+              Žanras: {{ song.get_zanras_display }} • {{ song.trukme_sekundes }}s
+            </p>
+            {% if song.isleidimo_data %}
+            <p class="mb-2 small text-secondary">Išleista: {{ song.isleidimo_data }}</p>
+            {% endif %}
+          </div>
+          <div class="card-footer bg-transparent border-top border-secondary">
+            <div class="d-flex flex-wrap gap-2">
+              <a href="{% url 'music:playSong' %}?song={{ song.pk }}" class="btn btn-sm btn-primary">Klausyti</a>
+              <a href="{% url 'music:editSong' %}?song={{ song.pk }}" class="btn btn-sm btn-primary">Redaguoti</a>
             </div>
+          </div>
         </div>
-        {% endif %}
-
-        <div class="card bg-dark text-white">
-            <div class="card-body">
-                <h5 class="card-title">Recommended</h5>
-                {% if similar_songs %}
-                <ul class="list-group list-group-flush">
-                    {% for song in similar_songs %}
-                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="fw-semibold">{{ song.pavadinimas }}</div>
-                            <div class="text-secondary small">
-                                Genre: {{ song.get_zanras_display }} | Duration: {{ song.trukme_sekundes }}s
-                                {% if song.isleidimo_data %}| Release: {{ song.isleidimo_data }}{% endif %}
-                            </div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="{% url 'music:playSong' %}?song={{ song.pk }}" class="btn btn-sm btn-outline-light">Play</a>
-                            <a href="{% url 'music:editSong' %}?song={{ song.pk }}" class="btn btn-sm btn-outline-warning">Edit</a>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="text-secondary mb-0">No similar songs found.</p>
-                {% endif %}
-            </div>
-        </div>
+      </div>
+      {% endfor %}
     </div>
-</body>
-</html>
+    {% else %}
+    <p class="text-secondary mb-0">Panašių dainų nerasta.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

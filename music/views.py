@@ -3,11 +3,15 @@ import os
 import math
 from datetime import datetime
 
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Max
 from django.http import FileResponse, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
+
+from django.contrib import messages
 
 from .models import Daina, DainosVertinimas
+from playlists.models import Grojarastis, GrojarastisDaina
+from django.db import models
 
 
 # Create your views here.
@@ -350,6 +354,10 @@ def playSong(request):
     context["audio_url"] = audio_url
     context["audio_mime"] = audio_mime
 
+    user_id = request.session.get("user_id")
+    user_playlists = Grojarastis.objects.filter(savininkas_id=user_id)
+    context["user_playlists"] = user_playlists
+
     return render(request, "music/playSong.html", context)
 
 
@@ -420,3 +428,42 @@ def similarSongs(request):
             "all_songs": songs,
         },
     )
+
+
+def addToPlaylist(request, song_id):
+    user_id = request.session.get("user_id")
+    song = get_object_or_404(Daina, pk=song_id)
+
+    if request.method == "POST":
+        playlist_id = request.POST.get("playlist_id")
+        grojarastis = get_object_or_404(Grojarastis, pk=playlist_id)
+
+        if grojarastis.savininkas_id != user_id:
+            messages.error(request, "Galite redaguoti tik savo grojaraščius.")
+            return redirect(f"/music/play/?song={song_id}")
+
+        duplicate_exists = grojarastis.dainos.filter(
+            dainos_pavadinimas=song.pavadinimas,
+            atlikėjo_vardas=getattr(song, "atlikejas", "")
+        ).exists()
+
+        if duplicate_exists:
+            messages.error(request, "Ši daina jau yra šiame grojaraštyje.")
+            return redirect(f"/music/play/?song={song_id}")
+
+        max_number = grojarastis.dainos.aggregate(
+            max_eile=models.Max("eilės_nr")
+        )["max_eile"] or 0
+
+        next_number = max_number + 1
+
+        GrojarastisDaina.objects.create(
+            grojarastis=grojarastis,
+            dainos_pavadinimas=song.pavadinimas,
+            atlikėjo_vardas=getattr(song, "atlikejas", ""),
+            eilės_nr=next_number,
+        )
+
+        messages.success(request, "Daina pridėta į grojaraštį!")
+        return redirect(f"/music/play/?song={song_id}")
+

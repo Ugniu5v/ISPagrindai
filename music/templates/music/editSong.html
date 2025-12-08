@@ -1,135 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "_base.html" %}
+{% block title %}Redaguoti dainą › Muzikos sistema{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Song</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <h2 class="fw-semibold mb-0">Redaguoti dainą</h2>
+  <a href="{% url 'music:index' %}" class="btn btn-primary">Atgal</a>
+</div>
 
-<body class="bg-black text-white p-4">
-    <div class="container mt-4">
-        <h1 class="mb-4">Edit Song</h1>
+{% if song %}
+<div class="alert alert-info">Redaguojama: <strong>{{ song.pavadinimas }}</strong></div>
+{% endif %}
 
-        <nav class="mb-4">
-            <a href="{% url 'music:index' %}" class="btn btn-outline-light me-2">Back to Music</a>
-        </nav>
+{% if success_message %}
+<div class="alert alert-success" role="alert">
+  {{ success_message }}
+</div>
+{% endif %}
 
-        {% if song %}
-        <div class="alert alert-info bg-dark text-white border-secondary">
-            Editing: <strong>{{ song.pavadinimas }}</strong>
+{% if errors or field_errors %}
+<div class="alert alert-danger" role="alert">
+  <strong>Nepavyko atnaujinti.</strong> Patikslinkite pažymėtus laukus.
+  {% if errors %}
+  <ul class="mb-0">
+    {% for error in errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="card bg-body-tertiary shadow-sm">
+  <div class="card-body">
+    <form method="post" action="{% url 'music:editSong' %}?song={{ song.pk }}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="song" value="{{ song.pk }}">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="name" class="form-label">Pavadinimas *</label>
+          <input type="text" class="form-control {% if field_errors.name %}is-invalid{% endif %}" id="name" name="name" value="{{ form_data.name|default:'' }}">
+          {% if field_errors.name %}<div class="invalid-feedback d-block">{{ field_errors.name }}</div>{% endif %}
         </div>
-        {% endif %}
-
-        {% if success_message %}
-        <div class="alert alert-success" role="alert">
-            {{ success_message }}
+        <div class="col-md-6">
+          <label for="time" class="form-label">Trukmė (min) *</label>
+          <input type="number" class="form-control {% if field_errors.time %}is-invalid{% endif %}" id="time" name="time" min="0" step="0.01" value="{{ form_data.time|default:'' }}">
+          {% if field_errors.time %}<div class="invalid-feedback d-block">{{ field_errors.time }}</div>{% endif %}
         </div>
-        {% endif %}
-
-        {% if errors or field_errors %}
-        <div class="alert alert-danger" role="alert">
-            <strong>Cannot update song.</strong> Please fix the issues below.
-            {% if errors %}
-            <ul class="mb-0">
-                {% for error in errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
+        <div class="col-md-6">
+          <label for="release_date" class="form-label">Išleidimo data *</label>
+          <input type="date" class="form-control {% if field_errors.release_date %}is-invalid{% endif %}" id="release_date" name="release_date" value="{{ form_data.release_date|default:'' }}">
+          {% if field_errors.release_date %}<div class="invalid-feedback d-block">{{ field_errors.release_date }}</div>{% endif %}
         </div>
-        {% endif %}
-
-        <div class="card bg-dark text-white">
-            <div class="card-body">
-                <form method="post" action="{% url 'music:editSong' %}?song={{ song.pk }}" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="hidden" name="song" value="{{ song.pk }}">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Song Name *</label>
-                        <input type="text" class="form-control bg-dark text-white {% if field_errors.name %}is-invalid{% endif %}" id="name" name="name"
-                            value="{{ form_data.name|default:'' }}">
-                        {% if field_errors.name %}
-                        <div class="invalid-feedback d-block">
-                            {{ field_errors.name }}
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="time" class="form-label">Duration (minutes) *</label>
-                        <input type="number" class="form-control bg-dark text-white {% if field_errors.time %}is-invalid{% endif %}" id="time" name="time" min="0"
-                            step="0.01" value="{{ form_data.time|default:'' }}">
-                        {% if field_errors.time %}
-                        <div class="invalid-feedback d-block">
-                            {{ field_errors.time }}
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="release_date" class="form-label">Release Date *</label>
-                        <input type="date" class="form-control bg-dark text-white {% if field_errors.release_date %}is-invalid{% endif %}" id="release_date"
-                            name="release_date" value="{{ form_data.release_date|default:'' }}">
-                        {% if field_errors.release_date %}
-                        <div class="invalid-feedback d-block">
-                            {{ field_errors.release_date }}
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="genre" class="form-label">Genre *</label>
-                        <select class="form-select bg-dark text-white {% if field_errors.genre %}is-invalid{% endif %}" id="genre" name="genre">
-                            <option value="">Select Genre</option>
-                            {% for value, label in zanrai %}
-                            <option value="{{ value }}" {% if form_data.genre == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                        {% if field_errors.genre %}
-                        <div class="invalid-feedback d-block">
-                            {{ field_errors.genre }}
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="words" class="form-label">Lyrics (TXT file)</label>
-                        <input type="file" class="form-control bg-dark text-white" id="words" name="words"
-                            accept=".txt">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="file_url" class="form-label">File URL</label>
-                        <input type="url" class="form-control bg-dark text-white" id="file_url" name="file_url"
-                            value="{{ form_data.file_url|default:'' }}" placeholder="https://example.com/song-file">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="cover_url" class="form-label">Cover URL</label>
-                        <input type="url" class="form-control bg-dark text-white" id="cover_url" name="cover_url"
-                            value="{{ form_data.cover_url|default:'' }}" placeholder="https://example.com/cover.jpg">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control bg-dark text-white" id="description" name="description" rows="4"
-                            placeholder="Update song description or notes">{{ form_data.description|default:'' }}</textarea>
-                    </div>
-
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="is_public" name="is_public"
-                            {% if form_data.is_public|default:'on' %}checked{% endif %}>
-                        <label class="form-check-label" for="is_public">Is Public</label>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary me-2">Save Changes</button>
-                    <a href="{% url 'music:index' %}" class="btn btn-secondary">Cancel</a>
-                </form>
-            </div>
+        <div class="col-md-6">
+          <label for="genre" class="form-label">Žanras *</label>
+          <select class="form-select {% if field_errors.genre %}is-invalid{% endif %}" id="genre" name="genre">
+            <option value="">Pasirinkite žanrą</option>
+            {% for value, label in zanrai %}
+            <option value="{{ value }}" {% if form_data.genre == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          {% if field_errors.genre %}<div class="invalid-feedback d-block">{{ field_errors.genre }}</div>{% endif %}
         </div>
-    </div>
-</body>
-
-</html>
+        <div class="col-md-6">
+          <label for="file_url" class="form-label">Failo URL</label>
+          <input type="url" class="form-control" id="file_url" name="file_url" value="{{ form_data.file_url|default:'' }}" placeholder="https://...">
+        </div>
+        <div class="col-md-6">
+          <label for="cover_url" class="form-label">Viršelio URL</label>
+          <input type="url" class="form-control" id="cover_url" name="cover_url" value="{{ form_data.cover_url|default:'' }}" placeholder="https://...">
+        </div>
+        <div class="col-12">
+          <label for="description" class="form-label">Aprašymas</label>
+          <textarea class="form-control" id="description" name="description" rows="3">{{ form_data.description|default:'' }}</textarea>
+        </div>
+        <div class="col-12">
+          <label for="words" class="form-label">Dainos žodžiai (TXT)</label>
+          <input type="file" class="form-control" id="words" name="words" accept=".txt">
+        </div>
+        <div class="col-12 form-check">
+          <input type="checkbox" class="form-check-input" id="is_public" name="is_public" {% if form_data.is_public|default:'on' %}checked{% endif %}>
+          <label class="form-check-label" for="is_public">Vieša</label>
+        </div>
+      </div>
+      <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Išsaugoti</button>
+        <a href="{% url 'music:index' %}" class="btn btn-secondary">Atšaukti</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
