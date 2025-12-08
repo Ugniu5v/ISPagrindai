@@ -2,53 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest
 from .models import User
 from .decorators import login_required
-from concerts.models import Koncertas
 import bcrypt
 from datetime import date
 from datetime import datetime
 
-# -------------------------------
-# MOCK DATA (vietoj tikrų modelių)
-# -------------------------------
-
-MOCK_MUSIC = [
-    {
-        "id": 1,
-        "title": "Vasara 2024",
-        "genre": "Popmuzika",
-        "cover_url": "https://picsum.photos/180?random=10",
-        "length_seconds": 210,
-    },
-    {
-        "id": 2,
-        "title": "Nakties tyluma",
-        "genre": "Rokas",
-        "cover_url": "https://picsum.photos/180?random=11",
-        "length_seconds": 185,
-    },
-]
-
-MOCK_PLAYLISTS = [
-    {
-        "id": 1,
-        "title": "Mano mėgstamiausios",
-        "created_at": date(2024, 2, 10),
-        "author_names": [
-            "Gytis Kaulakis",
-            "Ramūnas Vengrauskas",
-            "Trečias atlikėjas",
-            "Ketvirtas atlikėjas",
-        ],
-        "cover_url": "https://picsum.photos/180?random=21",
-    },
-    {
-        "id": 2,
-        "title": "Rytiniai hitai",
-        "created_at": date(2023, 12, 5),
-        "author_names": ["Gytis Kaulakis", "Ramūnas Vengrauskas"],
-        "cover_url": "https://picsum.photos/180?random=22",
-    },
-]
 
 def get_hashed_password(plain_text_password):
     # Hash a password for the first time
@@ -196,7 +153,9 @@ def userEdit(request: HttpRequest):
 
         request.session["user_display_name"] = display_name
         request.session["user_email"] = email
-        request.session["user_profile_cover_url"] = user.profile_cover_url.path
+
+        if user.profile_cover_url:
+            request.session["user_profile_cover_url"] = user.profile_cover_url.path
 
         info.append("Profilio informacija sėkmingai atnaujinta!")
         # return redirect("users:userDetail", user_id=request.session["user_id"])
@@ -215,12 +174,14 @@ def userDetail(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     # user.koncertai - Pagal `Koncertas` modelio `author` atributą, kuriam related_name="koncertai"
     concerts = user.koncertai.all() # type: ignore
+    playlists = user.grojarasciai.all() # type: ignore
+    dainos = user.dainos.all() # type: ignore
 
     context = {
         "request": request,
         "user": user,
-        "music": MOCK_MUSIC,
-        "playlists": MOCK_PLAYLISTS,
+        "dainos": dainos,
+        "playlists": playlists,
         "koncertai": concerts,
     }
 

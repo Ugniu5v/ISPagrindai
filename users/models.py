@@ -36,24 +36,20 @@ class User(models.Model):
         return self.username
 
 
-# class FallowingState(models.Model):
-#     pass
-
-
-class Fallowing(models.Model):
-    class FallowingChoices(models.TextChoices):
+class Following(models.Model):
+    class FollowingChoices(models.TextChoices):
         ACTIVE = "A", "Aktyvus"
         BLOCKED = "B", "Užblokuotas"
         SILENCED = "S", "Nutildytas"
 
-    fallower = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="fallowing"
+    follower = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="following"
     )
-    fallowed = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="fallowers"
+    followed = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="followers"
     )
     date = models.DateTimeField(auto_now=True)
-    state = models.CharField(max_length=1, choices=FallowingChoices)
+    state = models.CharField(max_length=1, choices=FollowingChoices)
 
     def __str__(self) -> str:
         return f"State: {self.state}"

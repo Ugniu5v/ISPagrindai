@@ -2,134 +2,73 @@
 {% block title %}Muzikos sistema{% endblock %}
 
 {% block content %}
-  <h2 class="mb-4 fw-semibold">Populiarios dainos</h2>
-  <div class="row row-cols-auto g-4">
-    <a class="song-card" href="#">
-      <img
-        height="180"
-        width="180"
-        src="https://picsum.photos/180?random=1"
-        class="rounded-2"
-        alt="song cover"
-      />
-      <h6 class="card-title mt-1 mb-1">Labai faina daina</h6>
-      <p class="text-muted small mb-2">Gytis Kaulakis</p>
-    </a>
-    <a class="song-card" href="#">
-      <img
-        height="180"
-        width="180"
-        src="https://picsum.photos/180?random=2"
-        class="rounded-2"
-        alt="song cover"
-      />
-      <h6 class="card-title mt-1 mb-1">Apie medžius</h6>
-      <p class="text-muted small mb-2">Ramūnas</p>
-    </a>
-    <a class="song-card" href="#">
-      <img
-        height="180"
-        width="180"
-        src="https://picsum.photos/180?random=3"
-        class="rounded-2"
-        alt="song cover"
-      />
-      <h6 class="card-title mt-1 mb-1">Informatika jėga</h6>
-      <p class="text-muted small mb-2">Core dumped</p>
-    </a>
-    <a class="song-card" href="#">
-      <img
-        height="180"
-        width="180"
-        src="https://picsum.photos/180?random=4"
-        class="rounded-2"
-        alt="song cover"
-      />
-      <h6 class="card-title mt-1 mb-1">Daryk ką nors</h6>
-      <p class="text-muted small mb-2">Dėstytojas</p>
-    </a>
-  </div>
+  {% if dainos %}
+    <h2 class="mb-4 fw-semibold">Populiarios dainos</h2>
+    <div class="row row-cols-auto g-4">
+      {% for daina in dainos %}
+        <a class="song-card" href="#">
+          <img
+            height="180"
+            width="180"
+            src="{{ daina.virselis_url }}"
+            class="rounded-2"
+            alt="song cover"
+          />
+          <h6 class="card-title mt-1 mb-1">{{ daina.pavadinimas }}</h6>
+          <p class="text-muted small mb-2">{{ daina.savininkas.display_name }}</p>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
 
-  <h2 class="mt-5 mb-4 fw-semibold">Grojaraščiai</h2>
-  {% comment %} <div class="row row-cols-auto g-4">
-    <a class="playlist-card" href="{% url 'playlists:playlistDetail' 1 %}">
-      <img
-        height="180"
-        width="180"
-        src="https://picsum.photos/180?random=5"
-        class="rounded-2"
-        alt="album cover"
-      />
-      <h6 class="card-title mt-1 mb-1">Geras grojaraštis</h6>
-      <p class="text-muted small mb-2">
-        Gytis Kaulakis, Ramūnas Vengrauskas, Trečias atlikėjas, Ketvirtas atlikėjas
-      </p>
-    </a>
-    <a class="playlist-card" href="{% url 'playlists:playlistDetail' 2 %}">
-      <img
-        height="180"
-        width="180"
-        src="https://picsum.photos/180?random=6"
-        class="rounded-2"
-        alt="album cover"
-      />
-      <h6 class="card-title mt-1 mb-1">Blogas grojaraštis</h6>
-      <p class="text-muted small mb-2">Bet geras atlikėjas</p>
-    </a>
-    <a class="playlist-card" href="{% url 'playlists:playlistDetail' 3 %}">
-      <img
-        height="180"
-        width="180"
-        src="https://picsum.photos/180?random=7"
-        class="rounded-2"
-        alt="album cover"
-      />
-      <h6 class="card-title mt-1 mb-1">Labai ilgas pavadinimas per eilutes</h6>
-      <p class="text-muted small mb-2">Ir dar ilgas atlikėjo vardas</p>
-    </a>
-  </div> {% endcomment %}
+  {% if grojarasciai %}
+    <h2 class="mt-5 mb-4 fw-semibold">Grojaraščiai</h2>
+    <div class="row row-cols-auto g-4">
+        {% for grojarastis in grojarasciai %}
+            <a class="playlist-card" href="{% url 'playlists:playlistDetail' 1 %}">
+                <img
+                    height="180"
+                    width="180"
+                    src="https://picsum.photos/180?random=5"
+                    class="rounded-2"
+                    alt="album cover"
+                />
+                <h6 class="card-title mt-1 mb-1">{{grojarastis.pavadinimas}}</h6>
+                {% if grojarastis.aprasymas %}
+                    <p class="text-muted small mb-2">{{ grojarastis.savininkas.display_name }}</p>
+                {% endif %}
+            </a>
+        {% endfor %}
+    </div> 
+  {% endif %}
 
   {% if koncertai %}
     <h2 class="mt-5 mb-4 fw-semibold">Būsimi Koncertai</h2>
     <div class="row g-4">
-      <div class="col-sm-6 mb-3 mb-sm-0">
-        {% for koncertas in koncertai %}
+      {% for koncertas in koncertai %}
+        <div class="col-sm-6 col-md-4 col-lg-3">
           <a class="card concert-card" href="{% url 'concerts:concertDetail' pk=koncertas.pk %}">
             <img
-              src="https://picsum.photos/320/180?random=9"
+              src="https://picsum.photos/320/180?random={{ koncertas.pk }}"
               class="card-img-top"
               alt="Concert cover"
             />
             <div class="card-body">
-              <small>{% if koncertas.pradzios_data %}{{ koncertas.pradzios_data|date:"Y M d" }}{% endif %} - {% if koncertas.pabaigos_data %}{{ koncertas.pabaigos_data|date:"d" }}{% endif %} · {{ koncertas.get_zanras_display }}</small>
-              <h5 class="card-title">{{ koncertas.pavadinimas }}</h5>
-              <small style="font-size: small" class="text-muted">
-                Bielietų: {{ koncertas.zmoniu_talpa }} · Įvertis: {{ koncertas.rekomendacijos_ivertis|floatformat:1 }}/10
+              <small class="text-muted">{% if koncertas.pradzios_data %}{{ koncertas.pradzios_data|date:"Y M d" }}{% endif %} - {% if koncertas.pabaigos_data %}{{ koncertas.pabaigos_data|date:"d" }}{% endif %} · {{ koncertas.get_zanras_display }}</small>
+              <h5 class="card-title mt-2">{{ koncertas.pavadinimas }}</h5>
+              <small class="text-muted">
+                Bilietų: {{ koncertas.zmoniu_talpa }} · Įvertis: {{ koncertas.rekomendacijos_ivertis|floatformat:1 }}/10
               </small>
-              {% comment %} 
-                <!-- Gal galima padaryt kad naudotojas čia pasirenka ar įdomus renginys -->
-                <div class="card-footer">
-                  <div class="dropdown mt-3">
-                    <button
-                      class="btn btn-secondary dropdown-toggle"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      Nedomina
-                    </button>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#">Domina</a></li>
-                      <li><a class="dropdown-item" href="#">Dayvausiu</a></li>
-                      <li><a class="dropdown-item active" href="#">Nedomina</a></li>
-                    </ul>
-                  </div>
-                </div> 
-              {% endcomment %}
+              {% if not koncertas.yra_viesas %}
+                <div class="mt-2"><span class="badge bg-secondary">Privatus</span></div>
+              {% endif %}
+              {% if koncertas.yra_atsauktas %}
+                <div class="mt-2"><span class="badge bg-danger">Atšauktas</span></div>
+              {% endif %}
             </div>
           </a>
-        {% endfor %}
-      </div>
+        </div>
+      {% endfor %}
     </div>
 
   {% endif %}
@@ -150,7 +89,7 @@
         {% else %}
             <div
               style="width: 180px; height: 180px; box-shadow: inset 0px 0px 16px 0px #000c;"
-              class="rounded-circle bg-secondary"
+              class="rounded-circle"
             ></div>
         {% endif %}
           <h6 class="card-title mt-1 mb-1">{{ user.display_name }}</h6>

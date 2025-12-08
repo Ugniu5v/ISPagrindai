@@ -119,6 +119,10 @@ audio::-webkit-media-controls-enclosure {
   }
 }
 
+.user-card>div{
+    background-color: var(--bs-secondary);
+}
+
 .concert-card {
   text-decoration: none;
   color: inherit;
