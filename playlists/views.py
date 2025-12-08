@@ -2,20 +2,18 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import models
 from users.decorators import login_required
-from .models import Grojarastis, GrojarascioVertinimas
+from .models import Grojarastis, GrojarascioVertinimas, GrojarastisDaina
 
 
 @login_required
 def index(request):
     user_id = request.session.get("user_id")
 
-    # Show all public playlists + user's own playlists
     grojarasciai = (
         Grojarastis.objects.filter(yra_viesas=True)
         | Grojarastis.objects.filter(savininkas_id=user_id)
     ).distinct().order_by('-sukurimo_data')
 
-    # Add rating data to each playlist
     for g in grojarasciai:
         g.avg_rating = g.vertinimai.aggregate(models.Avg("ivertinimas"))["ivertinimas__avg"]
         g.ratings_count = g.vertinimai.count()
@@ -49,6 +47,8 @@ def createPlaylist(request):
 def PlaylistDetail(request, pk):
     grojarastis = get_object_or_404(Grojarastis, pk=pk)
     user_id = request.session.get("user_id")
+    is_owner = (grojarastis.savininkas_id == request.session.get("user_id"))
+
 
     if not grojarastis.yra_viesas and grojarastis.savininkas_id != user_id:
         messages.error(request, "You do not have permission to view this playlist.")
@@ -80,6 +80,7 @@ def PlaylistDetail(request, pk):
         "avg_rating": avg_rating,
         "ratings_count": vertinimai.count(),
         "existing_rating": existing_rating,
+        "is_owner": is_owner,
     })
 
 
@@ -102,3 +103,36 @@ def editPlaylist(request, pk):
         return redirect("playlists:PlaylistDetail", pk=grojarastis.pk)
 
     return render(request, "playlists/editPlaylist.html", {"grojarastis": grojarastis})
+
+@login_required
+def deletePlaylist(request, pk):
+    grojarastis = get_object_or_404(Grojarastis, pk=pk)
+
+    if grojarastis.savininkas_id != request.session.get("user_id"):
+        messages.error(request, "You can only delete your own playlist.")
+        return redirect("playlists:index")
+
+    grojarastis.delete()
+    messages.success(request, "Playlist deleted successfully!")
+    return redirect("playlists:index")
+
+def deleteFromPlaylist(request, grojarastis_id, song_id):
+    user_id = request.session.get("user_id")
+
+    grojarastis = get_object_or_404(Grojarastis, pk=grojarastis_id)
+    item = get_object_or_404(GrojarastisDaina, pk=song_id, grojarastis=grojarastis)
+
+    if grojarastis.savininkas_id != user_id:
+        messages.error(request, "You can only remove songs from your own playlists.")
+        return redirect("playlists:PlaylistDetail", pk=grojarastis_id)
+
+    item.delete()
+
+    remaining = grojarastis.dainos.order_by("eilės_nr")
+    for i, d in enumerate(remaining, start=1):
+        if d.eilės_nr != i:
+            d.eilės_nr = i
+            d.save(update_fields=["eilės_nr"])
+
+    messages.success(request, "Song removed from playlist.")
+    return redirect("playlists:PlaylistDetail", pk=grojarastis_id)

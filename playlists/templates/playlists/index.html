@@ -35,7 +35,6 @@
                         </span>
                     </p>
 
-                    <!-- DESCRIPTION PREVIEW -->
                     <p class="card-text flex-grow-1">
                         {% if grojarastis.aprasymas %}
                             {{ grojarastis.aprasymas|truncatewords:15 }}
@@ -44,11 +43,10 @@
                         {% endif %}
                     </p>
 
-                    <!-- RATING DISPLAY -->
                     <p class="card-text mt-2">
                         <strong>Rating:</strong>
                         {% if grojarastis.avg_rating %}
-                            {{ grojarastis.avg_rating|floatformat:1 }} ⭐ 
+                            {{ grojarastis.avg_rating|floatformat:1 }} 
                             ({{ grojarastis.ratings_count }} ratings)
                         {% else %}
                             <em>No ratings yet</em>
