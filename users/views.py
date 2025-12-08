@@ -60,6 +60,8 @@ def loginUser(request: HttpRequest):
                     request.session["user_email"] = user.email
                     request.session["user_role"] = user.role
                     request.session["user_role_label"] = user.get_role_display() # type: ignore
+                    if user.profile_cover_url:
+                        request.session["user_profile_cover_url"] = user.profile_cover_url.url
                     request.session.modified = True
 
                     user.last_login_at = datetime.now()
@@ -155,7 +157,7 @@ def userEdit(request: HttpRequest):
         request.session["user_email"] = email
 
         if user.profile_cover_url:
-            request.session["user_profile_cover_url"] = user.profile_cover_url.path
+            request.session["user_profile_cover_url"] = user.profile_cover_url.url
 
         info.append("Profilio informacija sėkmingai atnaujinta!")
         # return redirect("users:userDetail", user_id=request.session["user_id"])

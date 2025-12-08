@@ -96,6 +96,7 @@ audio::-webkit-media-controls-enclosure {
 
   & img {
     background-color: var(--bs-secondary-bg);
+    object-fit: cover;
   }
 
   &:not(:hover) img {
@@ -209,4 +210,94 @@ html[data-bs-theme="dark"] .theme-toggle svg.theme-icon-when-dark {
 
 html[data-bs-theme="light"] .theme-toggle svg.theme-icon-when-light {
     display: block;
+}
+
+/*  */
+
+.img-wrapper {
+  position: relative;
+
+  .card-img {
+    border-radius: 8px;
+  }
+
+  .play-btn-wrapper {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    z-index: 99;
+    transform: translateY(0.5rem);
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.2s;
+    border-radius: 50%;
+
+    .tooltip-text {
+      position: absolute;
+      text-wrap: nowrap;
+      z-index: 99;
+      background-color: #1f1f1f;
+      color: white;
+      font-size: 0.85rem;
+      padding: 5px;
+      border-radius: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      top: -2.3rem;
+      box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px 0px;
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.2s ease-in 1s;
+    }
+
+    .play-btn {
+      width: 3rem;
+      height: 3rem;
+      border: 0;
+      border-radius: 50%;
+      background-color: #35cc67;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px 0px;
+
+      .play-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+
+      &:hover {
+        transform: scale(1.05) !important;
+        background-color: #38d96e;
+      }
+
+      &:active {
+        background-color: #32bf61;
+      }
+    }
+
+    &:hover {
+      .tooltip-text {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+
+    &:not(:hover) {
+      .tooltip-text {
+        opacity: 0;
+        visibility: hidden;
+        transition: none;
+      }
+    }
+  }
+}
+
+.song-card:hover {
+  cursor: pointer;
+  .img-wrapper .play-btn-wrapper {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
 }
