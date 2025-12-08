@@ -22,7 +22,6 @@
             <form method="POST" action="{% url 'playlists:editPlaylist' grojarastis.pk %}">
                 {% csrf_token %}
 
-                <!-- TITLE / PAVADINIMAS -->
                 <div class="mb-3">
                     <label for="pavadinimas" class="form-label">Playlist Title</label>
                     <input 
@@ -35,7 +34,6 @@
                     >
                 </div>
 
-                <!-- DESCRIPTION / APRASYMAS -->
                 <div class="mb-3">
                     <label for="aprasymas" class="form-label">Description</label>
                     <textarea 
@@ -46,7 +44,6 @@
                     >{{ grojarastis.aprasymas }}</textarea>
                 </div>
 
-                <!-- VISIBILITY / YRA_VIESAS -->
                 <div class="mb-3">
                     <label for="visibility" class="form-label">Visibility</label>
                     <select 
@@ -63,6 +60,30 @@
                         </option>
                     </select>
                 </div>
+
+                <hr class="border-secondary my-4">
+
+                <h4>Playlist Songs</h4>
+
+                {% if grojarastis.dainos.all %}
+                    <p class="text-secondary mb-2">You can reorder songs by changing the number.</p>
+
+                    {% for daina in grojarastis.dainos.all %}
+                    <div class="mb-3">
+                        <label class="form-label">
+                         {{ daina.dainos_pavadinimas }} — {{ daina.atlikėjo_vardas }}
+                         </label>
+                        <input type="number" 
+                         class="form-control bg-black text-white"
+                        name="song_order_{{ daina.id }}"
+                         value="{{ daina.eilės_nr }}"
+                        min="1">
+                    </div>
+                     {% endfor %}
+                    {% else %}
+                    <p class="text-secondary">No songs in this playlist.</p>
+                {% endif %}
+
 
                 <button type="submit" class="btn btn-success">Save Changes</button>
                 <a href="{% url 'playlists:PlaylistDetail' grojarastis.pk %}" class="btn btn-secondary ms-2">Cancel</a>

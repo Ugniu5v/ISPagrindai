@@ -46,6 +46,27 @@
         Your browser does not support the audio element.
       </audio>
     </div>
+    <div class="mt-4">
+      <h5>Pridėti į grojaraštį</h5>
+
+      {% if user_playlists %}
+      <form method="POST" action="{% url 'music:addToPlaylist' song.id %}">
+        {% csrf_token %}
+
+        <div class="input-group">
+          <select class="form-select" name="playlist_id" required>
+            {% for g in user_playlists %}
+              <option value="{{ g.id }}">{{ g.pavadinimas }}</option>
+            {% endfor %}
+          </select>
+
+          <button class="btn btn-success">Pridėti</button>
+        </div>
+      </form>
+      {% else %}
+        <p class="text-secondary">Neturite jokių grojaraščių.</p>
+      {% endif %}
+    </div>
     {% else %}
     <div class="alert alert-warning text-dark" role="alert">
       Nėra failo URL šiai dainai.
