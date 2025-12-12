@@ -12,5 +12,5 @@ urlpatterns = [
     path("<int:grojarastis_id>/remove/<int:song_id>/", 
      views.deleteFromPlaylist, 
      name="deleteFromPlaylist"),
-
+    path("<int:pk>/play/<int:song_id>/", views.playPlaylistSong, name="playPlaylistSong"),
 ]
