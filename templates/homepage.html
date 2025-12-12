@@ -21,7 +21,7 @@
     </div>
   {% endif %}
 
-  {% comment %} {% if grojarasciai %}
+  {% if grojarasciai %}
     <h2 class="mt-5 mb-4 fw-semibold">Grojaraščiai</h2>
     <div class="row row-cols-auto g-4">
         {% for grojarastis in grojarasciai %}
@@ -40,7 +40,7 @@
             </a>
         {% endfor %}
     </div> 
-  {% endif %} {% endcomment %}
+  {% endif %}
 
   {% if koncertai %}
     <h2 class="mt-5 mb-4 fw-semibold">Būsimi Koncertai</h2>

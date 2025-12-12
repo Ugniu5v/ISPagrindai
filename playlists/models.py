@@ -1,5 +1,6 @@
 from django.db import models
 from users.models import User
+from music.models import Daina
 from django.utils import timezone
 
 
@@ -30,18 +31,22 @@ class GrojarastisDaina(models.Model):
         on_delete=models.CASCADE,
         related_name="dainos"        # Grojarastis.dainos
     )
-    dainos_pavadinimas = models.CharField(max_length=255, blank=True)
-    atlikėjo_vardas = models.CharField(max_length=255, blank=True)
+    daina = models.ForeignKey(
+        Daina,
+        on_delete=models.CASCADE,
+        related_name="grojarasciai"        # Daina.grojarasciai
+    )
     eilės_nr = models.PositiveIntegerField(default=0)
+    prideta_data = models.DateField(auto_created=True)
 
     class Meta:
         verbose_name = "GrojarastisDaina"
         verbose_name_plural = "GrojarasčioDainos"
         ordering = ['eilės_nr']
-        unique_together = ['grojarastis', 'eilės_nr']
+        unique_together = ['grojarastis', 'daina']
 
     def __str__(self):
-        return f"{self.eilės_nr}. {self.dainos_pavadinimas or 'Be pavadinimo'}"
+        return f"{self.grojarastis.pavadinimas} {self.daina.pavadinimas}"
 
 
 class GrojarascioVertinimas(models.Model):
