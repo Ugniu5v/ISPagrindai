@@ -31,7 +31,7 @@ def createPlaylist(request):
                 pavadinimas=pavadinimas,
                 aprasymas=aprasymas,
                 yra_viesas=yra_viesas,
-                savininkas_id=request.session["user_id"]
+                savininkas=request.session["user_id"]
             )
 
             messages.success(request, "Playlist created successfully!")
@@ -40,22 +40,22 @@ def createPlaylist(request):
     return render(request, "playlists/createPlaylist.html")
     
 
-@login_required
 def playlistDetail(request, pk):
-    grojarastis = get_object_or_404(Grojarastis, pk=pk)
     user_id = request.session.get("user_id")
-    is_owner = (grojarastis.savininkas.pk == user_id)
-
-    if not grojarastis.yra_viesas and is_owner:
+    grojarastis = get_object_or_404(Grojarastis, pk=pk)
+    is_owner = grojarastis.savininkas.pk == user_id
+    
+    if "user" not in request.session or not grojarastis.yra_viesas and not is_owner:
         messages.error(request, "You do not have permission to view this playlist.")
         return redirect("playlists:index")
 
-    vertinimai = grojarastis.vertinimai.all()
+
+    vertinimai = grojarastis.vertinimai.all() # type: ignore
     avg_rating = vertinimai.aggregate(models.Avg("ivertinimas"))["ivertinimas__avg"]
 
-    existing_rating = grojarastis.vertinimai.filter(naudotojas_id=user_id).first()
+    existing_rating = grojarastis.vertinimai.filter(naudotojas_id=user_id).first() # type: ignore
 
-    if request.method == "POST" and grojarastis.savininkas.pk != user_id:
+    if request.method == "POST":
         new_rating = float(request.POST.get("rating"))
 
         if existing_rating:
@@ -150,7 +150,7 @@ def deleteFromPlaylist(request, grojarastis_id, song_id):
 
     item.delete()
 
-    remaining = grojarastis.dainos.order_by("eilės_nr")
+    remaining = grojarastis.dainos.order_by("eilės_nr") # type: ignore
     for i, d in enumerate(remaining, start=1):
         if d.eilės_nr != i:
             d.eilės_nr = i

@@ -6,17 +6,34 @@
     <h2 class="mb-4 fw-semibold">Populiarios dainos</h2>
     <div class="row row-cols-auto g-4">
       {% for daina in dainos %}
-        <a class="song-card" href="#">
-          <img
-            height="180"
-            width="180"
-            src="{{ daina.virselis_url }}"
-            class="rounded-2"
-            alt="song cover"
-          />
-          <h6 class="card-title mt-1 mb-1">{{ daina.pavadinimas }}</h6>
-          <p class="text-muted small mb-2">{{ daina.savininkas.display_name }}</p>
-        </a>
+          <div class="song-card" data-href="{% url 'music:playSong' daina.pk %}">
+            <div class="img-wrapper">
+              <img
+                height="180"
+                width="180"
+                src="{{ daina.virselis_url }}"
+                class="rounded-2"
+                alt="song cover"
+              />
+              <div class="play-btn-wrapper">
+                <span class="tooltip-text">Paleisti {{daina.pavadinimas}}</span>
+                <button type="button" class="play-btn" 
+                  popovertarget="music-player"
+                  popovertargetaction="show"
+                  data-audio="{{ daina.failas_url }}"
+                  data-title="{{ daina.pavadinimas }}"
+                  data-artist="{{ daina.savininkas.display_name }}"
+                  data-cover="{{ daina.virselis_url }}"
+                >
+                  <svg class="play-icon" data-encore-id="icon" role="img" aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <h6 class="card-title mt-1 mb-1">{{ daina.pavadinimas }}</h6>
+            <p class="text-muted small mb-2">{{ daina.savininkas.display_name }}</p>
+          </div>
       {% endfor %}
     </div>
   {% endif %}

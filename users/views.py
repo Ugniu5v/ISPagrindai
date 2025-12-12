@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpRequest
-from .models import User
+from django.http import HttpRequest, HttpResponse
+from .models import User, TwoFaCodeCopy
 from .decorators import login_required
-import bcrypt
 from datetime import date
 from datetime import datetime
+import bcrypt
+import pyotp
+import time
 
 
 def get_hashed_password(plain_text_password):
@@ -60,6 +62,8 @@ def loginUser(request: HttpRequest):
                     request.session["user_email"] = user.email
                     request.session["user_role"] = user.role
                     request.session["user_role_label"] = user.get_role_display() # type: ignore
+                    if user.profile_cover_url:
+                        request.session["user_profile_cover_url"] = user.profile_cover_url.url
                     request.session.modified = True
 
                     user.last_login_at = datetime.now()
@@ -155,7 +159,7 @@ def userEdit(request: HttpRequest):
         request.session["user_email"] = email
 
         if user.profile_cover_url:
-            request.session["user_profile_cover_url"] = user.profile_cover_url.path
+            request.session["user_profile_cover_url"] = user.profile_cover_url.url
 
         info.append("Profilio informacija sėkmingai atnaujinta!")
         # return redirect("users:userDetail", user_id=request.session["user_id"])
@@ -163,11 +167,25 @@ def userEdit(request: HttpRequest):
 
     return render(request, "users/edit.html", context)
 
-# TODO: Sugalvot ar daryt modalą ar ką
+
 @login_required
-def userTwoFa(request: HttpRequest):
-    print("Labas")
-    return redirect('users:userEdit')
+def twoFaURI(request: HttpRequest):
+    user = User.objects.get(pk=request.session["user_id"])
+
+    # Įjungiu 2FA autentifikaciją
+    user.two_factor_enabled = True
+
+    # Sukuriu naują paslaptį
+    new_secret = pyotp.random_base32()
+    user.two_factor_secret = new_secret
+    user.save()
+
+    # Sukuriu nuorodą programėlėm
+    auth_uri = pyotp.totp.TOTP(new_secret, interval=60).provisioning_uri(
+        name=user.username, issuer_name='Muzikos Sistema')
+    
+    print(auth_uri)
+    return HttpResponse(auth_uri)
 
 
 def userDetail(request, user_id):

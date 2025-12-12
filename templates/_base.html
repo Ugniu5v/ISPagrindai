@@ -23,6 +23,7 @@
     ></script>
 
     <script type="text/javascript" src="{% static "ISPagrindai/javascript/theme.js" %}"></script>
+    {% block headcontent %}{% endblock %}
 
     <link rel="stylesheet" href="{% static 'ISPagrindai/css/style.css' %}" />
   </head>
@@ -53,9 +54,13 @@
             <div class="vr mx-2"></div>
             <li class="nav-item dropdown-center">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-person-circle me-1"></i>
-                {% if "user" in request.session  %}
-                    {{ request.session.user_display_name }}
+                {% if "user_profile_cover_url" in request.session  %}
+                  <img src="{{request.session.user_profile_cover_url}}" height="24" width="24" alt="" class="rounded-circle">
+                {% else %}
+                  <i class="bi bi-person-circle me-1"></i>
+                {% endif %}
+                {% if "user" in request.session %}
+                  {{ request.session.user_display_name }}
                 {% endif %}
               </a>
               <ul class="dropdown-menu">
@@ -110,9 +115,9 @@
       </div>
       <div class="player-controls">
         <audio
+          id="music-player-control"
           controls
           controlslist="nodownload"
-          src="https://tautosakos-rankrastynas.lt/failai/garsas/inet/LTRF_mg_a_501-1000/LTRF_mg_a_657/mg.657-01.mp3"
         ></audio>
       </div>
     </div>

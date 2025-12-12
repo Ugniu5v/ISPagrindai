@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 
 from .models import Daina, DainosVertinimas
+from users.models import User
 from playlists.models import Grojarastis, GrojarastisDaina
 from django.db import models
 
@@ -96,8 +97,11 @@ def createSong(request):
             except UnicodeDecodeError:
                 words_text = raw_text.decode("latin-1", errors="ignore")
 
+        user = User.objects.get(pk = request.session["user_id"])
+
         if not errors:
             Daina.objects.create(
+                savininkas=user,
                 pavadinimas=name,
                 trukme_sekundes=duration_seconds or 0,
                 zanras=genre if genre in valid_genres else Daina.Zanras.POPMUZIKA,
@@ -356,7 +360,7 @@ def playSong(request, song_id):
     context["audio_mime"] = audio_mime
 
     user_id = request.session.get("user_id")
-    user_playlists = Grojarastis.objects.filter(savininkas_id=user_id)
+    user_playlists = Grojarastis.objects.filter(savininkas=user_id)
     context["user_playlists"] = user_playlists
 
     return render(request, "music/playSong.html", context)
