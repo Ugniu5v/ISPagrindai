@@ -83,26 +83,52 @@ def PlaylistDetail(request, pk):
         "is_owner": is_owner,
     })
 
-
-
-@login_required
 def editPlaylist(request, pk):
     grojarastis = get_object_or_404(Grojarastis, pk=pk)
 
+    # Permission check
     if grojarastis.savininkas_id != request.session.get("user_id"):
-        messages.error(request, "Galima redaguoti tik savo grojarastį.")
-        return redirect("playlists:index")
+        messages.error(request, "You may only edit your own playlist.")
+        return redirect("playlists:PlaylistDetail", pk=pk)
 
     if request.method == "POST":
+
+        # Update general playlist fields
         grojarastis.pavadinimas = request.POST.get("pavadinimas", grojarastis.pavadinimas)
         grojarastis.aprasymas = request.POST.get("aprasymas", grojarastis.aprasymas)
         grojarastis.yra_viesas = request.POST.get("yra_viesas") == "on"
         grojarastis.save()
 
-        messages.success(request, "Grojarastis atnaujintas!")
-        return redirect("playlists:PlaylistDetail", pk=grojarastis.pk)
+        # --- DRAG & DROP ORDER FIX ---
+        sorted_ids = request.POST.get("sorted_order", "")
+        if sorted_ids:
+            id_list = [int(x) for x in sorted_ids.split(",")]
+
+            songs = list(grojarastis.dainos.all())
+            count = len(songs)
+
+            # STEP 1 – TEMPORARILY MOVE ALL SONGS OUT OF THE WAY
+            temp_offset = count + 10  # safe padding
+            for song in songs:
+                song.eilės_nr = song.eilės_nr + temp_offset
+                song.save(update_fields=["eilės_nr"])
+
+            # STEP 2 – ASSIGN CLEAN ORDER 1..N
+            position = 1
+            for song_id in id_list:
+                try:
+                    entry = GrojarastisDaina.objects.get(id=song_id, grojarastis=grojarastis)
+                    entry.eilės_nr = position
+                    entry.save(update_fields=["eilės_nr"])
+                    position += 1
+                except GrojarastisDaina.DoesNotExist:
+                    pass
+
+        messages.success(request, "Playlist updated.")
+        return redirect("playlists:PlaylistDetail", pk=pk)
 
     return render(request, "playlists/editPlaylist.html", {"grojarastis": grojarastis})
+
 
 @login_required
 def deletePlaylist(request, pk):
@@ -136,3 +162,58 @@ def deleteFromPlaylist(request, grojarastis_id, song_id):
 
     messages.success(request, "Song removed from playlist.")
     return redirect("playlists:PlaylistDetail", pk=grojarastis_id)
+
+def playPlaylistSong(request, pk, song_id):
+    grojarastis = get_object_or_404(Grojarastis, pk=pk)
+
+    # Get songs in order
+    songs = list(grojarastis.dainos.order_by("eilės_nr"))
+
+    # Find the current song entry inside playlist
+    try:
+        current_entry = GrojarastisDaina.objects.get(pk=song_id, grojarastis=grojarastis)
+    except GrojarastisDaina.DoesNotExist:
+        return HttpResponse("Song not found in this playlist.", status=404)
+
+    # Try to find matching song in Daina table by name + artist
+    try:
+        song = Daina.objects.get(
+            pavadinimas=current_entry.dainos_pavadinimas,
+            atlikejo_vardas=current_entry.atlikėjo_vardas
+        )
+    except Daina.DoesNotExist:
+        song = None
+
+    # Determine previous / next song
+    index = songs.index(current_entry)
+    prev_id = songs[index - 1].id if index > 0 else None
+    next_id = songs[index + 1].id if index < len(songs) - 1 else None
+
+    # AUDIO URL LOGIC FROM YOUR playSong
+    audio_url = None
+    audio_mime = None
+
+    if song and song.failas_url:
+        ext = song.failas_url.split(".")[-1].lower()
+        if ext == "mp3":
+            audio_mime = "audio/mpeg"
+        elif ext == "wav":
+            audio_mime = "audio/wav"
+        elif ext in {"ogg", "oga"}:
+            audio_mime = "audio/ogg"
+
+        if song.failas_url.lower().startswith(("http://", "https://")):
+            audio_url = song.failas_url
+        else:
+            audio_url = f"{request.build_absolute_uri()}?stream=1"
+
+    return render(request, "playlists/playPlaylistSong.html", {
+        "playlist": grojarastis,
+        "current": current_entry,
+        "song": song,
+        "songs": songs,
+        "prev_id": prev_id,
+        "next_id": next_id,
+        "audio_url": audio_url,
+        "audio_mime": audio_mime,
+    })

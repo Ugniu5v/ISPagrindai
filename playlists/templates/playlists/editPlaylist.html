@@ -4,95 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Playlist - ISPagrindai</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        /* Styling for drag & drop list */
+        .draggable-item {
+            cursor: grab;
+            user-select: none;
+        }
+        .drag-over {
+            border: 2px dashed #0d6efd;
+        }
+    </style>
 </head>
 
 <body class="bg-black text-white p-4">
-    <div class="container mt-4">
-        <h1 class="mb-4">Edit Playlist</h1>
+<div class="container mt-4">
 
-        <nav class="mb-4">
-            <a href="{% url 'playlists:index' %}" class="btn btn-outline-light me-2">Back to Playlists</a>
-            <a href="{% url 'homepage' %}" class="btn btn-outline-light">Home</a>
-        </nav>
+    <h1 class="mb-4">Edit Playlist</h1>
 
-        {% if grojarastis %}
-        <div class="card bg-dark text-white p-4 shadow-lg">
-            <form method="POST" action="{% url 'playlists:editPlaylist' grojarastis.pk %}">
-                {% csrf_token %}
+    <nav class="mb-4">
+        <a href="{% url 'playlists:index' %}" class="btn btn-outline-light me-2">Back to Playlists</a>
+        <a href="{% url 'homepage' %}" class="btn btn-outline-light">Home</a>
+    </nav>
 
-                <div class="mb-3">
-                    <label for="pavadinimas" class="form-label">Playlist Title</label>
-                    <input 
-                        type="text" 
-                        id="pavadinimas" 
-                        name="pavadinimas" 
-                        class="form-control bg-black text-white"
-                        value="{{ grojarastis.pavadinimas }}"
-                        required
-                    >
-                </div>
+    {% if grojarastis %}
+    <div class="card bg-dark text-white p-4 shadow-lg">
+        <form method="POST" action="{% url 'playlists:editPlaylist' grojarastis.pk %}">
+            {% csrf_token %}
 
-                <div class="mb-3">
-                    <label for="aprasymas" class="form-label">Description</label>
-                    <textarea 
-                        id="aprasymas" 
-                        name="aprasymas" 
-                        rows="3" 
-                        class="form-control bg-black text-white"
-                    >{{ grojarastis.aprasymas }}</textarea>
-                </div>
+            <!-- TITLE -->
+            <div class="mb-3">
+                <label class="form-label">Playlist Title</label>
+                <input type="text" name="pavadinimas" class="form-control bg-black text-white"
+                       value="{{ grojarastis.pavadinimas }}" required>
+            </div>
 
-                <div class="mb-3">
-                    <label for="visibility" class="form-label">Visibility</label>
-                    <select 
-                        id="visibility"
-                        name="yra_viesas"
-                        class="form-select bg-black text-white"
-                        required
-                    >
-                        <option value="on" {% if grojarastis.yra_viesas %}selected{% endif %}>
-                            Public
-                        </option>
-                        <option value="off" {% if not grojarastis.yra_viesas %}selected{% endif %}>
-                            Private
-                        </option>
-                    </select>
-                </div>
+            <!-- DESCRIPTION -->
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="aprasymas" rows="3" class="form-control bg-black text-white">{{ grojarastis.aprasymas }}</textarea>
+            </div>
 
-                <hr class="border-secondary my-4">
+            <!-- VISIBILITY -->
+            <div class="mb-3">
+                <label class="form-label">Visibility</label>
+                <select name="yra_viesas" class="form-select bg-black text-white">
+                    <option value="on" {% if grojarastis.yra_viesas %}selected{% endif %}>Public</option>
+                    <option value="off" {% if not grojarastis.yra_viesas %}selected{% endif %}>Private</option>
+                </select>
+            </div>
 
-                <h4>Playlist Songs</h4>
+            <hr class="border-secondary my-4">
 
-                {% if grojarastis.dainos.all %}
-                    <p class="text-secondary mb-2">You can reorder songs by changing the number.</p>
+            <!-- SONG LIST WITH DRAGGABLE ITEMS -->
+            <h4>Reorder Songs</h4>
+            {% if grojarastis.dainos.all %}
+            <p class="text-secondary">Drag the songs up or down to reorder them.</p>
 
-                    {% for daina in grojarastis.dainos.all %}
-                    <div class="mb-3">
-                        <label class="form-label">
-                         {{ daina.dainos_pavadinimas }} — {{ daina.atlikėjo_vardas }}
-                         </label>
-                        <input type="number" 
-                         class="form-control bg-black text-white"
-                        name="song_order_{{ daina.id }}"
-                         value="{{ daina.eilės_nr }}"
-                        min="1">
-                    </div>
-                     {% endfor %}
-                    {% else %}
-                    <p class="text-secondary">No songs in this playlist.</p>
-                {% endif %}
+            <ul id="song-list" class="list-group mb-4">
+                {% for daina in grojarastis.dainos.all %}
+                <li class="list-group-item bg-black text-white border-secondary draggable-item"
+                    draggable="true"
+                    data-id="{{ daina.id }}">
+                    <strong>{{ daina.dainos_pavadinimas }}</strong>
+                    <span class="text-muted">— {{ daina.atlikėjo_vardas }}</span>
+                </li>
+                {% endfor %}
+            </ul>
 
+            {% else %}
+            <p class="text-secondary">No songs in this playlist.</p>
+            {% endif %}
 
-                <button type="submit" class="btn btn-success">Save Changes</button>
-                <a href="{% url 'playlists:PlaylistDetail' grojarastis.pk %}" class="btn btn-secondary ms-2">Cancel</a>
-            </form>
-        </div>
+            <!-- HIDDEN FIELD THAT WILL RECEIVE SORTED ID LIST -->
+            <input type="hidden" id="sorted_order" name="sorted_order">
 
-        {% else %}
-        <p>Playlist not found.</p>
-        {% endif %}
+            <button type="submit" class="btn btn-success">Save Changes</button>
+            <a href="{% url 'playlists:PlaylistDetail' grojarastis.pk %}" class="btn btn-secondary ms-2">Cancel</a>
+        </form>
     </div>
+    {% endif %}
+
+</div>
+
+<script>
+    const list = document.getElementById("song-list");
+    let dragging;
+
+    document.querySelectorAll(".draggable-item").forEach(item => {
+        item.addEventListener("dragstart", e => {
+            dragging = item;
+            item.classList.add("opacity-50");
+        });
+
+        item.addEventListener("dragend", e => {
+            item.classList.remove("opacity-50");
+        });
+
+        item.addEventListener("dragover", e => {
+            e.preventDefault();
+            const bounding = item.getBoundingClientRect();
+            const offset = bounding.y + bounding.height / 2;
+
+            if (e.clientY - offset > 0) {
+                item.classList.remove("drag-over");
+                item.after(dragging);
+            } else {
+                item.classList.add("drag-over");
+                item.before(dragging);
+            }
+        });
+
+        item.addEventListener("dragleave", () => item.classList.remove("drag-over"));
+    });
+
+    // Before submit: collect new order
+    document.querySelector("form").addEventListener("submit", function () {
+        let order = [];
+        document.querySelectorAll("#song-list li").forEach(li => {
+            order.push(li.dataset.id);
+        });
+        document.getElementById("sorted_order").value = order.join(",");
+    });
+</script>
+
 </body>
 </html>
