@@ -5,20 +5,17 @@ from users.decorators import login_required
 from .models import Grojarastis, GrojarascioVertinimas, GrojarastisDaina
 
 
-@login_required
 def index(request):
     user_id = request.session.get("user_id")
 
-    grojarasciai = (
-        Grojarastis.objects.filter(yra_viesas=True)
-        | Grojarastis.objects.filter(savininkas_id=user_id)
-    ).distinct().order_by('-sukurimo_data')
+    grojarasciai = Grojarastis.objects.filter(yra_viesas=True)
 
     for g in grojarasciai:
         g.avg_rating = g.vertinimai.aggregate(models.Avg("ivertinimas"))["ivertinimas__avg"]
         g.ratings_count = g.vertinimai.count()
 
     return render(request, "playlists/index.html", {
+        "request": request,
         "grojarasciai": grojarasciai
     })
 
@@ -44,13 +41,12 @@ def createPlaylist(request):
     
 
 @login_required
-def PlaylistDetail(request, pk):
+def playlistDetail(request, pk):
     grojarastis = get_object_or_404(Grojarastis, pk=pk)
     user_id = request.session.get("user_id")
-    is_owner = (grojarastis.savininkas_id == request.session.get("user_id"))
+    is_owner = (grojarastis.savininkas.pk == user_id)
 
-
-    if not grojarastis.yra_viesas and grojarastis.savininkas_id != user_id:
+    if not grojarastis.yra_viesas and is_owner:
         messages.error(request, "You do not have permission to view this playlist.")
         return redirect("playlists:index")
 
@@ -59,7 +55,7 @@ def PlaylistDetail(request, pk):
 
     existing_rating = grojarastis.vertinimai.filter(naudotojas_id=user_id).first()
 
-    if request.method == "POST" and grojarastis.savininkas_id != user_id:
+    if request.method == "POST" and grojarastis.savininkas.pk != user_id:
         new_rating = float(request.POST.get("rating"))
 
         if existing_rating:
@@ -134,7 +130,7 @@ def editPlaylist(request, pk):
 def deletePlaylist(request, pk):
     grojarastis = get_object_or_404(Grojarastis, pk=pk)
 
-    if grojarastis.savininkas_id != request.session.get("user_id"):
+    if grojarastis.savininkas.pk != request.session.get("user_id"):
         messages.error(request, "You can only delete your own playlist.")
         return redirect("playlists:index")
 
@@ -148,7 +144,7 @@ def deleteFromPlaylist(request, grojarastis_id, song_id):
     grojarastis = get_object_or_404(Grojarastis, pk=grojarastis_id)
     item = get_object_or_404(GrojarastisDaina, pk=song_id, grojarastis=grojarastis)
 
-    if grojarastis.savininkas_id != user_id:
+    if grojarastis.savininkas.pk != user_id:
         messages.error(request, "You can only remove songs from your own playlists.")
         return redirect("playlists:PlaylistDetail", pk=grojarastis_id)
 
