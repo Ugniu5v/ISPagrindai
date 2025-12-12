@@ -1,5 +1,11 @@
 {% extends "_base.html" %}
+{% load static %}
 {% block title %}Paskyros redagavimas • Muzikos sistema{% endblock %}
+
+{% block headcontent %}
+    <script type="text/javascript" src="{% static "ISPagrindai/javascript/qrcode.min.js" %}"></script>
+{% endblock %}
+
 {% block content %}
 {% if errors %}
 <div class="alert alert-danger" role="alert">
@@ -49,8 +55,8 @@
         <label for="two_factor_enabled" class="form-check-label">Dviejų faktorių autentifikacija</label>
     </div> -->
     <div class="">
-        <label for="login_input_username">Gimimo data</label>
-        <input id="date_of_birth" value="{{ form.date_of_birth }}" class="form-control" type="date" name="date_of_birth" />
+        <label for="date_of_birth">Gimimo data</label>
+        <input id="date_of_birth" value="{{ form.date_of_birth|default:'' }}" class="form-control" type="date" name="date_of_birth" />
     </div>
     <div class="">
         <input id="is_public" value="1" class="form-check-input" type="checkbox" value="1" name="is_public" {{ form.is_public|yesno:"checked," }} />
@@ -58,11 +64,100 @@
     </div>
     <div class="row">
         <div class="col-6">
-            <input type="submit" formaction="{% url "users:userTwoFa" %}" name="editTwoFa" value="{{ form.two_factor_enabled|yesno:"Išjungti,Įjungti" }} dvejų faktorių autentifikaciją" class="btn btn-outline-primary w-100 me-sm-0 "/>
+            <input type="button" id="twoFaButton" popovertarget="twoFaModal" value="{{ form.two_factor_enabled|yesno:"Išjungti,Įjungti" }} dvejų faktorių autentifikaciją" class="btn btn-outline-primary w-100 me-sm-0 "/>
         </div>
         <div class="col-6">
             <input type="submit" name="save" value="Išsaugoti" class="btn btn-primary w-100 me-sm-0 "/>
         </div>
     </div>
 </form>
+
+<div id="twoFaModal" popover="auto">
+    <div class="modal-header">
+        <h1 class="modal-title fs-5">Nuskaitykite QR kodą</h1>
+        <button type="button" class="btn-close" popovertarget="twoFaModal" popovertargetaction="hide"></button>
+    </div>
+    <div class="modal-body text-center">
+        <p>
+            Naudokite autentifikavimo programėlę
+            <span class="text-nowrap">
+                (Google Authenticator (
+                <a href="https://apps.apple.com/us/app/google-authenticator/id388497605" >
+                    iOS
+                </a>
+                /
+                <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en_US">
+                    Android
+                </a>
+                )
+            </span>
+            arba
+            <span class="text-nowrap">
+                Microsoft Authenticator (
+                <a href="https://apps.apple.com/us/app/microsoft-authenticator/id983156458">
+                    iOS
+                </a>
+                /
+                <a href="https://play.google.com/store/apps/details?id=com.azure.authenticator&hl=en_US">
+                    Android
+                </a>
+                ))
+            </span>
+            ir įveskite kodą prisijungus prie sistemos. 
+        </p>
+        <div class="qrcode-container">
+            <div id="qrcode" class="placeholder-glow mx-auto"></div>
+        </div>
+    </div>
+    <!-- <form class="modal-footer align-items-center" action="lialialia">
+        <input type="text" required pattern=".{6,}" class="form-control w-auto flex-grow-1" id="otp" name="otp" autocomplete="off" placeholder="App kodas" autofocus>
+        <input type="submit" name="submit" value="Pateikti" class="btn btn-primary">
+    </form> -->
+</div>
+
+<script type="text/javascript">
+    var qrcode = new QRCode(document.getElementById("qrcode"), {
+        width: 300,
+        height: 300
+    });
+
+    var generated = false;
+    var twoFaEnabled = '{{ form.two_factor_enabled|yesno:"true,false" }}' == 'true';
+
+    function makeCode (button) {
+        if (generated) return;
+        const request = new Request('{% url "users:twoFaURI" %}');
+
+        fetch(request)
+            .then((response) => {
+                if (response.status !== 200) {
+                    throw new Error("Something went wrong on API server!");
+                }
+                return response.text();
+            })
+            .then((text) => {
+                console.log(text);
+
+                if (text === "") {
+                    console.error("Nematau respone");
+                    return;
+                }
+                
+                qrcode.makeCode(text);
+                generated = true;
+                console.log(generated);
+
+            })
+            .catch((error) => {
+                console.error(error);
+                generated = false;
+            });
+    }
+
+    const button = document.getElementById("twoFaButton");
+
+    button.addEventListener('click', (e) => {
+        makeCode(e.target);
+    })
+</script>
 {% endblock%}

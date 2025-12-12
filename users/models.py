@@ -24,7 +24,6 @@ class User(models.Model):
     biography = models.TextField(blank=True, null=True)
     profile_cover_url = models.ImageField(blank=True, null=True, upload_to="profile_covers")
     two_factor_enabled = models.BooleanField(default=False)
-    two_factor_method = models.IntegerField(blank=True, null=True)
     two_factor_secret = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     last_login_at = models.DateTimeField(blank=True, null=True)
@@ -53,3 +52,11 @@ class Following(models.Model):
 
     def __str__(self) -> str:
         return f"State: {self.state}"
+
+class TwoFaCodeCopy(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="twoFaSecrets") 
+    code_hash = models.BinaryField(max_length=60)
+    time_created = models.DateTimeField(auto_now_add=True, editable=False)
+
+    def __str__(self) -> str:
+        return f"User: {self.user.display_name}, Created: {self.time_created}, Code hash: {self.code_hash}"
