@@ -1,5 +1,5 @@
 from django.db import models
-
+from users.models import User
 
 class Daina(models.Model):
     class Zanras(models.TextChoices):
@@ -38,7 +38,11 @@ class Daina(models.Model):
     aprasymas = models.TextField(blank=True)
     ikelimo_data = models.DateField(auto_now_add=True)
     yra_viesa = models.BooleanField(default=True)
-
+    savininkas = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="dainos"  # Naudotojas.dainos
+    )
     def __str__(self):
         return self.pavadinimas
 

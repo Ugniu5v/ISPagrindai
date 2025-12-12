@@ -288,8 +288,8 @@ def editSong(request):
     return render(request, "music/editSong.html", context)
 
 
-def playSong(request):
-    song_id = request.GET.get("song")
+def playSong(request, song_id):
+    # song_id = request.GET.get("song")
     song = None
     if song_id:
         try:
@@ -299,14 +299,15 @@ def playSong(request):
 
     context = {
         "song": song,
+        "errors": []
     }
 
     if not song:
-        context["errors"] = ["Song not found or missing."]
+        context["errors"] += "Song not found or missing."
         return render(request, "music/playSong.html", context, status=404)
 
     if not song.failas_url:
-        context["errors"] = ["This song has no file URL to play."]
+        context["errors"] += "This song has no file URL to play."
         return render(request, "music/playSong.html", context, status=400)
 
     # If streaming is requested, attempt to serve the local file directly.
@@ -438,7 +439,7 @@ def addToPlaylist(request, song_id):
         playlist_id = request.POST.get("playlist_id")
         grojarastis = get_object_or_404(Grojarastis, pk=playlist_id)
 
-        if grojarastis.savininkas_id != user_id:
+        if grojarastis.savininkas.pk != user_id:
             messages.error(request, "Galite redaguoti tik savo grojaraščius.")
             return redirect(f"/music/play/?song={song_id}")
 

@@ -13,6 +13,56 @@
     </ul>
 </div>
 {% endif %}
-<h3>Paskyros redagavimas</h3>
-<p class="text-danger">Nepadarytas</p>
+{% if info %}
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Pranešimas</h4>
+    <ul class="mb-0">
+    {% for line in info %}
+        <li>
+            {{line}}
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+<h3>{{ user.display_name }} - Paskyros redagavimas</h3>
+<form method="post" enctype="multipart/form-data" action="{% url "users:userEdit" %}" name="userform" class="d-grid gap-3 align-items-end">
+    {% csrf_token %}
+    <div class="">
+        <label for="display_name">Rodomas vardas</label>
+        <input id="display_name" value="{{ form.display_name }}" class="form-control" type="text" name="display_name" required />
+    </div>
+    <div class="">
+        <label for="email">El. paštas</label>
+        <input id="email" value="{{ form.email }}" class="form-control" type="email" name="email" required />
+    </div>
+    <div class="">
+        <label for="biography">Biografija</label>
+        <textarea id="biography" class="form-control" type="text" name="biography" rows="3" >{{ form.biography }}</textarea>
+    </div>
+    <div class="">
+        <label for="profile_cover_url">Profilio nuotrauka{% if user.profile_cover_url %} | {{ user.profile_cover_url.name}}{% endif %}</label>
+        <input id="profile_cover_url" class="form-control" type="file" accept="image/png, image/jpeg" name="profile_cover_url" />
+    </div>
+    <!-- <div class="">
+        <input id="two_factor_enabled" class="form-check-input" type="checkbox" value="1" name="two_factor_enabled" {{ form.two_factor_enabled|yesno:"checked," }}/>
+        <label for="two_factor_enabled" class="form-check-label">Dviejų faktorių autentifikacija</label>
+    </div> -->
+    <div class="">
+        <label for="login_input_username">Gimimo data</label>
+        <input id="date_of_birth" value="{{ form.date_of_birth }}" class="form-control" type="date" name="date_of_birth" />
+    </div>
+    <div class="">
+        <input id="is_public" value="1" class="form-check-input" type="checkbox" value="1" name="is_public" {{ form.is_public|yesno:"checked," }} />
+        <label for="is_public" class="form-check-label">Matomumas</label>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <input type="submit" formaction="{% url "users:userTwoFa" %}" name="editTwoFa" value="{{ form.two_factor_enabled|yesno:"Išjungti,Įjungti" }} dvejų faktorių autentifikaciją" class="btn btn-outline-primary w-100 me-sm-0 "/>
+        </div>
+        <div class="col-6">
+            <input type="submit" name="save" value="Išsaugoti" class="btn btn-primary w-100 me-sm-0 "/>
+        </div>
+    </div>
+</form>
 {% endblock%}

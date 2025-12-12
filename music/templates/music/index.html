@@ -4,7 +4,9 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-start mb-4">
   <h2 class="fw-semibold mb-0">Dainos</h2>
-  <a href="{% url 'music:createSong' %}" class="btn btn-primary">Pridėti dainą</a>
+  {% if "user" in request.session %}
+    <a href="{% url 'music:createSong' %}" class="btn btn-primary">Pridėti dainą</a>
+  {% endif %}
 </div>
 
 {% if songs %}
@@ -21,7 +23,7 @@
           <div class="card-footer bg-transparent border-top border-secondary">
             <div class="d-flex flex-wrap gap-2">
               {% if song.failas_url %}
-              <a href="{% url 'music:playSong' %}?song={{ song.pk }}" class="btn btn-sm btn-primary">Klausyti</a>
+              <a href="{% url 'music:playSong' song.pk %}" class="btn btn-sm btn-primary">Klausyti</a>
               {% else %}
               <button type="button" class="btn btn-sm btn-secondary disabled" aria-disabled="true">Nėra failo</button>
               {% endif %}
@@ -36,7 +38,10 @@
   </div>
 {% else %}
   <div class="alert alert-info">
-    Nėra dainų. <a href="{% url 'music:createSong' %}">Pridėkite pirmąją dainą.</a>
+    Nėra dainų.
+    {% if "user" in request.session %}
+        <a href="{% url 'music:createSong' %}">Pridėkite pirmąją dainą.</a>
+    {% endif %}
   </div>
 {% endif %}
 {% endblock %}
