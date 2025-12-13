@@ -34,7 +34,6 @@
 
         <hr class="border-secondary">
 
-        <!-- AVERAGE RATING -->
         <h4>Ratings</h4>
         <p class="mb-3">
             <strong>Average Rating:</strong>
@@ -45,8 +44,7 @@
             {% endif %}
         </p>
 
-        <!-- RATING FORM -->
-        {% if grojarastis.savininkas.pk != request.session.user_id %}
+        {% if grojarastis.savininkas_id != request.session.user_id %}
         <form method="POST" class="mt-3">
             {% csrf_token %}
             <label class="form-label"><strong>Your Rating:</strong></label>
@@ -70,33 +68,33 @@
 
         <h4 class="mt-4">Songs in this Playlist</h4>
 
-        {% if grojarastis.dainos.all %}
+        {% if grojarastis.dainos.exists %}
         <ul class="list-group mt-3">
-            {% for daina in grojarastis.dainos.all %}
-            <li class="list-group-item bg-black text-white border-secondary d-flex justify-content-between align-items-center">
+            {% for entry in grojarastis.dainos.all %}
+            <li class="list-group-item bg-black text-white border-secondary d-flex justify-content-between">
+            <div>
+                <strong>{{ entry.eiles_nr }}.</strong>
+                {{ entry.daina.pavadinimas }}
+            <span class="text-muted">by {{ entry.daina.atlikejas }}</span>
+            </div>
 
-                 <div>
-                    <strong>{{ daina.eilės_nr }}.</strong>
-                    {{ daina.dainos_pavadinimas }}
-                    <span class="text-muted">by {{ daina.atlikėjo_vardas }}</span>
-                </div>
-
-                {% if is_owner %}
-                <form method="POST" action="{% url 'playlists:deleteFromPlaylist' grojarastis.id daina.id %}">
-                    {% csrf_token %}
-                        <button class="btn btn-danger btn-sm">Remove</button>
-                </form>
-                {% endif %}
-
-            </li>
+        {% if grojarastis.savininkas_id == request.session.user_id %}
+        <form method="POST"
+            action="{% url 'playlists:deleteFromPlaylist' grojarastis.id entry.id %}">
+            {% csrf_token %}
+            <button class="btn btn-danger btn-sm">Remove</button>
+        </form>
+        {% endif %}
+        </li>
         {% endfor %}
-
         </ul>
         {% else %}
-        <p class="mt-3"><em>No songs added yet.</em></p>
+            <p class="text-secondary">No songs in this playlist.</p>
         {% endif %}
 
+
         <div class="mt-4">
+            <a href="{% url 'playlists:playPlaylistSong' grojarastis.id %}" class="btn btn-success me-2">Play Playlist</a>
             <a href="{% url 'playlists:editPlaylist' grojarastis.pk %}" class="btn btn-secondary me-2">Edit</a>
             <a href="{% url 'playlists:index' %}" class="btn btn-outline-light">Back to All</a>
             <a href="{% url 'playlists:deletePlaylist' grojarastis.pk %}" class="btn btn-danger"

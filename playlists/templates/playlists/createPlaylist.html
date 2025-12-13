@@ -21,7 +21,6 @@
             <form method="POST" action="{% url 'playlists:createPlaylist' %}">
                 {% csrf_token %}
 
-                <!-- TITLE / PAVADINIMAS -->
                 <div class="mb-3">
                     <label for="pavadinimas" class="form-label">Playlist Title</label>
                     <input 
@@ -34,7 +33,6 @@
                     >
                 </div>
 
-                <!-- DESCRIPTION / APRASYMAS -->
                 <div class="mb-3">
                     <label for="aprasymas" class="form-label">Description</label>
                     <textarea 
@@ -46,7 +44,6 @@
                     ></textarea>
                 </div>
 
-                <!-- VISIBILITY / YRA_VIESAS -->
                 <div class="mb-3">
                     <label for="visibility" class="form-label">Visibility</label>
                     <select 

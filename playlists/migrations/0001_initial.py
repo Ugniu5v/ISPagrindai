@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'Grojarastis',
-                'verbose_name_plural': 'Grojarasčiai',
+                'verbose_name_plural': 'Grojarasciai',
                 'ordering': ['-sukurimo_data'],
             },
         ),
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'GrojarascioVertinimas',
-                'verbose_name_plural': 'GrojarasčioVertinimai',
+                'verbose_name_plural': 'GrojarascioVertinimai',
                 'unique_together': {('grojarastis', 'naudotojas')},
             },
         ),
@@ -52,14 +52,14 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('prideta_data', models.DateField(auto_created=True)),
-                ('eilės_nr', models.PositiveIntegerField(default=0)),
+                ('eiles_nr', models.PositiveIntegerField(default=0)),
                 ('daina', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='grojarasciai', to='music.daina')),
                 ('grojarastis', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='dainos', to='playlists.grojarastis')),
             ],
             options={
                 'verbose_name': 'GrojarastisDaina',
-                'verbose_name_plural': 'GrojarasčioDainos',
-                'ordering': ['eilės_nr'],
+                'verbose_name_plural': 'GrojarascioDainos',
+                'ordering': ['eiles_nr'],
                 'unique_together': {('grojarastis', 'daina')},
             },
         ),

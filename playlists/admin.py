@@ -12,10 +12,10 @@ class GrojarastisAdmin(admin.ModelAdmin):
 
 @admin.register(GrojarastisDaina)
 class GrojarastisDainaAdmin(admin.ModelAdmin):
-    list_display = ['grojarastis', 'eilės_nr', 'dainos_pavadinimas', 'atlikėjo_vardas']
+    list_display = ['grojarastis', 'eiles_nr', 'dainos_pavadinimas', 'atlikėjo_vardas']
     list_filter = ['grojarastis__pavadinimas']
     search_fields = ['dainos_pavadinimas', 'atlikėjo_vardas']
-    ordering = ['grojarastis', 'eilės_nr']
+    ordering = ['grojarastis', 'eiles_nr']
 
 
 @admin.register(GrojarascioVertinimas)
