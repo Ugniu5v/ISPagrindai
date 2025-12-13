@@ -34,20 +34,17 @@
         <form method="POST" action="{% url 'playlists:editPlaylist' grojarastis.pk %}">
             {% csrf_token %}
 
-            <!-- TITLE -->
             <div class="mb-3">
                 <label class="form-label">Playlist Title</label>
                 <input type="text" name="pavadinimas" class="form-control bg-black text-white"
                        value="{{ grojarastis.pavadinimas }}" required>
             </div>
 
-            <!-- DESCRIPTION -->
             <div class="mb-3">
                 <label class="form-label">Description</label>
                 <textarea name="aprasymas" rows="3" class="form-control bg-black text-white">{{ grojarastis.aprasymas }}</textarea>
             </div>
 
-            <!-- VISIBILITY -->
             <div class="mb-3">
                 <label class="form-label">Visibility</label>
                 <select name="yra_viesas" class="form-select bg-black text-white">
@@ -58,27 +55,24 @@
 
             <hr class="border-secondary my-4">
 
-            <!-- SONG LIST WITH DRAGGABLE ITEMS -->
             <h4>Reorder Songs</h4>
             {% if grojarastis.dainos.all %}
             <p class="text-secondary">Drag the songs up or down to reorder them.</p>
 
             <ul id="song-list" class="list-group mb-4">
-                {% for daina in grojarastis.dainos.all %}
-                <li class="list-group-item bg-black text-white border-secondary draggable-item"
+            {% for entry in grojarastis.dainos.all %}
+                <li class="list-group-item bg-black text-white draggable-item"
                     draggable="true"
-                    data-id="{{ daina.id }}">
-                    <strong>{{ daina.dainos_pavadinimas }}</strong>
-                    <span class="text-muted">— {{ daina.atlikėjo_vardas }}</span>
-                </li>
-                {% endfor %}
+                     data-id="{{ entry.id }}">
+                    {{ entry.daina.pavadinimas }} — {{ entry.daina.atlikejas }}
+              </li>
+            {% endfor %}
             </ul>
 
             {% else %}
-            <p class="text-secondary">No songs in this playlist.</p>
+                <p class="text-secondary">No songs in this playlist.</p>
             {% endif %}
 
-            <!-- HIDDEN FIELD THAT WILL RECEIVE SORTED ID LIST -->
             <input type="hidden" id="sorted_order" name="sorted_order">
 
             <button type="submit" class="btn btn-success">Save Changes</button>
@@ -120,7 +114,6 @@
         item.addEventListener("dragleave", () => item.classList.remove("drag-over"));
     });
 
-    // Before submit: collect new order
     document.querySelector("form").addEventListener("submit", function () {
         let order = [];
         document.querySelectorAll("#song-list li").forEach(li => {

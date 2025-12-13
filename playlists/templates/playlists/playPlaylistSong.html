@@ -1,65 +1,80 @@
 {% extends "_base.html" %}
-{% block title %}Grojaraščio grojimas{% endblock %}
+{% block title %}Play Playlist{% endblock %}
 
 {% block content %}
+<div class="row">
 
-<div class="d-flex gap-4">
+  <div class="col-md-8">
+    <h3 class="mb-3">{{ grojarastis.pavadinimas }}</h3>
 
-    <!-- LEFT SIDE: Song list -->
-    <div style="width: 250px; max-height: 80vh; overflow-y: auto;" class="bg-dark p-3 rounded">
-        <h5 class="mb-3">Grojaraščio dainos</h5>
+    {% if song %}
+    <div class="card bg-body-tertiary shadow-sm">
+      <div class="card-body">
 
-        <ul class="list-group">
-            {% for d in songs %}
-            <a 
-                href="{% url 'playlists:playPlaylistSong' playlist.id d.id %}" 
-                class="list-group-item list-group-item-action 
-                       {% if d.id == current.id %}active text-white{% else %}bg-black text-white{% endif %}">
-                {{ d.eilės_nr }}. {{ d.dainos_pavadinimas }}
-                <br>
-                <small class="text-secondary">{{ d.atlikėjo_vardas }}</small>
-            </a>
-            {% endfor %}
-        </ul>
+        <h4 class="mb-1">{{ song.pavadinimas }}</h4>
+        <p class="text-secondary mb-3">
+          {{ song.get_zanras_display }} • {{ song.trukme_sekundes }}s
+        </p>
 
-        <a href="{% url 'playlists:PlaylistDetail' playlist.id %}" class="btn btn-secondary mt-3 w-100">
-            Atgal į grojaraštį
-        </a>
-    </div>
-
-
-    <!-- RIGHT SIDE: Player -->
-    <div class="flex-grow-1">
-        <h3>{{ current.dainos_pavadinimas }}</h3>
-        <p class="text-secondary">Atlikėjas: {{ current.atlikėjo_vardas }}</p>
-
-        {% if song and audio_url %}
-        <audio id="audio-player" controls autoplay class="w-100 mb-3">
-            <source src="{{ audio_url }}" {% if audio_mime %}type="{{ audio_mime }}"{% endif %}>
+        {% if audio_url %}
+        <audio
+          id="audio-player"
+          controls
+          autoplay
+          class="w-100 mb-3"
+          {% if has_next %}
+          onended="window.location.href='?i={{ index|add:1 }}'"
+          {% endif %}
+        >
+          <source src="{{ audio_url }}" type="{{ audio_mime }}">
+          Your browser does not support the audio element.
         </audio>
-        {% else %}
-        <div class="alert alert-warning">Šiai dainai nėra audio failo.</div>
         {% endif %}
 
-        <!-- Navigation Buttons -->
-        <div class="d-flex gap-2">
-            {% if prev_id %}
-            <a class="btn btn-outline-light"
-               href="{% url 'playlists:playPlaylistSong' playlist.id prev_id %}">
-                « Ankstesnė
-            </a>
-            {% endif %}
+        <div class="d-flex justify-content-between mb-3">
+          {% if has_prev %}
+          <a class="btn btn-outline-primary"
+             href="?i={{ index|add:-1 }}">
+            ⏮ Previous
+          </a>
+          {% else %}
+          <span></span>
+          {% endif %}
 
-            {% if next_id %}
-            <a class="btn btn-outline-light"
-               href="{% url 'playlists:playPlaylistSong' playlist.id next_id %}">
-                Kitas »
-            </a>
-            {% endif %}
+          {% if has_next %}
+          <a class="btn btn-outline-primary"
+             href="?i={{ index|add:1 }}">
+            Next ⏭
+          </a>
+          {% endif %}
         </div>
 
+        <a href="{% url 'playlists:PlaylistDetail' grojarastis.id %}"
+           class="btn btn-secondary">
+           ⬅ Back to Playlist
+        </a>
+
+      </div>
     </div>
+    {% endif %}
+  </div>
+
+  <div class="col-md-4">
+    <h5 class="mb-3">Songs</h5>
+
+    <div class="list-group"
+         style="max-height: 500px; overflow-y: auto;">
+
+      {% for e in entries %}
+      <a href="?i={{ forloop.counter0 }}"
+         class="list-group-item list-group-item-action
+         {% if forloop.counter0 == index %}active{% endif %}">
+        {{ e.eiles_nr }}. {{ e.daina.pavadinimas }}
+      </a>
+      {% endfor %}
+
+    </div>
+  </div>
 
 </div>
-
 {% endblock %}

@@ -13,6 +13,7 @@ from .models import Daina, DainosVertinimas
 from users.models import User
 from playlists.models import Grojarastis, GrojarastisDaina
 from django.db import models
+from django.utils import timezone
 
 
 # Create your views here.
@@ -439,36 +440,33 @@ def addToPlaylist(request, song_id):
     user_id = request.session.get("user_id")
     song = get_object_or_404(Daina, pk=song_id)
 
-    if request.method == "POST":
-        playlist_id = request.POST.get("playlist_id")
-        grojarastis = get_object_or_404(Grojarastis, pk=playlist_id)
+    if request.method != "POST":
+        return redirect(f"/music/play/{song_id}")
 
-        if grojarastis.savininkas.pk != user_id:
-            messages.error(request, "Galite redaguoti tik savo grojaraščius.")
-            return redirect(f"/music/play/?song={song_id}")
+    playlist_id = request.POST.get("playlist_id")
+    grojarastis = get_object_or_404(Grojarastis, pk=playlist_id)
 
-        duplicate_exists = grojarastis.dainos.filter(
-            dainos_pavadinimas=song.pavadinimas,
-            atlikėjo_vardas=getattr(song, "atlikejas", "")
-        ).exists()
+    if grojarastis.savininkas_id != user_id:
+        return redirect(f"/music/play/{song_id}")
 
-        if duplicate_exists:
-            messages.error(request, "Ši daina jau yra šiame grojaraštyje.")
-            return redirect(f"/music/play/?song={song_id}")
+    if GrojarastisDaina.objects.filter(
+        grojarastis=grojarastis,
+        daina=song
+    ).exists():
+        return redirect(f"/music/play/{song_id}")
 
-        max_number = grojarastis.dainos.aggregate(
-            max_eile=models.Max("eilės_nr")
-        )["max_eile"] or 0
+    last_pos = (
+        GrojarastisDaina.objects
+        .filter(grojarastis=grojarastis)
+        .aggregate(max_nr=Max("eiles_nr"))["max_nr"] or 0
+    )
 
-        next_number = max_number + 1
+    GrojarastisDaina.objects.create(
+        grojarastis=grojarastis,
+        daina=song,
+        eiles_nr=last_pos + 1,
+        prideta_data=timezone.now()
+    )
 
-        GrojarastisDaina.objects.create(
-            grojarastis=grojarastis,
-            dainos_pavadinimas=song.pavadinimas,
-            atlikėjo_vardas=getattr(song, "atlikejas", ""),
-            eilės_nr=next_number,
-        )
-
-        messages.success(request, "Daina pridėta į grojaraštį!")
-        return redirect(f"/music/play/?song={song_id}")
+    return redirect(f"/music/play/{song_id}")
 
