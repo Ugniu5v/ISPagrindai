@@ -53,7 +53,6 @@ class Koncertas(models.Model):
     zmoniu_talpa = models.IntegerField()
     zanras = models.CharField(choices=Zanras.choices, default=Zanras.POPMUZIKA, max_length=255)
     yra_viesas = models.BooleanField(default=True)
-    rekomendacijos_ivertis = models.FloatField(default=0)
     vieta = models.ForeignKey(Vieta, on_delete=models.SET_NULL, null=True, blank=True,related_name="koncertai",)
 
     def __str__(self):

@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 # from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.http import HttpRequest
+from django.db.models import Q
 from datetime import datetime
 from datetime import timedelta
 from .models import Koncertas, Vieta, KoncertoDalyvis
@@ -15,7 +16,14 @@ def index(request):
     
     search_query = request.GET.get('q', '').strip()
     if search_query:
-        koncertai = koncertai.filter(pavadinimas__icontains=search_query)
+        koncertai = koncertai.filter(
+            Q(pavadinimas__icontains=search_query) |
+            Q(aprasymas__icontains=search_query) |
+            Q(zanras__icontains=search_query) |
+            Q(vieta__pavadinimas__icontains=search_query) |
+            Q(vieta__miestas__icontains=search_query) |
+            Q(vieta__salis__icontains=search_query)
+        )
     
     genre_filter = request.GET.get('genre', '')
     if genre_filter:
@@ -45,14 +53,6 @@ def index(request):
     elif date_filter == 'past':
         koncertai = koncertai.filter(pradzios_data__lt=today)
     
-    score_filter = request.GET.get('score', '')
-    if score_filter:
-        try:
-            min_score = float(score_filter)
-            koncertai = koncertai.filter(rekomendacijos_ivertis__gte=min_score)
-        except (ValueError, TypeError):
-            pass
-    
     koncertai = koncertai.order_by("-pradzios_data")
     zanrai = Koncertas.Zanras.choices
     
@@ -70,7 +70,6 @@ def index(request):
         "selected_genre": genre_filter,
         "selected_status": status_filter,
         "selected_date": date_filter,
-        "selected_score": score_filter,
         "user": user,
     })
 
@@ -118,7 +117,6 @@ def createConcert(request: HttpRequest):
             yra_atsauktas=False,
             zmoniu_talpa=int(request.POST["zmoniu_talpa"]),
             yra_viesas=request.POST.get("yra_viesas") == "on",
-            rekomendacijos_ivertis=0.0,
             vieta=vieta
         )
         return redirect('concerts:concertDetail', pk=koncertas.pk)
@@ -226,7 +224,7 @@ def concertDetail(request, pk):
 
 
 def recommendationConcert(request):
-    koncertai = Koncertas.objects.filter(yra_viesas=True).order_by("-rekomendacijos_ivertis")[:10]
+    koncertai = Koncertas.objects.filter(yra_viesas=True).order_by("-pradzios_data")[:10]
     zanrai = Koncertas.Zanras.choices
     return render(request, "concerts/recommendationConcert.html", {
         "koncertai": koncertai,

@@ -19,7 +19,7 @@
           <input
             type="text"
             class="form-control"
-            placeholder="Ieškoti pagal koncerto pavadinimą..."
+            placeholder="Ieškoti koncertų..."
             name="q"
             value="{{ search_query }}"
           />
@@ -59,17 +59,6 @@
               <option value="past" {% if selected_date == 'past' %}selected{% endif %}>Praėję</option>
             </select>
           </div>
-          <div class="col-md-3">
-            <label for="filterScore" class="form-label">Min. Įvertis</label>
-            <select class="form-select" id="filterScore" name="score">
-              <option value="">Visi įverčiai</option>
-              <option value="9" {% if selected_score == '9' %}selected{% endif %}>9+</option>
-              <option value="8" {% if selected_score == '8' %}selected{% endif %}>8+</option>
-              <option value="7" {% if selected_score == '7' %}selected{% endif %}>7+</option>
-              <option value="6" {% if selected_score == '6' %}selected{% endif %}>6+</option>
-              <option value="5" {% if selected_score == '5' %}selected{% endif %}>5+</option>
-            </select>
-          </div>
         </div>
         <div class="mt-3">
           <button type="submit" class="btn btn-primary me-2">Taikyti filtrus</button>
@@ -93,7 +82,7 @@
               <small class="text-muted">{% if koncertas.pradzios_data %}{{ koncertas.pradzios_data|date:"Y M d" }}{% endif %} - {% if koncertas.pabaigos_data %}{{ koncertas.pabaigos_data|date:"d" }}{% endif %} · {{ koncertas.get_zanras_display }}</small>
               <h5 class="card-title mt-2">{{ koncertas.pavadinimas }}</h5>
               <small class="text-muted">
-                Bilietų: {{ koncertas.zmoniu_talpa }} · Įvertis: {{ koncertas.rekomendacijos_ivertis|floatformat:1 }}/10
+                Bilietų: {{ koncertas.zmoniu_talpa }}
               </small>
               {% if not koncertas.yra_viesas %}
                 <div class="mt-2"><span class="badge bg-secondary">Privatus</span></div>
