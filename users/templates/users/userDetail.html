@@ -92,7 +92,7 @@
     <div class="row row-cols-auto g-4">
       {% if playlists %} 
           {% for playlist in playlists %}
-              <a class="playlist-card" href="{% url 'playlists:playlistDetail' playlist.pk %}">
+              <a class="playlist-card" href="{% url 'playlists:PlaylistDetail' playlist.pk %}">
                   <img
                       height="180"
                       width="180"

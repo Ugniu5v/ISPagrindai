@@ -324,7 +324,7 @@ html[data-bs-theme="light"] .theme-toggle svg.theme-icon-when-light {
   }
 }
 
-#twoFaModal:popover-open {
+.twoFaModal:popover-open {
     width: 500px;
     max-width: calc(100% - 6em);
     max-height: calc(100% - 6em);
