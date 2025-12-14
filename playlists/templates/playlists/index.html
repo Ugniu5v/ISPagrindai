@@ -1,77 +1,77 @@
 {% extends "_base.html" %}
 {% load static %}
-
 {% block title %}Playlists{% endblock %}
-
 {% block content %}
 <div class="container mt-5">
+    {% if messages %}
+    <div class="row mb-4">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="text-white">Playlists</h1>
+        <h1 class="text-white">Grojaraščiai</h1>
         <a href="{% url 'playlists:createPlaylist' %}" class="btn btn-success btn-lg">
-            Create New Playlist
+            Sukurk nauja grojaraštį
         </a>
     </div>
-
     <div class="row">
         {% for grojarastis in grojarasciai %}
         <div class="col-md-4 mb-4">
             <div class="card bg-dark text-white h-100 concert-card">
                 <div class="card-body d-flex flex-column">
-
                     <h5 class="card-title">{{ grojarastis.pavadinimas }}</h5>
-
                     <p class="card-text text-muted">
-                        <strong>Owner:</strong> {{ grojarastis.savininkas.username }}
+                        <strong>Kūrėjas:</strong> {{ grojarastis.savininkas.username }}
                     </p>
-
                     <p class="card-text text-muted">
-                        <strong>Created:</strong> {{ grojarastis.sukurimo_data|date:"Y-m-d" }}
+                        <strong>Kurimo data:</strong> {{ grojarastis.sukurimo_data|date:"Y-m-d" }}
                     </p>
-
                     <p class="card-text">
-                        <strong>Visibility:</strong>
+                        <strong>Ar viešas:</strong>
                         <span class="badge {% if grojarastis.yra_viesas %}bg-success{% else %}bg-secondary{% endif %}">
                             {% if grojarastis.yra_viesas %}Public{% else %}Private{% endif %}
                         </span>
                     </p>
-
                     <p class="card-text flex-grow-1">
                         {% if grojarastis.aprasymas %}
                             {{ grojarastis.aprasymas|truncatewords:15 }}
                         {% else %}
-                            <em>No description</em>
+                            <em>Nėra aprašo</em>
                         {% endif %}
                     </p>
-
                     <p class="card-text mt-2">
-                        <strong>Rating:</strong>
+                        <strong>Reitingas:</strong>
                         {% if grojarastis.avg_rating %}
-                            {{ grojarastis.avg_rating|floatformat:1 }} 
+                            {{ grojarastis.avg_rating|floatformat:1 }}
                             ({{ grojarastis.ratings_count }} ratings)
                         {% else %}
-                            <em>No ratings yet</em>
+                            <em>Nėra reitingų</em>
                         {% endif %}
                     </p>
-
                     <div class="mt-auto">
-                        <a href="{% url 'playlists:PlaylistDetail' grojarastis.pk %}" 
-                           class="btn btn-primary btn-sm me-2">View</a>
-
+                        <a href="{% url 'playlists:PlaylistDetail' grojarastis.pk %}"
+                           class="btn btn-primary btn-sm me-2">Peržiūrėti</a>
                         {% if grojarastis.savininkas.pk == request.session.user_id %}
-                            <a href="{% url 'playlists:editPlaylist' grojarastis.pk %}" 
-                               class="btn btn-outline-light btn-sm">Edit</a>
+                            <a href="{% url 'playlists:editPlaylist' grojarastis.pk %}"
+                               class="btn btn-outline-light btn-sm">Redaguoti</a>
                         {% endif %}
                     </div>
-
                 </div>
             </div>
         </div>
-
         {% empty %}
         <div class="col-12">
             <div class="alert alert-info text-center">
-                No playlists available yet.
-                <a href="{% url 'playlists:createPlaylist' %}">Create the first one!</a>
+                Dar nėra nei vieno grojaraščio.
+                <a href="{% url 'playlists:createPlaylist' %}">Sukūrk!</a>
             </div>
         </div>
         {% endfor %}

@@ -41,7 +41,7 @@
           {% if has_prev %}
           <a class="btn btn-outline-primary"
              href="?i={{ index|add:-1 }}">
-            ⏮ Previous
+            ⏮ Buvusi daina
           </a>
           {% else %}
           <span></span>
@@ -50,14 +50,14 @@
           {% if has_next %}
           <a class="btn btn-outline-primary"
              href="?i={{ index|add:1 }}">
-            Next ⏭
+            Sekanti ⏭
           </a>
           {% endif %}
         </div>
 
         <a href="{% url 'playlists:PlaylistDetail' grojarastis.id %}"
            class="btn btn-secondary">
-           ⬅ Back to Playlist
+           ⬅ Atgal į grojaraštį
         </a>
 
       </div>
@@ -66,7 +66,7 @@
   </div>
 
   <div class="col-md-4">
-    <h5 class="mb-3">Songs</h5>
+    <h5 class="mb-3">Dainos</h5>
 
     <div class="list-group"
          style="max-height: 500px; overflow-y: auto;">
