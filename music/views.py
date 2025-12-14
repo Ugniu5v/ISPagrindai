@@ -480,10 +480,12 @@ def updateListeningHistory(request: HttpRequest):
         song_id = info['song_id']
         percent = info['percent']
 
-        if song_id != "" and percent != "":
+        try:
+            song_id = int(song_id)
             percent = float(percent)
             klausymas: DainosKlausymas
             if listening_id != "":
+                listening_id = int(listening_id)
                 # Jau žinomas klausymas tai atnaujinam
                 klausymas = DainosKlausymas.objects.get(pk=listening_id)
                 if klausymas.trukme_procentais < percent:
@@ -500,5 +502,7 @@ def updateListeningHistory(request: HttpRequest):
                 # Naujas klausymas tai sukuriam
 
             return HttpResponse(klausymas.pk, content_type="text/plain", status=200)
+        except ValueError:
+            return HttpResponse(f"Values are not int int and float", content_type="text/plain", status=422) 
 
     return HttpResponse(f"Dont know what to do.", content_type="text/plain", status=422)

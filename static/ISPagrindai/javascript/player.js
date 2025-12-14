@@ -21,7 +21,7 @@
     function updateListeningHistory(listening_id, song_id, percent){
         if(window.user === undefined){
             console.log("No user");
-            return;
+            return false;
         }
         const request = new Request("/music/updateHistory/", {
             method: "POST",
@@ -33,37 +33,39 @@
         });
 
 
-        fetch(request)
+        return fetch(request)
             .then((response) => {
-                if (response.status !== 200) {
+                if (!response.ok) {
                     throw new Error("Kažkas ne taip");
                 }
                 return response.text();
             })
-            .then((listening_id) => {
-                document.querySelectorAll(".play-btn").forEach(btn => {
-                    const playbutton = btn.children[0];
-                    const audio = document.getElementById("music-player-control");
-                    if (audio.src === playbutton.dataset.audio) {
-                        audio.dataset.listeningId = listening_id;
-                    }
-                    if (playbutton.dataset.songId === song_id){
-                        playbutton.dataset.listeningId = listening_id;
-                        return
-                    }
-                })
-            })
-            .catch((error) => {
-                console.error(error);
-            });
     }
 
     function updateHandler(event){
         const audio = event.target
-        const listening_id = audio.dataset.listeningId;
-        const song_id = audio.dataset.songId;
-        const percent = audio.currentTime * 100 / audio.duration;
-        updateListeningHistory(listening_id, song_id, percent);
+        if ("songId" in audio.dataset){
+            const listening_id = audio.dataset.listeningId || "";
+            const song_id = audio.dataset.songId;
+            const percent = audio.currentTime * 100 / audio.duration;
+            
+            Promise.resolve(updateListeningHistory(listening_id, song_id, percent)).then((new_listening_id) => {
+                if (new_listening_id !== false){
+                    // Atnaujina audio elementą su klausymo id
+                    audio.dataset.listeningId = new_listening_id;
+
+                    // Atnaujina grotuvo korteliu id 
+                    document.querySelectorAll(".play-btn").forEach(btn => {
+                        if (btn.dataset.songId === song_id){
+                            btn.dataset.listeningId = listening_id
+                            return
+                        }
+                    })
+                }
+            })
+        }else{
+            console.log("No data on audio tag");
+        }
     }
 
     window.addEventListener('load', function(_) {
@@ -84,8 +86,8 @@
         });
 
         document.querySelectorAll(".play-btn").forEach(btn => {
-            btn.addEventListener("pointerup", (e) => {
-                const playbutton = e.target;
+            btn.addEventListener("click", _ => {
+                const playbutton = btn;
                 const player = document.getElementById("music-player");
                 const audio = document.getElementById("music-player-control");
                 if (audio.src === playbutton.dataset.audio) {
@@ -98,27 +100,25 @@
                         return;
                     }
                 }
-                // Atnaujinam info
+                // Atnaujinam audio
                 audio.src = playbutton.dataset.audio;
                 audio.dataset.songId = playbutton.dataset.songId;
                 audio.dataset.listeningId = playbutton.dataset.listeningId || "";
+                    
+                // Atnaujinam kitus duomenis
                 coverImg.src = playbutton.dataset.cover || "https://picsum.photos/60"; 
                 titleEl.textContent = playbutton.dataset.title || "Nežinomas pavadinimas";
                 artistEl.textContent = playbutton.dataset.artist || "Nežinomas atlikėjas";
 
                 // Paleisti audio
-                audio
-                    .play()
-                    .then(() => {
-                        updateListeningHistory(audio.dataset.listeningId, audio.dataset.songId, 0)
-                    })
-                    .catch(err => console.error("Nepavyko paleisti audio:", err));
+                audio.load();
+                audio.play();
             });
         });
 
-        const audio = document.getElementById("music-player-control");
-
-        audio.onpause = updateHandler;
-        audio.onended = updateHandler;
+        this.document.querySelectorAll("audio").forEach(audio => {
+            audio.onpause = updateHandler;
+            audio.onended = updateHandler;
+        });
     });
 }

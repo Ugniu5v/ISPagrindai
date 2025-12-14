@@ -1,6 +1,11 @@
 {% extends "_base.html" %}
 {% block title %}Play Playlist{% endblock %}
 
+{% load static %}
+{% block headcontent %}
+    <script type="text/javascript" src='{% static "ISPagrindai/javascript/player.js" %}'></script>
+{% endblock %}
+
 {% block content %}
 <div class="row">
 
@@ -22,6 +27,7 @@
           controls
           autoplay
           class="w-100 mb-3"
+          data-song-id="{{ song.pk }}"
           {% if has_next %}
           onended="window.location.href='?i={{ index|add:1 }}'"
           {% endif %}
