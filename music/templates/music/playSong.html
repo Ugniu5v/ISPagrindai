@@ -1,6 +1,11 @@
 {% extends "_base.html" %}
 {% block title %}Klausyti dainą › Muzikos sistema{% endblock %}
 
+{% load static %}
+{% block headcontent %}
+    <script type="text/javascript" src='{% static "ISPagrindai/javascript/player.js" %}'></script>
+{% endblock %}
+
 {% block content %}
 <div class="d-flex justify-content-between align-items-start mb-4">
   <h2 class="fw-semibold mb-0">Klausyti dainą</h2>
@@ -41,7 +46,7 @@
 
     {% if song.failas_url %}
     <div class="mb-3">
-      <audio id="audio-player" controls autoplay class="w-100">
+      <audio id="audio-player" controls autoplay class="w-100" data-song-id="{{ song.pk }}">
         <source src="{{ audio_url }}" {% if audio_mime %}type="{{ audio_mime }}"{% endif %} />
         Your browser does not support the audio element.
       </audio>

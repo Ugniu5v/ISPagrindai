@@ -22,7 +22,12 @@
       crossorigin="anonymous"
     ></script>
 
-    <script type="text/javascript" src="{% static "ISPagrindai/javascript/theme.js" %}"></script>
+    <script type="text/javascript" src='{% static "ISPagrindai/javascript/theme.js" %}'></script>
+    {% if 'user' in request.session %}
+        <script>
+            window.user = true;
+        </script>
+    {% endif %}
     {% block headcontent %}{% endblock %}
 
     <link rel="stylesheet" href="{% static 'ISPagrindai/css/style.css' %}" />

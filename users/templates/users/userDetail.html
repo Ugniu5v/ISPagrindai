@@ -1,5 +1,11 @@
 {% extends "_base.html" %}
 {% block title %}{{ user.display_name }} • Muzikos sistema{% endblock %}
+
+{% load static %}
+{% block headcontent %}
+    <script type="text/javascript" src='{% static "ISPagrindai/javascript/player.js" %}'></script>
+{% endblock %}
+
 {% block content %}
   <!-- User Header -->
   <div class="card shadow-sm mb-4 bg-body-tertiary">

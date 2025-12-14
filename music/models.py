@@ -49,6 +49,7 @@ class Daina(models.Model):
 
 class DainosKlausymas(models.Model):
     daina = models.ForeignKey(Daina, on_delete=models.CASCADE, related_name="klausymai")
+    naudotojas = models.ForeignKey(User, on_delete=models.CASCADE, related_name="klausymai")
     trukme_procentais = models.FloatField()
     klausymo_data = models.DateField(auto_now_add=True)
 
@@ -58,8 +59,9 @@ class DainosKlausymas(models.Model):
 
 class DainosVertinimas(models.Model):
     daina = models.ForeignKey(Daina, on_delete=models.CASCADE, related_name="vertinimai")
+    naudotojas = models.ForeignKey(User, on_delete=models.CASCADE, related_name="vertinimai")
     ivertinimas = models.FloatField()
-    ivertinimo_data = models.DateField(auto_now_add=True)
+    ivertinimo_data = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.daina} - {self.ivertinimas}"

@@ -2,18 +2,21 @@ import mimetypes
 import os
 import math
 from datetime import datetime
+from django.views.decorators.csrf import csrf_exempt
 
 from django.db.models import Avg, Count, Max
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 
 from django.contrib import messages
 
-from .models import Daina, DainosVertinimas
+from .models import Daina, DainosVertinimas, DainosKlausymas
 from users.models import User
+from users.decorators import login_required
 from playlists.models import Grojarastis, GrojarastisDaina
 from django.db import models
 from django.utils import timezone
+import json
 
 
 # Create your views here.
@@ -350,7 +353,7 @@ def playSong(request, song_id):
         audio_url = f"{request.build_absolute_uri(request.path)}?song={song.pk}&stream=1"
 
     rating_stats = (
-        song.vertinimai.aggregate(avg=Avg("ivertinimas"), count=Count("id"))
+        song.vertinimai.aggregate(avg=Avg("ivertinimas"), count=Count("id")) # type: ignore
         if hasattr(song, "vertinimai")
         else {"avg": None, "count": 0}
     )
@@ -399,7 +402,7 @@ def similarSongs(request):
         )
 
     genre_values = [g[0] for g in Daina.Zanras.choices]
-    genre_index = {g: i for i, g in enumerate(genre_values)}
+    genre_index = {g.value: i for i, g in enumerate(genre_values)}
 
     def build_vector(song: Daina):
         duration_min = (song.trukme_sekundes or 0) / 60.0
@@ -446,7 +449,7 @@ def addToPlaylist(request, song_id):
     playlist_id = request.POST.get("playlist_id")
     grojarastis = get_object_or_404(Grojarastis, pk=playlist_id)
 
-    if grojarastis.savininkas_id != user_id:
+    if grojarastis.savininkas.pk != user_id:
         return redirect(f"/music/play/{song_id}")
 
     if GrojarastisDaina.objects.filter(
@@ -470,3 +473,36 @@ def addToPlaylist(request, song_id):
 
     return redirect(f"/music/play/{song_id}")
 
+def updateListeningHistory(request: HttpRequest):
+    if "user" in request.session and request.method == "POST":
+        info = json.loads(request.body)
+        listening_id = info['listening_id']
+        song_id = info['song_id']
+        percent = info['percent']
+
+        try:
+            song_id = int(song_id)
+            percent = float(percent)
+            klausymas: DainosKlausymas
+            if listening_id != "":
+                listening_id = int(listening_id)
+                # Jau žinomas klausymas tai atnaujinam
+                klausymas = DainosKlausymas.objects.get(pk=listening_id)
+                if klausymas.trukme_procentais < percent:
+                    klausymas.trukme_procentais = percent
+                    klausymas.save()
+            else:
+                song = Daina.objects.get(pk=song_id)
+                user = User.objects.get(pk=request.session["user_id"])
+                klausymas = DainosKlausymas.objects.create(
+                    daina=song, 
+                    naudotojas=user,
+                    trukme_procentais=percent
+                )
+                # Naujas klausymas tai sukuriam
+
+            return HttpResponse(klausymas.pk, content_type="text/plain", status=200)
+        except ValueError:
+            return HttpResponse(f"Values are not int int and float", content_type="text/plain", status=422) 
+
+    return HttpResponse(f"Dont know what to do.", content_type="text/plain", status=422)
