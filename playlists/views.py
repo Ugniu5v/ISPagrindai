@@ -3,10 +3,12 @@ from django.contrib import messages
 from django.db import models, transaction
 from users.decorators import login_required
 from .models import Grojarastis, GrojarascioVertinimas, GrojarastisDaina
-from music.models import Daina
+from music.models import Daina, DainosKlausymas
 from django.http import FileResponse, HttpResponse
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q
 import mimetypes, os
+import random
+from collections import Counter
 
 def index(request):
     user_id = request.session.get("user_id")
@@ -56,6 +58,7 @@ def createPlaylist(request):
 def PlaylistDetail(request, pk):
     grojarastis = get_object_or_404(Grojarastis, pk=pk)
     user_id = request.session.get("user_id")
+    request.session.pop("playlist_shuffle", None)
 
     is_owner = grojarastis.savininkas_id == user_id
     is_logged_in = user_id is not None
@@ -194,12 +197,23 @@ def deleteFromPlaylist(request, grojarastis_id, song_id):
 def playPlaylistSong(request, pk):
     grojarastis = get_object_or_404(Grojarastis, pk=pk)
 
-    entries = list(
-        GrojarastisDaina.objects
-        .filter(grojarastis=grojarastis)
-        .select_related("daina")
-        .order_by("eiles_nr")
-    )
+    shuffle_ids = request.session.get("playlist_shuffle")
+
+    if shuffle_ids:
+        entries = list(
+            GrojarastisDaina.objects
+            .filter(id__in=shuffle_ids, grojarastis=grojarastis)
+            .select_related("daina")
+        )
+
+        entries.sort(key=lambda e: shuffle_ids.index(e.id))
+    else:
+        entries = list(
+            GrojarastisDaina.objects
+            .filter(grojarastis=grojarastis)
+            .select_related("daina")
+            .order_by("eiles_nr")
+        )
 
     if not entries:
         return render(request, "playlists/playPlaylistSong.html", {
@@ -214,11 +228,7 @@ def playPlaylistSong(request, pk):
     song = entry.daina
 
     if request.GET.get("stream") == "1":
-        file_path = song.failas_url
-        if file_path.startswith("file://"):
-            file_path = file_path[7:]
-        file_path = file_path.replace("file:\\", "").replace("file:/", "")
-
+        file_path = song.failas_url.replace("file://", "").replace("file:\\", "").replace("file:/", "")
         if not os.path.exists(file_path):
             return HttpResponse("Audio file not found.", status=404)
 
@@ -226,15 +236,12 @@ def playPlaylistSong(request, pk):
         return FileResponse(open(file_path, "rb"), content_type=ctype or "audio/mpeg")
 
     audio_url = song.failas_url
-    audio_mime = None
-    ext = audio_url.split(".")[-1].lower()
-
-    if ext == "mp3":
-        audio_mime = "audio/mpeg"
-    elif ext == "wav":
-        audio_mime = "audio/wav"
-    elif ext in {"ogg", "oga"}:
-        audio_mime = "audio/ogg"
+    audio_mime = {
+        "mp3": "audio/mpeg",
+        "wav": "audio/wav",
+        "ogg": "audio/ogg",
+        "oga": "audio/ogg",
+    }.get(audio_url.split(".")[-1].lower())
 
     if not audio_url.startswith(("http://", "https://")):
         audio_url = f"{request.build_absolute_uri(request.path)}?i={index}&stream=1"
@@ -256,3 +263,57 @@ def playPlaylistSong(request, pk):
         "has_prev": index > 0,
         "has_next": index < len(entries) - 1,
     })
+
+
+def playPlaylistShuffle(request, pk):
+    user_id = request.session.get("user_id")
+    grojarastis = get_object_or_404(Grojarastis, pk=pk)
+
+    entries = list(
+        GrojarastisDaina.objects
+        .filter(grojarastis=grojarastis)
+        .select_related("daina")
+    )
+
+    if not entries:
+        return redirect("playlists:PlaylistDetail", pk=pk)
+
+    recent_listens = (
+        DainosKlausymas.objects
+        .filter(
+            naudotojas_id=user_id,
+            trukme_procentais__gte=10
+        )
+        .order_by("-klausymo_data")
+        .select_related("daina")[:10]
+    )
+
+    genre_counter = Counter(
+        l.daina.zanras for l in recent_listens if l.daina
+    )
+
+    preferred_genres = [g for g, _ in genre_counter.most_common()]
+
+    by_genre = {}
+    for e in entries:
+        by_genre.setdefault(e.daina.zanras, []).append(e)
+
+    final_order = []
+
+    for genre in preferred_genres:
+        if genre in by_genre:
+            songs = by_genre.pop(genre)
+            random.shuffle(songs)
+            final_order.extend(songs)
+
+    remaining_genres = list(by_genre.keys())
+    random.shuffle(remaining_genres)
+
+    for genre in remaining_genres:
+        songs = by_genre[genre]
+        random.shuffle(songs)
+        final_order.extend(songs)
+
+    request.session["playlist_shuffle"] = [e.id for e in final_order]
+
+    return redirect("playlists:playPlaylistSong", pk=pk)

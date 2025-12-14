@@ -109,6 +109,11 @@
                class="btn btn-success me-2">
                 Groti
             </a>
+            
+            <a href="{% url 'playlists:playPlaylistShuffle' grojarastis.id %}"
+                class="btn btn-warning me-2">
+                Shuffle funkcija
+            </a>
 
             {% if is_owner %}
             <a href="{% url 'playlists:editPlaylist' grojarastis.pk %}"
