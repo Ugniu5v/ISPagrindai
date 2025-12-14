@@ -11,4 +11,5 @@ urlpatterns = [
     path("play/<int:song_id>", views.playSong, name="playSong"),
     path("similar/", views.similarSongs, name="similarSongs"),
     path("add/<int:song_id>/", views.addToPlaylist, name="addToPlaylist"),
+    path("updateHistory/", views.updateListeningHistory, name="updateHistory")
 ]
