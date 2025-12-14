@@ -1,127 +1,138 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Playlist - ISPagrindai</title>
+{% extends "_base.html" %}
+{% block title %}Edit Playlist › Muzikos sistema{% endblock %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% block content %}
+<style>
+  .draggable-item {
+    cursor: grab;
+    user-select: none;
+  }
+  .drag-over {
+    border: 2px dashed #0d6efd;
+  }
+</style>
 
-    <style>
-        /* Styling for drag & drop list */
-        .draggable-item {
-            cursor: grab;
-            user-select: none;
-        }
-        .drag-over {
-            border: 2px dashed #0d6efd;
-        }
-    </style>
-</head>
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <h2 class="fw-semibold mb-0">Redaguoti grojaraštį</h2>
+</div>
 
-<body class="bg-black text-white p-4">
-<div class="container mt-4">
+{% if success_message %}
+<div class="alert alert-success" role="alert">
+  {{ success_message }}
+</div>
+{% endif %}
 
-    <h1 class="mb-4">Edit Playlist</h1>
+{% if errors %}
+<div class="alert alert-danger" role="alert">
+  <ul class="mb-0">
+    {% for error in errors %}
+      <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
 
-    <nav class="mb-4">
-        <a href="{% url 'playlists:index' %}" class="btn btn-outline-light me-2">Back to Playlists</a>
-        <a href="{% url 'homepage' %}" class="btn btn-outline-light">Home</a>
-    </nav>
+<div class="card bg-body-tertiary shadow-sm">
+  <div class="card-body">
+    <form method="POST">
+      {% csrf_token %}
 
-    {% if grojarastis %}
-    <div class="card bg-dark text-white p-4 shadow-lg">
-        <form method="POST" action="{% url 'playlists:editPlaylist' grojarastis.pk %}">
-            {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label">Pavadinimas</label>
+        <input
+          type="text"
+          name="pavadinimas"
+          class="form-control"
+          value="{{ grojarastis.pavadinimas }}"
+          required
+        >
+      </div>
 
-            <div class="mb-3">
-                <label class="form-label">Playlist Title</label>
-                <input type="text" name="pavadinimas" class="form-control bg-black text-white"
-                       value="{{ grojarastis.pavadinimas }}" required>
-            </div>
+      <div class="mb-3">
+        <label class="form-label">Aprašymas</label>
+        <textarea
+          name="aprasymas"
+          rows="3"
+          class="form-control"
+        >{{ grojarastis.aprasymas }}</textarea>
+      </div>
 
-            <div class="mb-3">
-                <label class="form-label">Description</label>
-                <textarea name="aprasymas" rows="3" class="form-control bg-black text-white">{{ grojarastis.aprasymas }}</textarea>
-            </div>
+      <div class="mb-3">
+        <label class="form-label">Matomumas</label>
+        <select name="yra_viesas" class="form-select">
+          <option value="on" {% if grojarastis.yra_viesas %}selected{% endif %}>Public</option>
+          <option value="off" {% if not grojarastis.yra_viesas %}selected{% endif %}>Private</option>
+        </select>
+      </div>
 
-            <div class="mb-3">
-                <label class="form-label">Visibility</label>
-                <select name="yra_viesas" class="form-select bg-black text-white">
-                    <option value="on" {% if grojarastis.yra_viesas %}selected{% endif %}>Public</option>
-                    <option value="off" {% if not grojarastis.yra_viesas %}selected{% endif %}>Private</option>
-                </select>
-            </div>
+      <hr class="my-4">
 
-            <hr class="border-secondary my-4">
+      <h5>Dainų eiliškumas</h5>
+      {% if grojarastis.dainos.all %}
+        <p class="text-secondary">Nutempk dainą į norima vieta saraše.</p>
 
-            <h4>Reorder Songs</h4>
-            {% if grojarastis.dainos.all %}
-            <p class="text-secondary">Drag the songs up or down to reorder them.</p>
+        <ul id="song-list" class="list-group mb-4">
+          {% for entry in grojarastis.dainos.all %}
+          <li
+            class="list-group-item bg-dark text-white draggable-item"
+            draggable="true"
+            data-id="{{ entry.id }}"
+          >
+            <strong>{{ entry.daina.pavadinimas }}</strong>
+            <span class="text-secondary">— {{ entry.daina.atlikejas }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-secondary">Grojaraštis neturi dainų.</p>
+      {% endif %}
 
-            <ul id="song-list" class="list-group mb-4">
-            {% for entry in grojarastis.dainos.all %}
-                <li class="list-group-item bg-black text-white draggable-item"
-                    draggable="true"
-                     data-id="{{ entry.id }}">
-                    {{ entry.daina.pavadinimas }} — {{ entry.daina.atlikejas }}
-              </li>
-            {% endfor %}
-            </ul>
+      <input type="hidden" name="sorted_order" id="sorted_order">
 
-            {% else %}
-                <p class="text-secondary">No songs in this playlist.</p>
-            {% endif %}
-
-            <input type="hidden" id="sorted_order" name="sorted_order">
-
-            <button type="submit" class="btn btn-success">Save Changes</button>
-            <a href="{% url 'playlists:PlaylistDetail' grojarastis.pk %}" class="btn btn-secondary ms-2">Cancel</a>
-        </form>
-    </div>
-    {% endif %}
-
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">
+          Įšsaugoti
+        </button>
+        <a href="{% url 'playlists:PlaylistDetail' grojarastis.pk %}" class="btn btn-secondary">
+          Atšaukti
+        </a>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script>
-    const list = document.getElementById("song-list");
-    let dragging;
+let dragging = null;
 
-    document.querySelectorAll(".draggable-item").forEach(item => {
-        item.addEventListener("dragstart", e => {
-            dragging = item;
-            item.classList.add("opacity-50");
-        });
+document.querySelectorAll(".draggable-item").forEach(item => {
+  item.addEventListener("dragstart", () => {
+    dragging = item;
+    item.classList.add("opacity-50");
+  });
 
-        item.addEventListener("dragend", e => {
-            item.classList.remove("opacity-50");
-        });
+  item.addEventListener("dragend", () => {
+    item.classList.remove("opacity-50");
+  });
 
-        item.addEventListener("dragover", e => {
-            e.preventDefault();
-            const bounding = item.getBoundingClientRect();
-            const offset = bounding.y + bounding.height / 2;
+  item.addEventListener("dragover", e => {
+    e.preventDefault();
+    const rect = item.getBoundingClientRect();
+    const midpoint = rect.top + rect.height / 2;
 
-            if (e.clientY - offset > 0) {
-                item.classList.remove("drag-over");
-                item.after(dragging);
-            } else {
-                item.classList.add("drag-over");
-                item.before(dragging);
-            }
-        });
+    if (e.clientY > midpoint) {
+      item.after(dragging);
+    } else {
+      item.before(dragging);
+    }
+  });
+});
 
-        item.addEventListener("dragleave", () => item.classList.remove("drag-over"));
-    });
-
-    document.querySelector("form").addEventListener("submit", function () {
-        let order = [];
-        document.querySelectorAll("#song-list li").forEach(li => {
-            order.push(li.dataset.id);
-        });
-        document.getElementById("sorted_order").value = order.join(",");
-    });
+document.querySelector("form").addEventListener("submit", () => {
+  const order = [];
+  document.querySelectorAll("#song-list li").forEach(li => {
+    order.push(li.dataset.id);
+  });
+  document.getElementById("sorted_order").value = order.join(",");
+});
 </script>
-
-</body>
-</html>
+{% endblock %}

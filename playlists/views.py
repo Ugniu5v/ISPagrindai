@@ -8,7 +8,6 @@ from django.http import FileResponse, HttpResponse
 from django.db.models import Avg, Count
 import mimetypes, os
 
-@login_required
 def index(request):
     user_id = request.session.get("user_id")
 
@@ -27,74 +26,106 @@ def index(request):
 
 @login_required
 def createPlaylist(request):
+    context = {}
     if request.method == "POST":
         pavadinimas = request.POST.get("pavadinimas", "").strip()
         aprasymas = request.POST.get("aprasymas", "").strip()
-        yra_viesas = request.POST.get("yra_viesas") == "on"
-
-        if pavadinimas:
+        yra_viesas = request.POST.get("yra_viesas", "on")
+        errors = []
+        if not pavadinimas:
+            errors.append("Grojaraščio pavadinimas yra privalomas.")
+        if errors:
+            context.update({
+                "errors": errors,
+                "pavadinimas": pavadinimas,
+                "aprasymas": aprasymas,
+                "yra_viesas": yra_viesas,
+            })
+        else:
             Grojarastis.objects.create(
                 pavadinimas=pavadinimas,
                 aprasymas=aprasymas,
-                yra_viesas=yra_viesas,
-                savininkas_id=request.session["user_id"]
+                yra_viesas=(yra_viesas == "on"),
+                savininkas_id=request.session["user_id"],
             )
-
-            messages.success(request, "Playlist created successfully!")
+            messages.success(request, "Grojaraštis sėkmingai sukurtas!")
             return redirect("playlists:index")
+    return render(request, "playlists/createPlaylist.html", context)
 
-    return render(request, "playlists/createPlaylist.html")
-    
 
-@login_required
 def PlaylistDetail(request, pk):
     grojarastis = get_object_or_404(Grojarastis, pk=pk)
     user_id = request.session.get("user_id")
-    is_owner = (grojarastis.savininkas_id == request.session.get("user_id"))
 
+    is_owner = grojarastis.savininkas_id == user_id
+    is_logged_in = user_id is not None
 
-    if not grojarastis.yra_viesas and grojarastis.savininkas_id != user_id:
-        messages.error(request, "You do not have permission to view this playlist.")
+    if not grojarastis.yra_viesas and not is_owner:
+        messages.error(request, "Neturite teisės žiūrėti grojaraštį")
         return redirect("playlists:index")
 
     vertinimai = grojarastis.vertinimai.all()
-    avg_rating = vertinimai.aggregate(models.Avg("ivertinimas"))["ivertinimas__avg"]
+    avg_rating = vertinimai.aggregate(
+        avg=models.Avg("ivertinimas")
+    )["avg"]
+    ratings_count = vertinimai.count()
 
-    existing_rating = grojarastis.vertinimai.filter(naudotojas_id=user_id).first()
+    existing_rating = None
+    if is_logged_in:
+        existing_rating = vertinimai.filter(
+            naudotojas_id=user_id
+        ).first()
 
-    if request.method == "POST" and grojarastis.savininkas_id != user_id:
-        new_rating = float(request.POST.get("rating"))
+    if request.method == "POST":
+        if not is_logged_in:
+            messages.error(request, "Prisijunkite norint įvertint.")
+            return redirect("playlists:PlaylistDetail", pk=pk)
+
+        if is_owner:
+            messages.error(request, "Negalite vertinti savo grojaraščio.")
+            return redirect("playlists:PlaylistDetail", pk=pk)
+
+        try:
+            rating = int(request.POST.get("rating"))
+            if not (1 <= rating <= 5):
+                raise ValueError
+        except (TypeError, ValueError):
+            messages.error(request, "Reitingas galimas tik tarp 1 ir 5.")
+            return redirect("playlists:PlaylistDetail", pk=pk)
 
         if existing_rating:
-            existing_rating.ivertinimas = new_rating
+            existing_rating.ivertinimas = rating
             existing_rating.save()
         else:
             GrojarascioVertinimas.objects.create(
                 grojarastis=grojarastis,
                 naudotojas_id=user_id,
-                ivertinimas=new_rating,
+                ivertinimas=rating,
             )
 
-        messages.success(request, "Your rating has been saved!")
+        messages.success(request, "Reitingas išsaugotas.")
         return redirect("playlists:PlaylistDetail", pk=pk)
 
     return render(request, "playlists/playlistDetail.html", {
         "grojarastis": grojarastis,
         "avg_rating": avg_rating,
-        "ratings_count": vertinimai.count(),
+        "ratings_count": ratings_count,
         "existing_rating": existing_rating,
         "is_owner": is_owner,
+        "is_logged_in": is_logged_in,
     })
 
+@login_required
 def editPlaylist(request, pk):
     grojarastis = get_object_or_404(Grojarastis, pk=pk)
 
     if grojarastis.savininkas_id != request.session.get("user_id"):
+        messages.error(request, "Redaguoti galite tik savo grojaraščius")
         return redirect("playlists:PlaylistDetail", pk=pk)
 
     if request.method == "POST":
-        grojarastis.pavadinimas = request.POST.get("pavadinimas")
-        grojarastis.aprasymas = request.POST.get("aprasymas")
+        grojarastis.pavadinimas = request.POST.get("pavadinimas", "").strip()
+        grojarastis.aprasymas = request.POST.get("aprasymas", "").strip()
         grojarastis.yra_viesas = request.POST.get("yra_viesas") == "on"
         grojarastis.save()
 
@@ -117,6 +148,7 @@ def editPlaylist(request, pk):
                         grojarastis=grojarastis
                     ).update(eiles_nr=i + 1)
 
+        messages.success(request, "Sėkmingai atnaujintas grojarštis")
         return redirect("playlists:PlaylistDetail", pk=pk)
 
     return render(
@@ -125,19 +157,19 @@ def editPlaylist(request, pk):
         {"grojarastis": grojarastis}
     )
 
-
 @login_required
 def deletePlaylist(request, pk):
     grojarastis = get_object_or_404(Grojarastis, pk=pk)
 
     if grojarastis.savininkas_id != request.session.get("user_id"):
-        messages.error(request, "You can only delete your own playlist.")
+        messages.error(request, "Naikinti galite tik savo grojarštį")
         return redirect("playlists:index")
 
     grojarastis.delete()
-    messages.success(request, "Playlist deleted successfully!")
+    messages.success(request, "Sėkmingai sunaikintas grojaštis")
     return redirect("playlists:index")
 
+@login_required
 def deleteFromPlaylist(request, grojarastis_id, song_id):
     user_id = request.session.get("user_id")
 
@@ -145,7 +177,7 @@ def deleteFromPlaylist(request, grojarastis_id, song_id):
     item = get_object_or_404(GrojarastisDaina, pk=song_id, grojarastis=grojarastis)
 
     if grojarastis.savininkas_id != user_id:
-        messages.error(request, "You can only remove songs from your own playlists.")
+        messages.error(request, "Dainas naikinri galite tik savo grojaštyje")
         return redirect("playlists:PlaylistDetail", pk=grojarastis_id)
 
     item.delete()
@@ -156,7 +188,7 @@ def deleteFromPlaylist(request, grojarastis_id, song_id):
             d.eiles_nr = i
             d.save(update_fields=["eiles_nr"])
 
-    messages.success(request, "Song removed from playlist.")
+    messages.success(request, "Daina panaikinta iš grojaraščio.")
     return redirect("playlists:PlaylistDetail", pk=grojarastis_id)
 
 def playPlaylistSong(request, pk):
