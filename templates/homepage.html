@@ -1,6 +1,11 @@
 {% extends "_base.html" %}
 {% block title %}Muzikos sistema{% endblock %}
 
+{% load static %}
+{% block headcontent %}
+    <script type="text/javascript" src='{% static "ISPagrindai/javascript/player.js" %}'></script>
+{% endblock %}
+
 {% block content %}
   {% if dainos %}
     <h2 class="mb-4 fw-semibold">Populiarios dainos</h2>
