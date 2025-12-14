@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponse
+from django.urls import reverse
+from django.contrib.sessions.backends.base import SessionBase
 from .models import User, TwoFaCodeCopy
 from .decorators import login_required
 from datetime import date
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+import calendar
 import bcrypt
 import pyotp
 import time
@@ -29,6 +32,31 @@ def index(request):
 
     return render(request, "users/index.html", context)
 
+def validateLogin(username: str, password: str, errors: list[str]) -> bool:
+    valid = False
+    if len(username) == 0:
+        errors.append("Naudotojo vardas tuščias.")
+    if len(password) == 0:
+        errors.append("Slaptažodis tuščias.")
+    if len(username) > 0 and len(password) > 0:
+        valid = True
+    return valid
+
+
+def _doLogin(session: SessionBase, user: User):
+    session["user"] = True
+    session["user_id"] = user.pk
+    session["user_name"] = user.username
+    session["user_display_name"] = user.display_name
+    session["user_email"] = user.email
+    session["user_role"] = user.role
+    session["user_role_label"] = user.get_role_display() # type: ignore
+    if user.profile_cover_url:
+        session["user_profile_cover_url"] = user.profile_cover_url.url
+    session.modified = True
+
+    user.last_login_at = datetime.now()
+    user.save()
 
 def loginUser(request: HttpRequest):
     errors = []
@@ -43,11 +71,7 @@ def loginUser(request: HttpRequest):
         form["password"] = password
 
         # Duomenų tikrinimas
-        if len(username) == 0:
-            errors.append("Naudotojo vardas tuščias.")
-        if len(password) == 0:
-            errors.append("Slaptažodis tuščias.")
-        if len(username) > 0 and len(password) > 0:
+        if validateLogin(username, password, errors):
             try:
                 user = User.objects.get(username=username)
 
@@ -55,26 +79,54 @@ def loginUser(request: HttpRequest):
                     errors.append("Slaptažodis neteisingas. Pabandykite dar kartą.")
                     form["password"] = ""
                 else:
-                    request.session["user"] = True
-                    request.session["user_id"] = user.pk
-                    request.session["user_name"] = user.username
-                    request.session["user_display_name"] = user.display_name
-                    request.session["user_email"] = user.email
-                    request.session["user_role"] = user.role
-                    request.session["user_role_label"] = user.get_role_display() # type: ignore
-                    if user.profile_cover_url:
-                        request.session["user_profile_cover_url"] = user.profile_cover_url.url
-                    request.session.modified = True
-
-                    user.last_login_at = datetime.now()
-                    user.save()
-
                     next = request.POST.get("next") or "homepage"
-                    return redirect(next)
+                    
+                    if user.two_factor_enabled:
+                        return redirect(reverse("users:totp", query={"u": username, "p": password, "next": next}))
+                    else:
+                        _doLogin(request.session, user)
+
+                        return redirect(next)
+                    
             except User.DoesNotExist:
                 errors.append("Šis naudotojas neegzistuoja.")
 
     return render(request, "users/login.html", {"errors": errors, "form": form})
+
+
+def totp(request: HttpRequest):
+    errors = []
+    username = request.GET.get("u", "")
+    password = request.GET.get("p", "")
+    form = {"next": request.GET.get("next", ""), "username": username, "password": password}
+
+    if request.method == "POST":
+        otp = request.POST["otp"]
+
+        if len(otp) != 6 or not otp.isdigit():
+            errors.append("App kodas turi būti iš 6 skaičių.")
+        else:
+            username = request.POST.get("username", "")
+            password = request.POST.get("password", "")
+            if validateLogin(username, password, errors):
+                user = User.objects.get(username=username)
+                if user.two_factor_secret is not None:
+                    totp = pyotp.TOTP(user.two_factor_secret)
+                    if totp.verify(otp):
+                        otpHash = get_hashed_password(otp)
+                        before = datetime.now(timezone.utc) - timedelta(seconds=totp.interval)
+                        if not TwoFaCodeCopy.objects.filter(user=user, time_created__gte=before):
+                            _doLogin(request.session, user)
+                            TwoFaCodeCopy.objects.create(user = user, code_hash = otpHash)
+                            return redirect(request.POST.get("next") or "homepage")
+                        else:
+                            errors.append("Kodas jau panaudotas")    
+                    else:
+                        errors.append("Neteisingas kodas")
+                else:
+                    errors.append("Neturite 2FA paslapties!")
+
+    return render(request, "users/totp.html", {"errors": errors, "form": form})
 
 
 def registerUser(request):
@@ -167,25 +219,48 @@ def userEdit(request: HttpRequest):
 
     return render(request, "users/edit.html", context)
 
-
 @login_required
-def twoFaURI(request: HttpRequest):
+def twoFa(request: HttpRequest, enable: int):
     user = User.objects.get(pk=request.session["user_id"])
+    if enable == 1:
+        # Įjungiu 2FA autentifikaciją
+        user.two_factor_enabled = True
 
-    # Įjungiu 2FA autentifikaciją
-    user.two_factor_enabled = True
+        # Sukuriu naują paslaptį
+        new_secret = pyotp.random_base32()
+        user.two_factor_secret = new_secret
+        user.save()
 
-    # Sukuriu naują paslaptį
-    new_secret = pyotp.random_base32()
-    user.two_factor_secret = new_secret
-    user.save()
+        # Sukuriu nuorodą programėlėm
+        auth_uri = pyotp.totp.TOTP(new_secret).provisioning_uri(
+            name=user.username, issuer_name='Muzikos Sistema')
 
-    # Sukuriu nuorodą programėlėm
-    auth_uri = pyotp.totp.TOTP(new_secret, interval=60).provisioning_uri(
-        name=user.username, issuer_name='Muzikos Sistema')
+        return HttpResponse(auth_uri, content_type="text/plain")
+    elif enable == 0:
+        user.two_factor_enabled = False
+        user.save()
+
+        return HttpResponse("Disabled", content_type="text/plain")
     
-    print(auth_uri)
-    return HttpResponse(auth_uri)
+    return HttpResponse("Did nothing", content_type="text/plain", status=422)
+
+# @login_required
+# def twoFaURI(request: HttpRequest):
+#     user = User.objects.get(pk=request.session["user_id"])
+
+#     # Įjungiu 2FA autentifikaciją
+#     user.two_factor_enabled = True
+
+#     # Sukuriu naują paslaptį
+#     new_secret = pyotp.random_base32()
+#     user.two_factor_secret = new_secret
+#     user.save()
+
+#     # Sukuriu nuorodą programėlėm
+#     auth_uri = pyotp.totp.TOTP(new_secret, interval=60).provisioning_uri(
+#         name=user.username, issuer_name='Muzikos Sistema')
+    
+#     return HttpResponse(auth_uri)
 
 
 def userDetail(request, user_id):

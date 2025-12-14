@@ -21,9 +21,8 @@ def login_required(arg):
         def wrapper(request, *args, **kwargs):
             # Ar prisijungęs
             if "user" not in request.session:
-                q = QueryDict(mutable=True)
-                q["next"] = request.get_full_path()
-                return redirect(f"{reverse('users:userLogin')}?{q.urlencode()}")
+                next = request.get_full_path()
+                return redirect(reverse('users:userLogin', query={"next": next}))
 
             return func(request, *args, **kwargs)
         return wrapper

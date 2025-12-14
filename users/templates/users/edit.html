@@ -64,7 +64,10 @@
     </div>
     <div class="row">
         <div class="col-6">
-            <input type="button" id="twoFaButton" popovertarget="twoFaModal" value="{{ form.two_factor_enabled|yesno:"Išjungti,Įjungti" }} dvejų faktorių autentifikaciją" class="btn btn-outline-primary w-100 me-sm-0 "/>
+            <input type="button" id="twoFaButton"  
+                value='{{ form.two_factor_enabled|yesno:"Išjungti,Įjungti" }} dvejų faktorių autentifikaciją' 
+                class="btn btn-outline-primary w-100 me-sm-0 "
+            />
         </div>
         <div class="col-6">
             <input type="submit" name="save" value="Išsaugoti" class="btn btn-primary w-100 me-sm-0 "/>
@@ -72,10 +75,10 @@
     </div>
 </form>
 
-<div id="twoFaModal" popover="auto">
+<div id="twoFaModal-enable" class="twoFaModal" popover="manual">
     <div class="modal-header">
         <h1 class="modal-title fs-5">Nuskaitykite QR kodą</h1>
-        <button type="button" class="btn-close" popovertarget="twoFaModal" popovertargetaction="hide"></button>
+        <button type="button" class="btn-close" popovertarget="twoFaModal-enable" popovertargetaction="hide"></button>
     </div>
     <div class="modal-body text-center">
         <p>
@@ -109,11 +112,18 @@
             <div id="qrcode" class="placeholder-glow mx-auto"></div>
         </div>
     </div>
-    <!-- <form class="modal-footer align-items-center" action="lialialia">
-        <input type="text" required pattern=".{6,}" class="form-control w-auto flex-grow-1" id="otp" name="otp" autocomplete="off" placeholder="App kodas" autofocus>
-        <input type="submit" name="submit" value="Pateikti" class="btn btn-primary">
-    </form> -->
 </div>
+
+<div id="twoFaModal-disable" class="twoFaModal" popover="manual">
+    <div class="modal-header">
+        <h1 class="modal-title fs-5">Dviejų faktorių autentifikacija išjungta.</h1>
+        <button type="button" class="btn-close" popovertarget="twoFaModal-disable" popovertargetaction="hide"></button>
+    </div>
+    <div class="modal-body">
+        <p>Sėkmingai išjungta dviejų faktorių autentifikacija. Jei norite vėl įjungti 2FA, teks pakartoti QR kodo nuskenavimą.</p>
+    </div>
+</div>
+
 
 <script type="text/javascript">
     var qrcode = new QRCode(document.getElementById("qrcode"), {
@@ -124,14 +134,14 @@
     var generated = false;
     var twoFaEnabled = '{{ form.two_factor_enabled|yesno:"true,false" }}' == 'true';
 
-    function makeCode (button) {
+    function enableTwoFa(button) {
         if (generated) return;
-        const request = new Request('{% url "users:twoFaURI" %}');
+        const request = new Request('{% url "users:twoFa" 1 %}');
 
         fetch(request)
             .then((response) => {
                 if (response.status !== 200) {
-                    throw new Error("Something went wrong on API server!");
+                    throw new Error("Kažkas ne taip");
                 }
                 return response.text();
             })
@@ -139,13 +149,14 @@
                 console.log(text);
 
                 if (text === "") {
-                    console.error("Nematau respone");
-                    return;
+                    throw new Error("Nematau response");
                 }
                 
                 qrcode.makeCode(text);
                 generated = true;
-                console.log(generated);
+
+                modal = document.getElementById("twoFaModal-enable");
+                modal.showPopover();
 
             })
             .catch((error) => {
@@ -154,10 +165,36 @@
             });
     }
 
+    function disableTwoFa(button){
+        const request = new Request('{% url "users:twoFa" 0 %}');
+
+        fetch(request)
+            .then((response) => {
+                if (response.status !== 200) {
+                    throw new Error("Kažkas ne taip");
+                }
+                return response.text();
+            })
+            .then((text) => {
+                modal = document.getElementById("twoFaModal-disable");
+                modal.showPopover();
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
     const button = document.getElementById("twoFaButton");
 
     button.addEventListener('click', (e) => {
-        makeCode(e.target);
+        if(twoFaEnabled === false){
+            enableTwoFa(e.target);
+        }else{
+            disableTwoFa(e.target);
+        }
+        twoFaEnabled = !twoFaEnabled;
+
+        button.value = (twoFaEnabled ? "Išjungti" : "Įjungti") + " dvejų faktorių autentifikaciją";
     })
 </script>
 {% endblock%}
