@@ -244,24 +244,6 @@ def twoFa(request: HttpRequest, enable: int):
     
     return HttpResponse("Did nothing", content_type="text/plain", status=422)
 
-# @login_required
-# def twoFaURI(request: HttpRequest):
-#     user = User.objects.get(pk=request.session["user_id"])
-
-#     # Įjungiu 2FA autentifikaciją
-#     user.two_factor_enabled = True
-
-#     # Sukuriu naują paslaptį
-#     new_secret = pyotp.random_base32()
-#     user.two_factor_secret = new_secret
-#     user.save()
-
-#     # Sukuriu nuorodą programėlėm
-#     auth_uri = pyotp.totp.TOTP(new_secret, interval=60).provisioning_uri(
-#         name=user.username, issuer_name='Muzikos Sistema')
-    
-#     return HttpResponse(auth_uri)
-
 
 def userDetail(request, user_id):
     user = get_object_or_404(User, pk=user_id)
