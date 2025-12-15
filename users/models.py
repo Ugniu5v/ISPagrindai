@@ -40,6 +40,7 @@ class Following(models.Model):
         ACTIVE = "A", "Aktyvus"
         BLOCKED = "B", "Užblokuotas"
         SILENCED = "S", "Nutildytas"
+        NOTHING = "N", "Nieko"
 
     follower = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="following"
@@ -48,7 +49,7 @@ class Following(models.Model):
         User, on_delete=models.CASCADE, related_name="followers"
     )
     date = models.DateTimeField(auto_now=True)
-    state = models.CharField(max_length=1, choices=FollowingChoices)
+    state = models.CharField(max_length=1, choices=FollowingChoices, default=FollowingChoices.NOTHING)
 
     def __str__(self) -> str:
         return f"State: {self.state}"

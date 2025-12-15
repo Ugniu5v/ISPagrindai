@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from concerts.models import Koncertas
-from users.models import User
+from users.models import Following, User
 from music.models import Daina
 from playlists.models import Grojarastis
 from datetime import datetime
@@ -18,8 +18,19 @@ def homepage(request):
     koncertai = koncertai.order_by("-pradzios_data")
     grojarasciai = Grojarastis.objects.filter(yra_viesas=True)
     dainos = Daina.objects.filter(yra_viesa=True)
-
     users = User.objects.filter(is_public=True, is_blocked=False)
 
-    context = {"request": request, "dainos": dainos, "koncertai": koncertai, "users": users, "grojarasciai": grojarasciai}
+    user = User.objects.get(pk = request.session["user_id"])
+    followed_users = User.objects.filter(
+        followers__follower=user,
+        followers__state=Following.FollowingChoices.ACTIVE,
+    )
+
+    context = {
+        "fallowers": followed_users,
+        "request": request, 
+        "dainos": dainos, 
+        "koncertai": koncertai, 
+        "users": users, 
+        "grojarasciai": grojarasciai}
     return render(request, "homepage.html", context)

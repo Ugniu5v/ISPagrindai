@@ -58,7 +58,7 @@
             <li class="nav-item"><a class="nav-link {% if users_index     in request.path %}active{% endif %}" href="{{ users_index }}">Naudotojai</a></li>
             <div class="vr mx-2"></div>
             <li class="nav-item dropdown-center">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                 {% if "user_profile_cover_url" in request.session  %}
                   <img src="{{request.session.user_profile_cover_url}}" height="24" width="24" alt="" class="rounded-circle">
                 {% else %}
@@ -80,6 +80,20 @@
                     <li><a class="dropdown-item" href="{% url 'users:admin' %}">Admin</a></li>
                     <li><hr class="dropdown-divider"></li>
                   {% endif %}
+                  <!-- Sekėjai -->
+                  {% if fallowers %}
+                    <li class="dropstart">
+                      <a class="dropdown-item dropdown-toggle" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        Aš seku
+                      </a>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        {% for fallowed in fallowers %}
+                          <li><a class="dropdown-item" href="{% url 'users:userDetail' fallowed.pk %}">{{ fallowed.display_name }}</a></li>
+                        {% endfor %}
+                      </ul>
+                    </li>
+                  {% endif %}
+                  <!-- --- -->
                   <li><a class="dropdown-item" href="{% url 'users:userDetail' request.session.user_id %}">Mano profilis</a></li>
                   <li><a class="dropdown-item" href="{% url 'users:userLogout' %}">Atsijungti</a></li>
                 {% else %}
