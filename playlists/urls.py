@@ -9,8 +9,8 @@ urlpatterns = [
     path("<int:pk>/", views.PlaylistDetail, name="PlaylistDetail"),
     path("<int:pk>/edit/", views.editPlaylist, name="editPlaylist"),
     path("<int:pk>/delete/", views.deletePlaylist, name="deletePlaylist"),
-    path("<int:grojarastis_id>/remove/<int:song_id>/", 
-     views.deleteFromPlaylist, 
-     name="deleteFromPlaylist"),
+    path("<int:grojarastis_id>/remove/<int:song_id>/", views.deleteFromPlaylist, name="deleteFromPlaylist"),
     path("<int:pk>/play/", views.playPlaylistSong, name="playPlaylistSong"),
+    path("play/<int:pk>/shuffle/", views.playPlaylistShuffle, name="playPlaylistShuffle"
+),
 ]
