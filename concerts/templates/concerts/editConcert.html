@@ -95,8 +95,85 @@
           </div>
         </div>
 
-        <div class="mb-3">
-          <label for="vieta" class="form-label">Vieta</label>
+        <div class="input-group mb-3">
+          <div class="dropup">
+            <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true" data-bs-auto-close="outside">
+              Pridėti vietą
+            </button>
+            <div class="dropdown-menu p-4" style="width: 30rem" data-popper-placement="bottom-start" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 40px);">
+              <h4>Pridėti vietą</h4>
+              <div class="mb-3">
+                <label class="form-label">Pavadinimas</label>
+                <input
+                  type="text"
+                  name="vieta_pavadinimas"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Adresas</label>
+                <input
+                  type="text"
+                  name="vieta_adresas"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Miestas</label>
+                <input
+                  type="text"
+                  name="vieta_miestas"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Šalis</label>
+                <input
+                  type="text"
+                  name="vieta_salis"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Platuma</label>
+                  <input
+                    type="number"
+                    step="any"
+                    name="vieta_platuma"
+                    class="form-control"
+                    value="0"
+                  />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Ilguma</label>
+                  <input
+                    type="number"
+                    step="any"
+                    name="vieta_ilguma"
+                    class="form-control"
+                    value="0"
+                  />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Laiko zona</label>
+                <input
+                  type="text"
+                  name="vieta_laiko_zona"
+                  class="form-control"
+                  placeholder="Europe/Vilnius"
+                />
+              </div>
+              <button type="submit" name="vieta_prideti" value="vieta_prideti" class="btn btn-primary">Pridėti</button>
+            </div>
+          </div>
           <select class="form-select" id="vieta" name="vieta">
             <option value="">Pasirinkite vietą</option>
             {% for vieta in vietos %}
