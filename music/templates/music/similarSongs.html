@@ -55,7 +55,7 @@
           </div>
           <div class="card-footer bg-transparent border-top border-secondary">
             <div class="d-flex flex-wrap gap-2">
-              <a href="{% url 'music:playSong' %}?song={{ song.pk }}" class="btn btn-sm btn-primary">Klausyti</a>
+              <a href="{% url 'music:playSong' song.pk %}" class="btn btn-sm btn-primary">Klausyti</a>
               <a href="{% url 'music:editSong' %}?song={{ song.pk }}" class="btn btn-sm btn-primary">Redaguoti</a>
             </div>
           </div>

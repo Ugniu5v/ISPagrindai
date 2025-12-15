@@ -148,9 +148,12 @@ def rateSong(request):
     if request.method == "POST":
         errors = []
         rating_raw = request.POST.get("rating", "").strip()
+        user_id = request.session.get("user_id")
 
         if not selected_song:
             errors.append("Song not found.")
+        if not user_id:
+            errors.append("You must be logged in to rate a song.")
 
         rating_value = None
         if rating_raw:
@@ -164,9 +167,10 @@ def rateSong(request):
         if rating_value is not None and not (1 <= rating_value <= 5):
             errors.append("Rating must be between 1 and 5.")
 
-        if not errors and selected_song:
+        if not errors and selected_song and user_id:
             DainosVertinimas.objects.create(
                 daina=selected_song,
+                naudotojas_id=user_id,
                 ivertinimas=rating_value,
             )
             context["success_message"] = f'Rating saved for "{selected_song.pavadinimas}".'
@@ -402,7 +406,7 @@ def similarSongs(request):
         )
 
     genre_values = [g[0] for g in Daina.Zanras.choices]
-    genre_index = {g.value: i for i, g in enumerate(genre_values)}
+    genre_index = {g: i for i, g in enumerate(genre_values)}
 
     def build_vector(song: Daina):
         duration_min = (song.trukme_sekundes or 0) / 60.0
