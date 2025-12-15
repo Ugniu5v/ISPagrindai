@@ -20,16 +20,20 @@
           <div class="card-body">
             <h5 class="card-title mb-1">{{ song.pavadinimas }}</h5>
           </div>
-          <div class="card-footer bg-transparent border-top border-secondary">
+          <div class="card-footer">
             <div class="d-flex flex-wrap gap-2">
               {% if song.failas_url %}
-              <a href="{% url 'music:playSong' song.pk %}" class="btn btn-sm btn-primary">Klausyti</a>
+                <a href="{% url 'music:playSong' song.pk %}" class="btn btn-sm btn-primary">Klausyti</a>
               {% else %}
-              <button type="button" class="btn btn-sm btn-secondary disabled" aria-disabled="true">Nėra failo</button>
+                <button type="button" class="btn btn-sm btn-secondary disabled" aria-disabled="true">Nėra failo</button>
               {% endif %}
-              <a href="{% url 'music:editSong' %}?song={{ song.pk }}" class="btn btn-sm btn-primary">Redaguoti</a>
               <a href="{% url 'music:similarSongs' %}?song={{ song.pk }}" class="btn btn-sm btn-primary">Panašios</a>
-              <a href="{% url 'music:rateSong' %}?song={{ song.pk }}" class="btn btn-sm btn-primary">Įvertinti</a>
+              {% if "user" in request.session %}
+                {% if song.savininkas.pk == request.session.user_id %}
+                  <a href="{% url 'music:editSong' %}?song={{ song.pk }}" class="btn btn-sm btn-primary">Redaguoti</a>
+                {% endif %}
+                <a href="{% url 'music:rateSong' %}?song={{ song.pk }}" class="btn btn-sm btn-primary">Įvertinti</a>
+              {% endif %}
             </div>
           </div>
         </div>
