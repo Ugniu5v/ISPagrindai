@@ -9,6 +9,7 @@ from .models import Koncertas, Vieta, KoncertoDalyvis
 from users.models import User
 from users.decorators import login_required
 import requests
+from pprint import pprint
 
 
 def index(request):
@@ -133,7 +134,25 @@ def createConcert(request: HttpRequest):
 def editConcert(request, pk):
     koncertas = get_object_or_404(Koncertas, pk=pk)
 
-    if request.method == "POST":
+    if "vieta_prideti" in request.POST:
+        pavadinimas = request.POST["vieta_pavadinimas"]
+        adresas = request.POST["vieta_adresas"]
+        miestas = request.POST["vieta_miestas"]
+        salis = request.POST["vieta_salis"]
+        platuma = request.POST["vieta_platuma"]
+        ilguma = request.POST["vieta_ilguma"]
+        laiko_zona = request.POST["vieta_laiko_zona"]
+
+        Vieta.objects.create(
+            pavadinimas = pavadinimas,
+            adresas = adresas,
+            miestas = miestas,
+            salis = salis,
+            platuma = platuma,
+            ilguma = ilguma,
+            laiko_zona = laiko_zona
+        )
+    elif request.method == "POST":
         vieta_id = request.POST.get("vieta", "").strip()
         vieta = None
         if vieta_id:

@@ -37,7 +37,7 @@ class User(models.Model):
 
 class Following(models.Model):
     class FollowingChoices(models.TextChoices):
-        ACTIVE = "A", "Aktyvus"
+        ACTIVE = "A", "Sekamas"
         BLOCKED = "B", "Užblokuotas"
         SILENCED = "S", "Nutildytas"
         NOTHING = "N", "Nieko"

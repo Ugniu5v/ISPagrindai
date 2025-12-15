@@ -20,17 +20,18 @@ def homepage(request):
     dainos = Daina.objects.filter(yra_viesa=True)
     users = User.objects.filter(is_public=True, is_blocked=False)
 
-    user = User.objects.get(pk = request.session["user_id"])
-    followed_users = User.objects.filter(
-        followers__follower=user,
-        followers__state=Following.FollowingChoices.ACTIVE,
-    )
-
     context = {
-        "fallowers": followed_users,
         "request": request, 
         "dainos": dainos, 
         "koncertai": koncertai, 
         "users": users, 
         "grojarasciai": grojarasciai}
+    
+    if "user" in request.session:
+        user = User.objects.get(pk = request.session["user_id"])
+        followed_users = User.objects.filter(
+            followers__follower=user,
+            followers__state=Following.FollowingChoices.ACTIVE,
+        )
+        context["fallowers"] = followed_users
     return render(request, "homepage.html", context)
