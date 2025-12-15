@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from django.contrib.sessions.backends.base import SessionBase
-from .models import User, TwoFaCodeCopy
+from .models import User, TwoFaCodeCopy, Following
 from .decorators import login_required
 from datetime import date
 from datetime import datetime, timedelta, timezone
@@ -252,8 +252,40 @@ def userDetail(request, user_id):
     playlists = user.grojarasciai.all() # type: ignore
     dainos = user.dainos.all() # type: ignore
 
+    me = User.objects.get(pk = request.session["user_id"])
+
+    if request.method == "POST":
+        action = request.POST["action"]
+
+        print(request.session["user_id"], user_id, action)
+
+        follow, created = Following.objects.get_or_create(
+            follower = me,
+            followed = user
+        )
+
+        print("Created", created)
+
+        match action:
+            case "follow":
+                follow.state = Following.FollowingChoices.ACTIVE
+            case "block":
+                follow.state = Following.FollowingChoices.BLOCKED
+            case "silance":
+                follow.state = Following.FollowingChoices.SILENCED
+            case "clear":
+                follow.state = Following.FollowingChoices.NOTHING
+
+        follow.save()
+
+    followed_users = User.objects.filter(
+        followers__follower=me,
+        followers__state=Following.FollowingChoices.ACTIVE,
+    )
+
     context = {
         "request": request,
+        "fallowers": followed_users,
         "user": user,
         "dainos": dainos,
         "playlists": playlists,
