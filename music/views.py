@@ -64,8 +64,8 @@ def createSong(request):
         }
 
         if not name:
-            errors.append("Song name is required.")
-            field_errors["name"] = "Song name is required."
+            errors.append("Dainos pavadinimas yra privalomas.")
+            field_errors["name"] = "Dainos pavadinimas yra privalomas."
 
         duration_seconds = None
         if minutes:
@@ -74,9 +74,7 @@ def createSong(request):
             except (TypeError, ValueError):
                 errors.append("Duration must be a number (minutes).")
                 field_errors["time"] = "Duration must be a number (minutes)."
-        else:
-            errors.append("Duration is required.")
-            field_errors["time"] = "Duration is required."
+        
 
         release_date = None
         if release_date_raw:
@@ -85,8 +83,7 @@ def createSong(request):
             except (TypeError, ValueError):
                 errors.append("Release date is invalid.")
                 field_errors["release_date"] = "Release date is invalid."
-        else:
-            field_errors["release_date"] = "Release date is required."
+     
 
         valid_genres = {choice[0] for choice in Daina.Zanras.choices}
         if genre not in valid_genres:
@@ -173,7 +170,7 @@ def rateSong(request):
                 naudotojas_id=user_id,
                 ivertinimas=rating_value,
             )
-            context["success_message"] = f'Rating saved for "{selected_song.pavadinimas}".'
+            context["success_message"] = f'Išsaugotas įvertinimas dainai "{selected_song.pavadinimas}".'
         else:
             context["errors"] = errors
             context["rating_value"] = rating_raw
@@ -401,7 +398,7 @@ def similarSongs(request):
                 "target_song": target_song,
                 "similar_songs": [],
                 "all_songs": songs,
-                "info": "Add more songs to see recommendations.",
+                "info": "Nėra pakankamai dainų rekomendacijoms.",
             },
         )
 

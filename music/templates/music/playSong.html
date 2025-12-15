@@ -26,7 +26,7 @@
 <div class="card bg-body-tertiary shadow-sm">
   <div class="card-body">
     <h4 class="card-title">{{ song.pavadinimas }}</h4>
-    <p class="mb-2 text-secondary">Žanras: {{ song.get_zanras_display }} • Trukmė: {{ song.trukme_sekundes }}s</p>
+    <p class="mb-2 text-secondary">Žanras: {{ song.get_zanras_display }}</p>
     {% if song.isleidimo_data %}<p class="mb-2 text-secondary">Išleidimo data: {{ song.isleidimo_data }}</p>{% endif %}
 
     <div class="mb-3">
