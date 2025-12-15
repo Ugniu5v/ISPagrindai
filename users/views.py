@@ -252,45 +252,51 @@ def userDetail(request, user_id):
     playlists = user.grojarasciai.all() # type: ignore
     dainos = user.dainos.all() # type: ignore
 
-    me = User.objects.get(pk = request.session["user_id"])
-
-    if request.method == "POST":
-        action = request.POST["action"]
-
-        print(request.session["user_id"], user_id, action)
-
-        follow, created = Following.objects.get_or_create(
-            follower = me,
-            followed = user
-        )
-
-        print("Created", created)
-
-        match action:
-            case "follow":
-                follow.state = Following.FollowingChoices.ACTIVE
-            case "block":
-                follow.state = Following.FollowingChoices.BLOCKED
-            case "silance":
-                follow.state = Following.FollowingChoices.SILENCED
-            case "clear":
-                follow.state = Following.FollowingChoices.NOTHING
-
-        follow.save()
-
-    followed_users = User.objects.filter(
-        followers__follower=me,
-        followers__state=Following.FollowingChoices.ACTIVE,
-    )
-
     context = {
         "request": request,
-        "fallowers": followed_users,
         "user": user,
         "dainos": dainos,
         "playlists": playlists,
         "koncertai": concerts,
     }
+
+
+    if "user" in request.session:
+        me = User.objects.get(pk = request.session["user_id"])
+
+        if request.method == "POST":
+            info = []
+            action = request.POST["action"]
+
+            print(request.session["user_id"], user_id, action)
+
+            follow, created = Following.objects.get_or_create(
+                follower = me,
+                followed = user
+            )
+
+            print("Created", created)
+
+            match action:
+                case "follow":
+                    follow.state = Following.FollowingChoices.ACTIVE
+                case "block":
+                    follow.state = Following.FollowingChoices.BLOCKED
+                case "silance":
+                    follow.state = Following.FollowingChoices.SILENCED
+                case "clear":
+                    follow.state = Following.FollowingChoices.NOTHING
+
+            follow.save()
+
+            info.append(f"Jūsų ryšys su šiuo naudotoju atnaujintas į \"{follow.state.label}\"") # type: ignore
+            context["info"] = info
+    
+        followed_users = User.objects.filter(
+            followers__follower=me,
+            followers__state=Following.FollowingChoices.ACTIVE,
+        )
+        context["fallowers"] = followed_users
 
     return render(request, "users/userDetail.html", context)
 
