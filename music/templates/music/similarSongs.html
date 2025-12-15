@@ -42,7 +42,7 @@
     <div class="row g-3">
       {% for song in similar_songs %}
       <div class="col-md-6 col-lg-4">
-        <div class="card bg-black h-100 border border-secondary">
+        <div class="card h-100 border border-secondary">
           <div class="card-body">
             <h6 class="card-title mb-1">{{ song.pavadinimas }}</h6>
             <p class="card-subtitle text-secondary mb-2">
@@ -55,7 +55,9 @@
           <div class="card-footer bg-transparent border-top border-secondary">
             <div class="d-flex flex-wrap gap-2">
               <a href="{% url 'music:playSong' song.pk %}" class="btn btn-sm btn-primary">Klausyti</a>
-              <a href="{% url 'music:editSong' %}?song={{ song.pk }}" class="btn btn-sm btn-primary">Redaguoti</a>
+              {% if "user" in request.session and song.savininkas.pk == request.session.user_id %}
+                <a href="{% url 'music:editSong' %}?song={{ song.pk }}" class="btn btn-sm btn-primary">Redaguoti</a>
+              {% endif %}
             </div>
           </div>
         </div>

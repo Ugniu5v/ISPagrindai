@@ -160,7 +160,8 @@ def registerUser(request):
                 display_name = username,
             )
             if created:
-                return redirect('users:userLogin')
+                _doLogin(request.session, user)
+                return redirect('homepage')
             else:
                 errors.append("Naudotojas jau egzistuoja.")
 
